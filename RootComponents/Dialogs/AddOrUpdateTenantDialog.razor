@@ -1,0 +1,49 @@
+﻿@inherits BaseComponent
+<MudDialog>
+
+    <DialogContent>
+
+
+        <EditForm Model="Tenant" OnValidSubmit="SaveChangesSubmit">
+            @if (!IsLoading)
+            {
+                <DataAnnotationsValidator />
+            <MudTextField @bind-Value="@Tenant.Name" For="() => Tenant.Name" Label="@_displayResources[DisplayResources.TenantName]" Variant="Variant.Outlined" Immediate="true" />
+                <MudDatePicker @bind-Date="@Tenant.ExpireDate" For="()=>Tenant.ExpireDate" class="mt-3" Mask="@(new DateMask("0000-00-00"))" DateFormat="yyyy-MM-dd" PickerVariant="PickerVariant.Dialog" Label="@_displayResources[DisplayResources.ExpireDate]" Editable="true" Variant="Variant.Outlined" />
+            <MudTextField @bind-Value="@Tenant.Description" For="() => Tenant.Description" Label="@_displayResources[DisplayResources.Description]" Lines="3" Variant="Variant.Outlined" class="mt-3" Immediate="true" />
+            <MudTextField @bind-Value="@Tenant.ConnectionString" For="() => Tenant.ConnectionString" Label="@_displayResources[DisplayResources.ConnectionString]" Variant="Variant.Outlined" class="mt-3" Immediate="true" />
+
+            <div class="d-flex flex-row justify-content-end mt-4 mb-2 gap-2" >
+
+                    <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+                    <MudButton Disabled="@(!context.Validate() || !context.IsModified() || IsSaving)"
+                           ButtonType="ButtonType.Submit"
+                           Class="w-85"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary">
+                        @if (IsSaving)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                            <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                        }
+                        else
+                        {
+                                @_viewResources[ViewResources.SaveChanges]
+
+                        }
+                    </MudButton>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex align-items-center justify-content-center" style="height:200px;">
+                    <Loading />
+                </div>
+            }
+        </EditForm>
+
+    </DialogContent>
+</MudDialog>
+
+
+

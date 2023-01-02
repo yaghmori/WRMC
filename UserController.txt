@@ -1,0 +1,274 @@
+﻿        /// <summary>
+        /// Get User By Jwt
+        /// </summary>
+        /// <param name="jwtToken"></param>
+        /// <returns>UserResponse</returns>
+        [HttpPost("Token")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserResponse))]
+        public async Task<IActionResult> GetUserByJwt([FromBody] string jwtToken)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(jwtToken))
+                    return BadRequest(await Result.FailAsync("Token is null or empty."));
+
+                var principal = _tokenService.ValidateToken(jwtToken);
+                var userId = principal?.FindFirst(x => x.Type.Equals(ApplicationClaimTypes.UserId));
+                if (userId is null)
+                    return BadRequest(await Result.FailAsync("Invalid Token."));
+
+                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(
+                    predicate: x => x.Id.ToString().Equals(userId.Value),
+                    include: i => i.Include(x => x.UserClaims)
+                        .Include(x => x.UserSetting)
+                        .Include(x => x.UserProfile)
+                        .Include(x => x.UserRoles)
+                        .Include(x => x.UserTenants)
+                        .Include(x => x.UserSessions));
+
+                if (user == null)
+                    return NotFound(await Result.FailAsync("User not found."));
+
+                var response = _mapper.Map<UserResponse>(user);
+
+                return Ok(await Result<UserResponse>.SuccessAsync(response));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            }
+        }
+
+
+        /// <summary>
+        /// Get User Claims By Jwt
+        /// </summary>
+        /// <param name="jwtToken"></param>
+        /// <returns>List of UserClaimResponse</returns>
+        [HttpPost("claims")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserClaimResponse))]
+        public async Task<IActionResult> GetUserClaimsByJwt([FromBody] string jwtToken)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(jwtToken))
+                    return BadRequest(await Result.FailAsync("Token is null or empty."));
+
+                var principal = _tokenService.ValidateToken(jwtToken);
+                var userId = principal?.FindFirst(x => x.Type.Equals(ApplicationClaimTypes.UserId));
+                if (userId is null)
+                    return BadRequest(await Result.FailAsync("Invalid Token."));
+
+
+                var userClaims = await _unitOfWork.UserClaims.GetAllAsync(
+                    predicate: x => x.UserId.ToString().Equals(userId.Value));
+
+                var response = _mapper.Map<List<UserClaimResponse>>(userClaims);
+                return Ok(await Result<IList<UserClaimResponse>>.SuccessAsync(response));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            }
+        }
+
+
+        /// <summary>
+        /// Get User Tenants By Jwt
+        /// </summary>
+        /// <param name="jwtToken"></param>
+        /// <returns>List of UserTenantResponse</returns>
+        [HttpPost("tenants")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserTenantResponse))]
+        public async Task<IActionResult> GetUserTenantsByJwt([FromBody] string jwtToken)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(jwtToken))
+                    return BadRequest(await Result.FailAsync("Token is null or empty."));
+
+                var principal = _tokenService.ValidateToken(jwtToken);
+                var userId = principal?.FindFirst(x => x.Type.Equals(ApplicationClaimTypes.UserId));
+                if (userId is null)
+                    return BadRequest(await Result.FailAsync("Invalid Token."));
+
+                var userTenants = await _unitOfWork.UserTenants.GetAllAsync(
+                    predicate: x => x.UserId.ToString().Equals(userId.Value));
+
+                var response = _mapper.Map<List<UserTenantResponse>>(userTenants);
+                return Ok(await Result<IList<UserTenantResponse>>.SuccessAsync(response));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            }
+        }
+
+
+        /// <summary>
+        /// Get User Roles By Jwt
+        /// </summary>
+        /// <param name="jwtToken"></param>
+        /// <returns>List of UserRoleResponse</returns>
+        [HttpPost("roles")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserRoleResponse))]
+        public async Task<IActionResult> GetUserRolesByJwt([FromBody] string jwtToken)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(jwtToken))
+                    return BadRequest(await Result.FailAsync("Token is null or empty."));
+
+                var principal = _tokenService.ValidateToken(jwtToken);
+                var userId = principal?.FindFirst(x => x.Type.Equals(ApplicationClaimTypes.UserId));
+                if (userId is null)
+                    return BadRequest(await Result.FailAsync("Invalid Token."));
+
+
+                var userRoles = await _unitOfWork.UserRoles.GetAllAsync(
+                    predicate: x => x.UserId.ToString().Equals(userId.Value));
+
+                var response = _mapper.Map<List<UserRoleResponse>>(userRoles);
+                return Ok(await Result<IList<UserRoleResponse>>.SuccessAsync(response));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            }
+        }
+        
+        /// <summary>
+        /// change password 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("{userId}/Set-Password")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> SetPassword(string userId, [FromBody] SetPasswordRequest request)
+        {
+            try
+            {
+                if (userId is null) return BadRequest(await Result.FailAsync("UserId is null or empty."));
+
+
+
+                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
+                if (user is null) return BadRequest(await Result.FailAsync("Invalid Token."));
+
+                user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+                user.SecurityStamp = Guid.NewGuid().ToString();
+                user.PasswordToken = null;
+                user.PasswordTokenExpires = null;
+                user.PasswordResetAt = DateTime.UtcNow;
+                await _unitOfWork.SaveChangesAsync();
+                return Ok(await Result.SuccessAsync("Password successfully set."));
+
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            }
+        }
+
+
+        /// <summary>
+        /// Update security stamp
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        [HttpPost("{userId}/UpdateSecurityStamp")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateSecurityStamp(string userId)
+        {
+            try
+            {
+                if (userId is null) return BadRequest(await Result.FailAsync("UserId is null or empty."));
+
+                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
+                if (user is null)
+                    return NotFound(await Result.FailAsync("User not found."));
+
+                user.SecurityStamp = Guid.NewGuid().ToString();
+                await _unitOfWork.SaveChangesAsync();
+
+                return Ok(await Result.SuccessAsync("Security stamp updated successfully."));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            }
+        }
+
+
+                /// <summary>
+        /// Send forgot password token via email 
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        [HttpPost("Forgot-Password/UserName")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPasswordByUserName(string userName)
+        {
+            try
+            {
+                if (userName is null) return BadRequest(await Result.FailAsync("UserName is null or empty."));
+
+                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: u => u.UserName.Equals(userName));
+                if (user is not null)
+                {
+                    user.PasswordToken = _tokenServices.GenerateRandomCode();
+                    user.PasswordTokenExpires = DateTime.UtcNow.AddHours(1);
+                    await _messageSender.SendEmailAsync(user.Email, $"بازیابی کلمه عبور کاربر {user.UserName}", user.PasswordToken, true);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+                return Ok(await Result.SuccessAsync("Verification token sent."));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            }
+        }
+
+
+
+        
+        /// <summary>
+        /// Send forgot password token via phoneNumber
+        /// </summary>
+        /// <param name="phoneNumber"></param>
+        /// <returns></returns>
+        [HttpPost("Forgot-Password/PhoneNumber")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPasswordByPhoneNumber(string phoneNumber)
+        {
+            try
+            {
+                if (phoneNumber is null) return BadRequest(await Result.FailAsync("PhoneNumber is null or empty."));
+
+                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.PhoneNumber.Equals(phoneNumber));
+                if (user is not null)
+                {
+                    user.PasswordToken = _tokenServices.GenerateRandomCode();
+                    user.PasswordTokenExpires = DateTime.UtcNow.AddHours(1);
+                    await _messageSender.SendEmailAsync(user.Email, $"بازیابی کلمه عبور شماره {user.PhoneNumber}", user.PasswordToken, true);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+                return Ok(await Result.SuccessAsync("Verification token sent."));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            }
+        }
+

@@ -1,0 +1,63 @@
+﻿@inherits BaseComponent
+
+<MudDialog>
+    <DialogContent>
+
+
+
+        <MudSelect T="string"
+                   Class="mb-3"
+                   MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+                   MultiSelection="true"
+                   Dense=true SelectAll="true"
+                   SelectAllText="@_viewResources[ViewResources.SelectAll]"
+                   @bind-SelectedValues="SelectedRoles"
+                   Label="@_viewResources[ViewResources.Roles]"
+                   AdornmentIcon="@Icons.Material.Filled.Search"
+                   Variant="Variant.Outlined"
+                   AnchorOrigin="Origin.BottomCenter">
+            @foreach (var role in RoleCollection)
+            {
+                <MudSelectItem T="string" Value="@role.Id">
+                    @role.Name
+                </MudSelectItem>
+            }
+        </MudSelect>
+        <MudChipSet Style="max-height:300px;" AllClosable="true" OnClose="RemoveRole">
+            @foreach (var id in SelectedRoles)
+            {
+                var role = RoleCollection.FirstOrDefault(x => x.Id == id);
+                if (role != null)
+                {
+                    <MudChip Value="@role.Id.ToString()" Text="@role.Name"></MudChip>
+                }
+            }
+        </MudChipSet>
+
+    </DialogContent>
+    <DialogActions>
+        <div class="d-flex flex-row justify-content-end m-2 gap-2">
+            <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+            <MudButton Disabled="@InProcess"
+                       OnClick="SaveChanges"
+                       ButtonType="ButtonType.Submit"
+                       Class="w-85"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary">
+                @if (InProcess)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                }
+                else
+                {
+                    @_viewResources[ViewResources.SaveChanges]
+                }
+            </MudButton>
+        </div>
+
+    </DialogActions>
+</MudDialog>
+
+
+

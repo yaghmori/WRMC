@@ -1,0 +1,52 @@
+﻿@page "/Chat"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+
+<MudPaper Class="pa-5 mb-2" Style="width:500px;">
+
+
+<PageTitle>Chat</PageTitle>
+<MudSelect FullWidth=false T="string"
+           Class="mb-3"
+           SelectAll="true"
+           SelectAllText="@_viewResources[ViewResources.SelectAll]"
+           MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
+           MultiSelection="true"
+           Dense=true
+           @bind-SelectedValues="SelectedUsers"
+           Label="@_viewResources[ViewResources.Users]"
+           AdornmentIcon="@Icons.Material.Filled.Search"
+           Variant="Variant.Outlined"
+           AnchorOrigin="Origin.BottomCenter">
+    @foreach (var user in UserCollection)
+    {
+        <MudSelectItem T="string" Value="@user.Id">
+                <PersonCard Image="@user.UserProfile?.ProfileImage" Name="@user.Email" Description="@user.UserProfile?.FullName" />
+        </MudSelectItem>
+    }
+</MudSelect>
+<MudChipSet Class="mb-3" AllClosable="true" OnClose="RemoveUser">
+    @foreach (var id in SelectedUsers)
+    {
+        var user = UserCollection.FirstOrDefault(x => x.Id == id);
+        if (user != null)
+        {
+            <MudChip Value="@user.Id.ToString()" Text="@user.Email"></MudChip>
+        }
+    }
+</MudChipSet>
+
+<MudTextField FullWidth=false @bind-Value="@messageInput" Immediate=true Label="Message" Variant="Variant.Outlined" />
+</MudPaper>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Send" Class="my-2" Disabled="@(!CanSendMessage)">Send Message</MudButton>
+<MudButton Variant="Variant.Text"  OnClick="@(()=>Messages.Clear())" Class="my-2" Disabled="@(Messages.Count==0)">Clear</MudButton>
+
+<hr>
+
+<ul id="messagesList">
+    @foreach (var message in Messages)
+    {
+        <li>@message</li>
+    }
+</ul>
+

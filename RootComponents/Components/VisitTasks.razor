@@ -1,0 +1,49 @@
+﻿@inherits BaseComponent
+@if (!IsLoading)
+{
+    <MudPaper Class="overflow-x-auto" Width="100%" Elevation="2">
+        <h4 class="m-3">@Visit?.Name</h4>
+        <div class="mt-n10">
+            <MudTimeline TimelineOrientation="@TimelineOrientation.Horizontal" TimelinePosition="@TimelinePosition.Top">
+                @foreach (var step in Steps.OrderBy(x => x.Order))
+                {//Step
+                    var tasks = Tasks.Where(x => x.Section.ParentId == step.Id).OrderBy(d => d.Section.Order);
+                    <MudTimelineItem Class="mx-n3" Color="@(tasks.Any(x=>x.Status ==TaskStatusEnum.InProgress ) ? Color.Warning :tasks.Any(x=>x.Status ==TaskStatusEnum.NotCompleted ) ?  Color.Default : Color.Success)" Variant="@Variant.Filled">
+                        <ItemDot>
+                            <MudTooltip Text="@step.DisplayTitle" Arrow="true" Placement="Placement.Top">
+                                <b><h6 class="text-white mt-3">@step.Order</h6></b>
+                            </MudTooltip>
+                        </ItemDot>
+                        <ItemContent>
+                            @foreach (var task in tasks)
+                            {//Workflow
+                                <MudCard Outlined="true">
+                                    <MudCardContent Style="min-width: 200px;">
+                                        <MudText Typo="Typo.h6" Color="@(task.Status == TaskStatusEnum.Completed ? Color.Success : task.Status == TaskStatusEnum.InProgress ? Color.Warning : Color.Default)">@task.Section.DisplayTitle</MudText>
+                                        <MudText Typo="Typo.subtitle2">@task.Section.Help</MudText>
+                                    </MudCardContent>
+                                    @if (task.Status == TaskStatusEnum.InProgress)
+                                    {
+                                        <MudCardActions>
+                                            <AuthorizeView Policy="@task.Section.RequiredPolicy">
+                                                <MudButton FullWidth="true" Color="Color.Primary" Variant="Variant.Filled" Href="@($"{task.Section.URI}/{task.Id}")"><small>@task.Section.Command</small></MudButton>
+                                            </AuthorizeView>
+                                        </MudCardActions>
+                                    }
+                                </MudCard>
+                                <br />
+                            }
+                        </ItemContent>
+                    </MudTimelineItem>
+                }
+            </MudTimeline>
+
+        </div>
+    </MudPaper>
+    <br />
+
+}
+else
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-0" />
+}

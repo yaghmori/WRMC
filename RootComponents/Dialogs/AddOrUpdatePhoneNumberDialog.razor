@@ -1,0 +1,63 @@
+﻿@inherits BaseComponent
+
+<MudDialog>
+
+    <DialogContent>
+
+
+        <EditForm Model="UserPhoneNumber" OnValidSubmit="SaveChangesSubmit">
+            @if (!IsLoading)
+            {
+                <DataAnnotationsValidator />
+                <MudSelect @bind-Value="UserPhoneNumber.PhoneNumberType"
+                       Immediate=true
+                       For="@(()=>UserPhoneNumber.PhoneNumberType)"
+                       Label="@_displayResources[DisplayResources.UserPhoneNumber_Type]"
+                       Variant="Variant.Outlined">
+                    @foreach (var item in Enum.GetValues(typeof(PhoneNumberTypeEnum)).Cast<PhoneNumberTypeEnum?>())
+                    {
+                        <MudSelectItem Value="@item">
+                            <div>
+                                <i class="far fa-@item.GetDisplayShortName()" />
+                                @item.GetDisplayDescription()
+                            </div>
+                        </MudSelectItem>
+                    }
+                </MudSelect>
+                <MudTextField @bind-Value="@UserPhoneNumber.PhoneNumber" For="() => UserPhoneNumber.PhoneNumber" Label="@_displayResources[DisplayResources.UserPhoneNumber_PhoneNumber]" Variant="Variant.Outlined" Immediate="true" />
+                <br />
+                <MudTextField @bind-Value="@UserPhoneNumber.Description" Lines=5 For="() => UserPhoneNumber.Description" Label="@_displayResources[DisplayResources.UserPhoneNumber_Description]" Variant="Variant.Outlined" Immediate="true" />
+                <div class="d-flex flex-row justify-content-end mt-4 mb-2 gap-2">
+                    <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+                    <MudButton Disabled="@(!context.Validate() || !context.IsModified() || IsBusy)"
+                           ButtonType="ButtonType.Submit"
+                           Class="w-85"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary">
+                        @if (IsBusy)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                            <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                        }
+                        else
+                        {
+                            @_viewResources[ViewResources.SaveChanges]
+
+                        }
+                    </MudButton>
+                </div>
+            }
+            else
+            {
+
+                <div class="d-flex align-items-center justify-content-center" style="height:200px;">
+                    <Loading />
+                </div>
+            }
+        </EditForm>
+
+    </DialogContent>
+</MudDialog>
+
+
+

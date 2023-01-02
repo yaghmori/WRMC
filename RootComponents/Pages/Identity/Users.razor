@@ -1,0 +1,75 @@
+﻿@page "/IdentityManagement/Users"
+@page "/Users"
+@inherits BaseComponent
+
+<div Class="d-flex flex-row align-items-center  justify-content-between  mb-3">
+    <MudHidden Breakpoint="Breakpoint.Xs">
+        <MudText Typo="Typo.h5" Color="Color.Primary">@_viewResources[ViewResources.Users]</MudText>
+    </MudHidden>
+    <div Class="d-flex flex-row align-items-center justify-content-between gap-3">
+        <MudTextField T="string"
+                      ValueChanged="@(s=>OnSearchData(s))"
+                      Placeholder="@_viewResources[ViewResources.Search]"
+                      Adornment="Adornment.Start"
+                      Margin="Margin.Dense"
+                      Immediate="false" Clearable="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      IconSize="Size.Medium"
+                      Class="mt-n3 "></MudTextField>
+
+        <MudHidden Breakpoint="Breakpoint.Xs">
+            <MudButton StartIcon="@Icons.Rounded.AddCircle" Variant="Variant.Filled" OnClick="()=>AddOrUpdateUser(null)" Color="Color.Primary">@_viewResources[ViewResources.AddNewUser]</MudButton>
+        </MudHidden>
+
+    </div>
+</div>
+
+
+<MudHidden Breakpoint="Breakpoint.Xs" Invert=true>
+    <div class="float">
+        <MudFab Class="my-float" Icon="@Icons.Filled.Add" OnClick="()=>AddOrUpdateUser(null)" Color="Color.Primary" />
+    </div>
+</MudHidden>
+
+<MudDataGrid T="UserResponse"
+             Loading=IsBusy
+             Elevation="2"
+             ColumnResizeMode="ResizeMode.Column"
+             @ref="@_mudDataGrid"
+             ServerData="@(new Func<GridState<UserResponse>, Task<GridData<UserResponse>>>(ReloadDataAsync))"
+             ReadOnly="false"
+             EditTrigger="DataGridEditTrigger.Manual"
+             EditMode="DataGridEditMode.Form"
+             Hover="true" Dense="true" Striped="true"
+             FixedHeader="true">
+    <NoRecordsContent>
+        <div class="height:100px;">
+            <h6 class="text-secondary">@_messageResources[MessageResources.NoRecordFound]</h6>
+        </div>
+    </NoRecordsContent>
+
+    <Columns>
+        <Column T="UserResponse" Field="@nameof(UserResponse.Email)" Title="@_contextResources[ContextResources.User_Email]">
+            <CellTemplate>
+                <PersonCard Name="@context.Item.Email" Description="@context.Item.UserProfile.FullName" Image="@context.Item.UserProfile.ProfileImage" />
+            </CellTemplate>
+        </Column>
+        <Column Resizable="false" Context="rowData" Sortable="false" T="UserResponse">
+            <CellTemplate>
+                <MudButtonGroup Color="Color.Primary" Variant="Variant.Text" Class="d-flex justify-end">
+                    <MudIconButton Color="@Color.Inherit" OnClick="()=>UpdateUserRoles(rowData.Item)"><i class="far fa-user-gear"></i> <span>@rowData.Item.RolesCount</span></MudIconButton>
+                    <MudIconButton Color="@Color.Inherit" OnClick="()=>UpdateUserClaims(rowData.Item)"><i class="far fa-shield-check"></i> <span>@rowData.Item.ClaimsCount</span></MudIconButton>
+                    <MudIconButton Color="@Color.Inherit" OnClick="()=>UpdateUserTenants(rowData.Item)"><i class="far fa-database" /> <span>@rowData.Item.TenantsCount</span></MudIconButton>
+                    <MudIconButton Color="@Color.Inherit" OnClick="()=>ViewUserSession(rowData.Item)"><i class="far fa-laptop-mobile" /> <span>@rowData.Item.SessionsCount</span></MudIconButton>
+                    <MudIconButton Color="@Color.Inherit" OnClick="()=>AddOrUpdateUser(rowData.Item)"><i class="far fa-edit" /></MudIconButton>
+                    <MudIconButton Color="@Color.Error" OnClick="()=>DeleteUser(rowData.Item)"><i class="fas fa-trash-can" /></MudIconButton>
+                </MudButtonGroup>
+            </CellTemplate>
+        </Column>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T=UserResponse />
+    </PagerContent>
+</MudDataGrid> 
+
+

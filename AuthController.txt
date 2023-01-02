@@ -1,0 +1,164 @@
+﻿        /// <summary>
+        /// Check for username is exist 
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <returns>bool</returns>
+        [HttpPost("UserName")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        public async Task<IActionResult> IsExistUserName(string userName)
+        {
+            try
+            {
+                if (userName is null)
+                    return BadRequest(await Result<bool>.FailAsync("UserName is null or empty."));
+
+                return Ok(await Result<bool>.SuccessAsync(await _unitOfWork.Users.AnyAsync(x => x.UserName.Equals(userName))));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            }
+
+        }
+
+
+        /// <summary>
+        /// Check for email is exist
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns>bool</returns>
+        [HttpPost("Email")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        public async Task<IActionResult> IsExistEmail(string email)
+        {
+            try
+            {
+                if (email is null)
+                    return BadRequest(await Result<bool>.FailAsync("Email is null or empty."));
+
+                return Ok(await Result<bool>.SuccessAsync(await _unitOfWork.Users.AnyAsync(x => x.Email.Equals(email))));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            }
+
+        }
+
+
+        /// <summary>
+        /// Check for phone number is exist
+        /// </summary>
+        /// <param name="phoneNumber"></param>
+        /// <returns>bool</returns>
+        [HttpPost("PhoneNumber")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        public async Task<IActionResult> IsExistPhonenumber(string phoneNumber)
+        {
+            try
+            {
+                if (phoneNumber is null)
+                    return BadRequest(await Result<bool>.FailAsync("PhoneNumber is null or empty."));
+
+                return Ok(await Result<bool>.SuccessAsync(await _unitOfWork.Users.AnyAsync(x => x.PhoneNumber.Equals(phoneNumber))));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            }
+
+        }
+
+
+                /// <summary>
+        /// Register by phone number (Two Factor)
+        /// </summary>
+        /// <param name="phoneNumber"></param>
+        /// <returns></returns>
+        [HttpPost("RegisterByPhoneNumber")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
+        [AllowAnonymous]
+        public async Task<IActionResult> RegisterByPhoneNumber(string phoneNumber)
+        {
+            try
+            {
+                if (phoneNumber is null)
+                    return BadRequest(await Result<TokenResponse>.FailAsync("PhoneNumber is null or empty."));
+
+                var exist = await _unitOfWork.Users.AnyAsync(a => a.PhoneNumber.Equals(phoneNumber));
+
+                if (exist)
+                    return Conflict(await Result<TokenResponse>.FailAsync("The entered phone number is already registered."));
+
+                var user = new User()
+                {
+                    PhoneNumber = phoneNumber,
+                    ConcurrencyStamp = Guid.NewGuid().ToString(),
+                    SecurityStamp = Guid.NewGuid().ToString()
+                };
+                //Create User
+                var userEntity = await _unitOfWork.Users.AddAsync(user);
+                //Create UserSettings
+                await _unitOfWork.UserSettings.AddAsync(new UserSetting
+                {
+                    UserId = user.Id,
+                    Culture = "en-US",
+                    DarkMode = false,
+                    RightToLeft = false,
+                });
+
+                //Create UserProfile
+                await _unitOfWork.UserProfiles.AddAsync(new UserProfile
+                {
+                    UserId = user.Id,
+                });
+                //Assign Default Role
+                await _userManager.AddToRoleAsync(user, ApplicationRoles.Client);
+                var result = await _unitOfWork.SaveChangesAsync();
+
+
+
+                if (_registerConfirmationRequired)
+                {
+                    try
+                    {
+                        user.PhoneNumberVerificationToken = _tokenServices.GenerateRandomCode();
+                        user.PhoneNumberTokenExpires = DateTime.UtcNow.AddHours(1);
+                        await _messageSender.SendEmailAsync(user.Email, $"درخواست تایید شماره تلفن کاربر {user.PhoneNumber}", user.PhoneNumberVerificationToken, true);
+                    }
+                    catch
+                    {
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrWhiteSpace(user.PhoneNumber))
+                        user.PhoneNumberConfirmed = true;
+                    else
+                        user.PhoneNumberConfirmed = false;
+
+                    user.EmailConfirmed = true;
+                }
+
+                await _unitOfWork.SaveChangesAsync();
+                user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id == user.Id,
+                    include: x => x.Include(i => i.UserRoles).ThenInclude(i => i.Role));
+                if (user == null)
+                    return NotFound(await Result<TokenResponse>.FailAsync("User not found."));
+
+                var token = new TokenResponse
+                {
+                    AccessToken = _tokenServices.GenerateJwtToken(user),
+                    RefreshToken = _tokenServices.GenerateRefreshToken(user)
+                };
+                return Ok(await Result<TokenResponse>.SuccessAsync(token));
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            }
+        }

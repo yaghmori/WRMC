@@ -1,0 +1,16 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="ApplicationThemes.DefaultTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudContainer MaxWidth="MaxWidth.Small">
+    <div class="d-flex flex-column">
+        <img src="_content/WRMC.RootComponents/Assets/media/svg/404.svg" height="500" />
+
+        <MudText Typo="Typo.h5" Class="mt-6" Align="Align.Center">@_messageResources[MessageResources.PageNotFoundMessage]</MudText>
+            <div class="pa-4 justify-center my-4 mud-text-align-center">
+                <MudButton StartIcon="@Icons.Material.Rounded.Home" Variant="Variant.Filled" FullWidth=true Color="Color.Primary" Size="Size.Large" Link="@ApplicationURL.Index">@_viewResources[ViewResources.Home]</MudButton>
+            </div>
+
+    </div>
+</MudContainer>

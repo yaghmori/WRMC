@@ -1,0 +1,119 @@
+﻿@inherits BaseComponent
+
+<MudDialog>
+
+    <DialogContent>
+
+
+        <EditForm Model="AddressRequest" OnValidSubmit="OnSubmitAsync">
+            @if (!IsLoading)
+            {
+                <DataAnnotationsValidator />
+                <MudSelect @bind-Value="AddressRequest.AddressType"
+                       Required=true
+                       Immediate=true
+                       For="@(()=>AddressRequest.AddressType)"
+                       Label="@_displayResources[DisplayResources.UserAddress_AddressType]"
+                       Variant="Variant.Outlined">
+                    @foreach (var item in Enum.GetValues(typeof(AddressTypeEnum)).Cast<AddressTypeEnum?>())
+                    {
+                        <MudSelectItem Value="@item">
+                            <div>
+                                <i class="far fa-@item.GetDisplayShortName()" />
+                                @item.GetDisplayDescription()
+
+                            </div>
+                        </MudSelectItem>
+
+                    }
+                </MudSelect>
+                <br/>
+                <MudAutocomplete T="RegionResponse"
+                             SearchFunc="SearchStates"
+                             ResetValueOnEmptyText=true
+                             Value="@AddressRequest.SelectedState"
+                             For="()=>AddressRequest.SelectedState"
+                             ValueChanged="OnStateValueChanged"
+                             Label="@_viewResources[ViewResources.USStates]"
+                             ToStringFunc="@(e=> e==null?null : e.Name)"
+                             Variant="Variant.Outlined"
+                             MaxItems="null"
+                             Immediate=true
+                             Required=true />
+
+                @if (AddressRequest.SelectedState != null)
+                {
+                    <MudAutocomplete T="RegionResponse"
+                             SearchFunc="SearchCities"
+                             ResetValueOnEmptyText=true
+                             @bind-Value="@AddressRequest.SelectedCity"
+                             For="()=>AddressRequest.SelectedCity"
+                             Label="@_viewResources[ViewResources.City]"
+                             ToStringFunc="@(e=> e==null?null : e.Name)"
+                             Variant="Variant.Outlined"
+                             MaxItems="null"
+                             Immediate=true
+                             Required=true Class="mt-2" />
+                             <br/>
+                }
+
+                @*<MudTextField Text="@UserAddress.Region?.Name"
+            @bind-Value="@UserAddress.RegionId"
+            For="@(() => UserAddress.RegionId)"
+            Label="@_displayResources[DisplayResources.UserAddress_Region]"
+            @onclick="SelectRegionDialog"
+            OnAdornmentClick="SelectRegionDialog"
+            Variant="Variant.Outlined"
+            Adornment="Adornment.End"
+            Clearable="true"
+            Immediate=true
+            AdornmentIcon="@Icons.Material.Filled.Search" ReadOnly=true />*@
+
+                <MudTextField @bind-Value="@AddressRequest.Address"
+                          Lines=5
+                          For="() => AddressRequest.Address"
+                          Label="@_displayResources[DisplayResources.UserAddress_Address]"
+                          Variant="Variant.Outlined"
+                          Required=true
+                          Immediate=true />
+
+                <MudTextField @bind-Value="@AddressRequest.ZipCode"
+                          For="() => AddressRequest.ZipCode"
+                          Label="@_displayResources[DisplayResources.UserAddress_ZipCode]"
+                          Variant="Variant.Outlined"
+                          Immediate="true" 
+                          Class="mt-2"/>
+                <div class="d-flex flex-row justify-content-end mt-4 mb-2 gap-2">
+                    <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+                    <MudButton Disabled="@(!context.Validate() || !context.IsModified() || IsBusy)"
+                           ButtonType="ButtonType.Submit"
+                           Class="w-85"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary">
+                        @if (IsBusy)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                            <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                        }
+                        else
+                        {
+                            @_viewResources[ViewResources.SaveChanges]
+
+                        }
+                    </MudButton>
+                </div>
+            }
+            else
+            {
+
+                <div class="d-flex align-items-center justify-content-center" style="height:200px;">
+                    <Loading />
+                </div>
+            }
+        </EditForm>
+
+    </DialogContent>
+</MudDialog>
+
+
+

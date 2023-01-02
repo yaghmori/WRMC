@@ -1,0 +1,20 @@
+﻿@inherits BaseComponent
+
+<nav aria-label="breadcrumb">
+    <div class="mt-max-size">
+        <ol class="breadcrumb">
+            @foreach (var link in Links.OrderBy(x => x.OrderIndex))
+            {
+                if (link.IsActive)
+                {
+                    <li class="breadcrumb-item active mt-bread-item" aria-current="page">@link.Title</li>
+                }
+                else
+                {
+                    <li class="breadcrumb-item"><a class="mt-bread-item-link" href="@link.Address"><i Class="@link.Icon fa-lg"/> @link.Title</a></li>
+                }
+            }
+        </ol>
+    </div>
+</nav>
+

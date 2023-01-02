@@ -1,0 +1,64 @@
+﻿@inherits BaseComponent
+
+<MudDialog>
+    <DialogContent>
+        <MudPaper Elevation="2" Class="m-n3 pa-1">
+            <MudTable Items="@ClaimCollection"
+                      MultiSelection="true"
+                      Elevation="0"
+                      Bordered=false
+                      @bind-SelectedItems="SelectedClaims"
+                      Filter="new Func<string,bool>(FilterFunc)"
+                      FixedHeader=true
+                      Height="350px"
+                      Dense=true
+                      Striped=true
+                      Hover=true>
+                <ToolBarContent>
+                    <MudTextField @bind-Value="Query" Immediate=true Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                </ToolBarContent>
+
+                <HeaderContent>
+                    <MudTh>@_viewResources[ViewResources.SelectAll]</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context</MudTd>
+                </RowTemplate>
+            </MudTable>
+
+
+        </MudPaper>
+
+    </DialogContent>
+    <DialogActions>
+        <div class="flex-row justify-content-between m-2">
+            <div>
+                @_viewResources[ViewResources.SelectedClaims] : @SelectedClaims.Count;
+            </div>
+            <div>
+
+                <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+                <MudButton Disabled="@IsBusy"
+                           OnClick="SaveChanges"
+                           ButtonType="ButtonType.Submit"
+                           Class="w-85"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary">
+                    @if (IsBusy)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                        <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                    }
+                    else
+                    {
+                        @_viewResources[ViewResources.SaveChanges]
+                    }
+                </MudButton>
+            </div>
+
+        </div>
+    </DialogActions>
+</MudDialog>
+
+
+

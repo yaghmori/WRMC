@@ -1,0 +1,22 @@
+﻿@using WRMC.RootComponents.Enums;
+@inherits BaseComponent
+@if (!IsLoading)
+{
+    <MudSelect @bind-Value="orientation"
+           T="WizardOrientationEnum"
+           Immediate=true
+           Variant="Variant.Outlined">
+        @foreach (var item in Enum.GetValues(typeof(WizardOrientationEnum)))
+        {
+            <MudSelectItem Value="@item">@item.ToString()</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSwitch @bind-Checked=@useTimeLine></MudSwitch>
+    <MudPaper Style="height:100%;">
+    </MudPaper>
+
+}
+else
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-0" />
+}

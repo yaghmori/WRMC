@@ -1,0 +1,179 @@
+﻿@inherits BaseComponent
+
+@if (!IsLoading)
+{
+    
+
+<EditForm EditContext="EditContext">
+    <FluentValidator />
+        <MudGrid Justify="Justify.Center" Spacing="3">
+
+            <MudItem sm="12" md="3">
+                @_messageResources[MessageResources.USCitizen]
+
+                <MudRadioGroup For="()=>Model.IsUSCitizen" @bind-SelectedOption=Model.IsUSCitizen>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                </MudRadioGroup>
+            </MudItem>
+            <MudItem sm="12" md="6">
+
+                @if (Model?.IsUSCitizen == false)
+                {
+                    <MudSelect @bind-Value="@Model.ImmigrationStatus"
+                       For="@(()=>Model.ImmigrationStatus)"
+                       T="ImmigrationStatusEnum?"
+                       Immediate=true
+                       Label="@_displayResources[DisplayResources.DemographicIntake_ImmigrationStatus]"
+                       Variant="Variant.Outlined">
+                        @foreach (var item in Enum.GetValues(typeof(ImmigrationStatusEnum)).Cast<ImmigrationStatusEnum?>())
+                        {
+                            <MudSelectItem Value="@item">@item.GetDisplayDescription()</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+            </MudItem>
+            <MudItem sm="12" md="3">
+                @if (Model?.IsUSCitizen == false)
+                {
+                    <MudAutocomplete T="RegionResponse"
+                             SearchFunc="SearchCountries"
+                             ResetValueOnEmptyText=true
+                             @bind-Value="@Model.Region"
+                             For="()=>Model.Region"
+                             Label="@_viewResources[ViewResources.Country]"
+                             ToStringFunc="@(e=> e==null?null : e.Name)"
+                             Variant="Variant.Outlined"
+                             MaxItems="null"
+                             Immediate=true
+                             Required=true />
+                }
+            </MudItem>
+
+
+
+            <MudItem sm="12" md="4">
+                <MudSelect @bind-Value="@Model.MaritalStatus"
+                       For="@(()=>Model.MaritalStatus)"
+                       T="MaritalEnum?"
+                       Immediate=true
+                       Label="@_displayResources[DisplayResources.DemographicIntake_MaritalStatus]"
+                       Variant="Variant.Outlined">
+                    @foreach (var item in Enum.GetValues(typeof(MaritalEnum)).Cast<MaritalEnum?>())
+                    {
+                        <MudSelectItem Value="@item">@item.GetDisplayDescription()</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem sm="12" md="4">
+                <MudSelect @bind-Value="@Model.LivingArrangement"
+                       For="@(()=>Model.LivingArrangement)"
+                       T="LivingEnum?"
+                       Immediate=true
+                       Label="@_displayResources[DisplayResources.DemographicIntake_LivingArrangement]"
+                       Variant="Variant.Outlined">
+                    @foreach (var item in Enum.GetValues(typeof(LivingEnum)).Cast<LivingEnum?>())
+                    {
+                        <MudSelectItem Value="@item">@item.GetDisplayDescription()</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudNumericField @bind-Value="Model.NumberOfHousehold" T="short?"
+                             For="@(()=>Model.NumberOfHousehold)"
+                             Label="@_displayResources[DisplayResources.DemographicIntake_NumberOfPeopleInHousehold]"
+                             Immediate=true
+                             Variant="Variant.Outlined">
+                </MudNumericField>
+            </MudItem>
+
+
+
+            <MudItem sm="12" md="3">
+                @_messageResources[MessageResources.AreYouCurrentlyAttendingSchool]
+                <MudRadioGroup For="()=>Model.InSchool" @bind-SelectedOption=Model.InSchool>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                </MudRadioGroup>
+            </MudItem>
+            <MudItem xs="12" sm="3">
+                @if (Model?.InSchool == true)
+                {
+                    <MudTextField @bind-Value="Model.SchoolName"
+                          For="@(()=>Model.SchoolName)"
+                          Immediate=true
+                          Label="@_displayResources[DisplayResources.DemographicIntake_SchoolName]"
+                          Variant="Variant.Outlined" />
+                }
+            </MudItem>
+            <MudItem sm="12" md="6">
+                <MudSelect @bind-Value="@Model.LastGrade"
+                       For="@(()=>Model.LastGrade)"
+                       T="LastGradeEnum?"
+                       Immediate=true
+                       Label="@_displayResources[DisplayResources.DemographicIntake_LastGrade]"
+                       Variant="Variant.Outlined">
+                    @foreach (var item in Enum.GetValues(typeof(LastGradeEnum)).Cast<LastGradeEnum?>())
+                    {
+                        <MudSelectItem Value="@item">@item.GetDisplayDescription()</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+
+
+
+            <MudItem sm="12" md="3">
+                @_messageResources[MessageResources.DoYouHaveAnInsurance]
+                <MudRadioGroup For="()=>Model.HaveInsurance" @bind-SelectedOption=Model.HaveInsurance>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                </MudRadioGroup>
+            </MudItem>
+            <MudItem sm="12" md="3">
+                @if (Model?.HaveInsurance == true)
+                {
+                    <MudSelect @bind-Value="@Model.InsuranceName"
+                       For="@(()=>Model.InsuranceName)"
+                       T="InsuranceNameEnum?"
+                       Immediate=true
+                       Label="@_displayResources[DisplayResources.DemographicIntake_InsuranceName]"
+                       Variant="Variant.Outlined">
+                        @foreach (var item in Enum.GetValues(typeof(InsuranceNameEnum)).Cast<InsuranceNameEnum?>())
+                        {
+                            <MudSelectItem Value="@item">@item.GetDisplayDescription()</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+            </MudItem>
+            <MudItem sm="12" md="3">
+                @if (Model?.HaveInsurance == true)
+                {
+                    <MudTextField @bind-Value="Model.MedicaidNo"
+                          For="@(()=>Model.MedicaidNo)"
+                          Immediate=true
+                          Label="@_displayResources[DisplayResources.DemographicIntake_InsuranceNumber]"
+                          Variant="Variant.Outlined" />
+                }
+            </MudItem>
+            <MudItem sm="12" md="3">
+                @if (Model?.HaveInsurance == false)
+                {
+                    @_messageResources[MessageResources.WouldYouLikeAssistanceInGettingInsurance]
+                    <MudRadioGroup For="()=>Model.NeedInsurance" @bind-SelectedOption=Model.NeedInsurance>
+                        <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
+                        <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                    </MudRadioGroup>
+                }
+            </MudItem>
+
+
+        </MudGrid>
+
+  
+    </EditForm>
+
+}
+else
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-0" />
+}

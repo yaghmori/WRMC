@@ -1,0 +1,10 @@
+﻿@page "/DemographicIntake/{TaskId}"
+@page "/DemographicIntake"
+@inherits BaseComponent
+<DemographicIntake TaskId="@TaskId" />
+
+
+@code {
+
+    [Parameter] public string TaskId { get; set; } = string.Empty;
+}

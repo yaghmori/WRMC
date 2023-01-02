@@ -1,0 +1,10 @@
+﻿@page "/MedicalIntake/{TaskId}"
+@page "/MedicalIntake"
+@inherits BaseComponent
+<MedicalIntake TaskId="@TaskId" />
+
+
+@code {
+
+    [Parameter] public string TaskId { get; set; } = string.Empty;
+}

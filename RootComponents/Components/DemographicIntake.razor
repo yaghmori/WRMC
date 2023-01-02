@@ -1,0 +1,68 @@
+﻿@using WRMC.RootComponents.Enums;
+@inherits BaseComponent
+@if (!IsLoading)
+{
+    <MudSelect @bind-Value="orientation"
+           T="WizardOrientationEnum"
+           Immediate=true
+           Variant="Variant.Outlined">
+        @foreach (var item in Enum.GetValues(typeof(WizardOrientationEnum)).Cast<WizardOrientationEnum>())
+        {
+            <MudSelectItem Value="@item">@item.ToString()</MudSelectItem>
+        }
+    </MudSelect>
+
+
+
+    <MudPaper Style="height:100%;">
+        <EditForm OnValidSubmit="OnValidSubmitAsync" Context="ctx" Model="DemographicRequest" >
+            <FluentValidator/>
+            <ValidationSummary />
+
+            <Wizard @ref=_wizard AllowSubmit =@ctx.Validate() OnValidSubmit="OnValidSubmitAsync" Liner="useTimeLine" Orientation="orientation">
+                <WizardStep Title="Residential Info" Description="Demographic information">
+                    <ResidentialIntake Model=DemographicRequest.ResidentialIntake OnValidationChanged="@_wizard.OnValidationChanged" />
+                </WizardStep>
+                <WizardStep Title="Financial Info" Description="Income and financial info">
+                    <FinancialIntake Model=DemographicRequest.FinancialIntake OnValidationChanged="@_wizard.OnValidationChanged" />
+                </WizardStep>
+
+                <WizardStep Title="Other Info" Description="Other information">
+                    <OtherDmographicIntake Model=DemographicRequest.OtherDemographicIntake OnValidationChanged="@_wizard.OnValidationChanged" />
+                </WizardStep>
+                <WizardStep ShowSubmit=true Title="Notice" Description="Term & Condition">
+                    <div style="width:100%; height:100%;">
+                        <h4>Statement of Confidentiality</h4>
+                        The Women's Resource Medical Centers of Southern Nevada (WRMCSN) will hold in strict confidence all client information with certain exceptions. Due to concern for the safety of our clients and state law, we are required to report knowledge of clients who are homicidal, suicidal, abusing a minor, or a victim of statutory sexual seduction.
+                        <br />
+                        <br />
+                        <h4>Statement of Confidentiality</h4>
+                        This facility is a non-profit, limited medical center. The pregnancy tests are 97% to 99% accurate. Regardless of your test result, we recommend that you consult with your physician. The counseling obtained here is not intended as a substitute for therapeutic counseling. This center does not perform or refer for abortion nor do we provide or refer for birth control or abortifacients.
+                        <br />
+                        <br />
+                        <MudCheckBox  @bind-Checked="DemographicRequest.IsComplete"
+                                 For="()=>DemographicRequest.IsComplete"
+                                 LabelPosition="LabelPosition.End"
+                                 Color="Color.Primary"
+                                 Class="ml-n3 mb-2 align-content-start">
+                            <small>I understand, agree and accept the statements of service and confidentiality by WRMCSN and I acknowledge that I have received a copy of the ' Notice of Privacy Practices' by checking and saving the form.&nbsp;</small>
+                        </MudCheckBox>
+                    </div>
+                </WizardStep>
+
+                <WizardStep Title="Finish" Description="Submit form">
+                    <div class="d-flex flex-column justify-center" style="width:100%; height:100%;">
+                        <i class="fa-duotone fa-check-double fa-6x my-5" style="color:limegreen"></i>
+                        <MudText>Form succesfully completed.</MudText>
+                    </div>
+                </WizardStep>
+            </Wizard>
+
+        </EditForm>
+
+    </MudPaper>
+}
+else
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-0" />
+}

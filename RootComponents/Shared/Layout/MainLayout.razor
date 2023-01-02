@@ -1,0 +1,59 @@
+﻿@inherits LayoutComponentBase
+@inject AppStateHandler _appStateHandler
+@attribute [Authorize]
+<AuthorizeView >
+    <Authorized>
+        <CascadingValue Value="User">
+            <CascadingValue Value="_hubConnection">
+                <MudRTLProvider RightToLeft="@User.UserSetting.RightToLeft">
+                    <MudThemeProvider @bind-IsDarkMode="@User.UserSetting.DarkMode" Theme="ApplicationThemes.DefaultTheme" />
+                    <MudDialogProvider />
+                    <MudSnackbarProvider />
+                    <MudLayout>
+                        <MudAppBar Dense=false>
+                            <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+
+                            <MudHidden Breakpoint="Breakpoint.Xs" Invert=true>
+                                <MudText Typo="Typo.h6">@_appStateHandler.AppTitle</MudText>
+                                <MudSpacer />
+
+                            </MudHidden>
+
+                            <MudHidden Breakpoint="Breakpoint.Xs" Class="mx-1">
+                                <MudText Typo="Typo.h6">@_viewResources[ViewResources.AppTitle]</MudText>
+                                <MudSpacer />
+
+                                <MudIconButton Color="Color.Inherit" Icon="@Icons.Filled.NotificationsNone" />
+                                <CultureSelector Class="mx-1" />
+                                <MudIconButton @onclick="RtlToggle" Color="Color.Inherit" Icon="@RTLIcon" />
+                                <MudIconButton @onclick="DarkModeToggle" Color="Color.Inherit" Icon="@ModeIcon" />
+                            </MudHidden>
+                        </MudAppBar>
+
+                        <MudDrawer Width="300px" @bind-Open="IsDrawerOpen" Breakpoint="Breakpoint.Lg">
+                                <MudNavMenu Bordered="true" Rounded="true" Color="Color.Primary" Class="pa-2">
+                                    <MudNavLink Href="@ApplicationURL.Profile">
+                                        <PersonCard Name="@User?.Email" Description="@User?.UserProfile?.FullName" Image="@User?.UserProfile?.ProfileImage" />
+                                    </MudNavLink>
+                                    <MudDivider Class="mb-4" />
+                                </MudNavMenu>
+                            <NavMenu />
+                        </MudDrawer>
+                        <MudMainContent>
+                            <MudContainer MaxWidth="MaxWidth.False" Class="mt-7">
+                                @Body
+                            </MudContainer>
+                        </MudMainContent>
+                    </MudLayout>
+                </MudRTLProvider>
+            </CascadingValue>
+        </CascadingValue>
+    </Authorized>
+    <NotAuthorized>
+        <RedirectToLogin/>
+    </NotAuthorized>
+    <Authorizing>
+        <Loading Content="@_viewResources[ViewResources.Authorizing]"/>
+    </Authorizing>
+
+</AuthorizeView>

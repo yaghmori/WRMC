@@ -1,0 +1,245 @@
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components;
+using MudBlazor;
+using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Requests;
+using WRMC.Core.Shared.Responses;
+using WRMC.Infrastructure.Localization;
+using WRMC.RootComponents.Dialogs;
+using WRMC.Infrastructure.Domain.Entities;
+using Microsoft.AspNetCore.JsonPatch;
+using WRMC.Infrastructure.Domain.Enums;
+using MudExtensions;
+using WRMC.RootComponents.Pages.Identity;
+
+namespace WRMC.RootComponents.Components
+{
+    public partial class DemographicIntake
+    {
+        private MudStepper _stepper;
+        [CascadingParameter] public UserResponse User { get; set; }
+        [Parameter] public string TaskId { get; set; } = string.Empty;
+        public string DemographicIntakeId { get; set; } = string.Empty;
+
+        public DemographicIntakeRequest DemographicRequest { get; set; }
+        public bool IsComplete { get; set; } = false;
+        public List<RegionResponse> Countries { get; set; } = new();
+
+
+        protected async override Task OnInitializedAsync()
+        {
+            IsLoading = true;
+
+            var regionResponse = await _regionDataService.GetRegionsAsync();
+            if (regionResponse?.Succeeded == true)
+            {
+                Countries = regionResponse.Data;
+            }
+
+            //load previous demographic data 
+            var demographicResponse = await _demographicIntakesDataService.GetDemographicIntakeByTaskIdAsync(TaskId);
+            if (demographicResponse?.Succeeded == true)
+            {
+                if (demographicResponse?.Data != null)
+                {
+                    DemographicRequest = _autoMapper.Map<DemographicIntakeRequest>(demographicResponse.Data);
+                }
+                else
+                {
+                    DemographicRequest = new DemographicIntakeRequest();
+
+                    var visitResponse = await _visitDataService.GetVisitByTaskIdAsync(TaskId);
+                    if (visitResponse?.Succeeded == true)
+                    {
+                        DemographicRequest.TaskId = TaskId;
+                        DemographicRequest.VisitId = visitResponse.Data.Id;
+                        DemographicRequest.OtherDemographicIntake.Gender = visitResponse.Data?.User?.UserProfile?.Gender;
+                        var result = await _demographicIntakesDataService.AddNewDemographicIntakeAsync(DemographicRequest);
+                        if (result?.Succeeded == true)
+                        {
+                            DemographicIntakeId = result.Data;
+                        }
+
+                    }
+
+                }
+            }
+
+            IsLoading = false;
+            StateHasChanged();
+
+        }
+        private async void OnSubmitResidentialInfoAsync(EditContext context)
+        {
+            IsBusy = true;
+
+
+            var patchDoc = new JsonPatchDocument<DemographicIntakeRequest>();
+            patchDoc.Replace(e => e.ResidentialIntake.RegionId, DemographicRequest.ResidentialIntake.RegionId);
+            patchDoc.Replace(e => e.ResidentialIntake.InSchool, DemographicRequest.ResidentialIntake.InSchool);
+            patchDoc.Replace(e => e.ResidentialIntake.NeedInsurance, DemographicRequest.ResidentialIntake.NeedInsurance);
+            patchDoc.Replace(e => e.ResidentialIntake.SchoolName, DemographicRequest.ResidentialIntake.SchoolName);
+            patchDoc.Replace(e => e.ResidentialIntake.HaveInsurance, DemographicRequest.ResidentialIntake.HaveInsurance);
+            patchDoc.Replace(e => e.ResidentialIntake.InsuranceName, DemographicRequest.ResidentialIntake.InsuranceName);
+            patchDoc.Replace(e => e.ResidentialIntake.IsUSCitizen, DemographicRequest.ResidentialIntake.IsUSCitizen);
+            patchDoc.Replace(e => e.ResidentialIntake.LastGrade, DemographicRequest.ResidentialIntake.LastGrade);
+            patchDoc.Replace(e => e.ResidentialIntake.LivingArrangement, DemographicRequest.ResidentialIntake.LivingArrangement);
+            patchDoc.Replace(e => e.ResidentialIntake.MaritalStatus, DemographicRequest.ResidentialIntake.MaritalStatus);
+            patchDoc.Replace(e => e.ResidentialIntake.MedicaidNo, DemographicRequest.ResidentialIntake.MedicaidNo);
+            patchDoc.Replace(e => e.ResidentialIntake.NumberOfHousehold, DemographicRequest.ResidentialIntake.NumberOfHousehold);
+
+            var result = await _demographicIntakesDataService.UpdateDemographicIntakeAsync(DemographicIntakeId, patchDoc);
+            if (result?.Succeeded == true)
+            {
+                _snackbar.Add(_messageResources[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
+            }
+            else
+            {
+                foreach (var message in result?.Messages)
+                {
+                    _snackbar.Add(message, Severity.Error);
+                }
+            }
+
+
+            IsBusy = false;
+            StateHasChanged();
+        }
+        private async void OnSubmitFinancialInfoAsync(EditContext context)
+        {
+            IsBusy = true;
+
+            var patchDoc = new JsonPatchDocument<DemographicIntakeRequest>();
+            patchDoc.Replace(e => e.FinancialIntake.Income, DemographicRequest.FinancialIntake.Income);
+            patchDoc.Replace(e => e.FinancialIntake.Occupation, DemographicRequest.FinancialIntake.Occupation);
+            patchDoc.Replace(e => e.FinancialIntake.CombinedIncome, DemographicRequest.FinancialIntake.CombinedIncome);
+            patchDoc.Replace(e => e.FinancialIntake.Employer, DemographicRequest.FinancialIntake.Employer);
+            patchDoc.Replace(e => e.FinancialIntake.Employment, DemographicRequest.FinancialIntake.Employment);
+            patchDoc.Replace(e => e.FinancialIntake.FinancialSupport, DemographicRequest.FinancialIntake.FinancialSupport);
+            patchDoc.Replace(e => e.FinancialIntake.NumberOfTaxReturn, DemographicRequest.FinancialIntake.NumberOfTaxReturn);
+            var result = await _demographicIntakesDataService.UpdateDemographicIntakeAsync(DemographicIntakeId, patchDoc);
+            if (result?.Succeeded == true)
+            {
+                _snackbar.Add(_messageResources[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
+            }
+            else
+            {
+                foreach (var message in result?.Messages)
+                {
+                    _snackbar.Add(message, Severity.Error);
+                }
+            }
+
+
+            IsBusy = false;
+            StateHasChanged();
+        }
+        private async void OnSubmitOtherInfoAsync(EditContext context)
+        {
+            IsBusy = true;
+
+            var patchDoc = new JsonPatchDocument<DemographicIntakeRequest>();
+            patchDoc.Replace(e => e.OtherDemographicIntake.HidePregnancy, DemographicRequest.OtherDemographicIntake.HidePregnancy);
+            patchDoc.Replace(e => e.OtherDemographicIntake.ConduciveRaising, DemographicRequest.OtherDemographicIntake.ConduciveRaising);
+            patchDoc.Replace(e => e.OtherDemographicIntake.AffordPrenatal, DemographicRequest.OtherDemographicIntake.AffordPrenatal);
+            patchDoc.Replace(e => e.OtherDemographicIntake.Disabled, DemographicRequest.OtherDemographicIntake.Disabled);
+            patchDoc.Replace(e => e.OtherDemographicIntake.UndueBurden, DemographicRequest.OtherDemographicIntake.UndueBurden);
+
+            var result = await _demographicIntakesDataService.UpdateDemographicIntakeAsync(DemographicIntakeId, patchDoc);
+            if (result?.Succeeded == true)
+            {
+                _snackbar.Add(_messageResources[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
+            }
+            else
+            {
+                foreach (var message in result?.Messages)
+                {
+                    _snackbar.Add(message, Severity.Error);
+                }
+            }
+
+
+            IsBusy = false;
+            StateHasChanged();
+        }
+        private async void OnSubmitTermsAsync(EditContext context)
+        {
+            IsBusy = true;
+
+
+            var patchDoc = new JsonPatchDocument<DemographicIntakeRequest>();
+            patchDoc.Replace(e => e.IsComplete, DemographicRequest.IsComplete);
+
+            var result = await _demographicIntakesDataService.UpdateDemographicIntakeAsync(DemographicIntakeId, patchDoc);
+            if (result?.Succeeded == true)
+            {
+                _snackbar.Add(_messageResources[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
+            }
+            else
+            {
+                foreach (var message in result?.Messages)
+                {
+                    _snackbar.Add(message, Severity.Error);
+                }
+            }
+
+            var options = new DialogOptions()
+            {
+                CloseButton = true,
+                DisableBackdropClick = false,
+                FullWidth = true,
+                MaxWidth = MaxWidth.ExtraSmall
+            };
+
+            var dialog = _dialog.Show<TermsAndConditionsDialog>("", options);
+            var dgResult = await dialog.Result;
+            if (!dgResult.Cancelled)
+            {
+                var result = await _demographicIntakesDataService.UpdateDemographicIntakeAsync(DemographicIntakeId, DemographicRequest);
+                if (result != null && result?.Succeeded == true)
+                {
+                    //TODO : Move visit steps forward
+                    var patchDoc = new JsonPatchDocument<TaskRequest>();
+                    patchDoc.Replace(e => e.Status, TaskStatusEnum.Completed);
+                    patchDoc.Replace(e => e.UserId, User?.Id);
+                    patchDoc.Replace(e => e.EndDate, DateTime.UtcNow);
+                    var updateResponse = await _visitDataService.UpdateTaskAsync(TaskId, patchDoc);
+
+                    if (updateResponse?.Succeeded == true)
+                    {
+                        _snackbar.Add(_messageResources[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
+
+                        //Navigate to visits
+                        _navigationManager.NavigateTo(ApplicationURL.Visits);
+
+                    }
+                    else
+                    {
+                        foreach (var message in updateResponse?.Messages)
+                        {
+                            _snackbar.Add(message, Severity.Error);
+                        }
+
+                    }
+
+                }
+                else
+                {
+                    foreach (var message in result?.Messages)
+                    {
+                        _snackbar.Add(message, Severity.Error);
+                    }
+                }
+            }
+            IsBusy = false;
+            StateHasChanged();
+        }
+
+        private async Task<IEnumerable<RegionResponse>> SearchCountries(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return Countries;
+            return Countries.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+        }
+    }
+}

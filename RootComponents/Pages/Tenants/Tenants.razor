@@ -1,0 +1,71 @@
+﻿@page "/Tenants"
+@inherits BaseComponent
+<style type="text/css">.mt-n3 { }</style>
+
+<div Class="d-flex flex-row align-items-center justify-content-between mb-3">
+    <MudHidden Breakpoint="Breakpoint.Xs">
+        <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">@_viewResources[ViewResources.Tenants]</MudText>
+    </MudHidden>
+    <div Class="d-flex flex-row align-items-center justify-content-between gap-3">
+            <MudTextField T="string"
+                          ValueChanged="@(OnSearchData)"
+                          Placeholder="@_viewResources[ViewResources.Search]"
+                          Adornment="Adornment.Start"
+                          Margin="Margin.Dense"
+                          Class="mt-n3"
+                          Immediate="false" Clearable="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium"></MudTextField>
+
+        <MudHidden Breakpoint="Breakpoint.Xs">
+            <MudButton StartIcon="@Icons.Rounded.AddCircle" Variant="Variant.Filled" OnClick="()=>AddOrUpdateTenant(null)" Color="Color.Primary">@_viewResources[ViewResources.CreateNewTenant]</MudButton>
+        </MudHidden>
+
+    </div>
+</div>
+
+<!--Fab Button-->
+<MudHidden Breakpoint="Breakpoint.Xs" Invert=true>
+        <div class="float">
+            <MudFab Class="my-float" Icon="@Icons.Filled.Add" OnClick="()=>AddOrUpdateTenant(null)" Color="Color.Primary" />
+        </div>
+</MudHidden>
+
+
+
+    <MudDataGrid T="TenantResponse"
+                 Loading=IsBusy
+                 Elevation="2"
+                 ColumnResizeMode="ResizeMode.Column"
+                 @ref="@_mudDataGrid"
+                 ServerData="@(new Func<GridState<TenantResponse>, Task<GridData<TenantResponse>>>(ReloadDataAsync))"
+                 ReadOnly="false"
+                 EditTrigger="DataGridEditTrigger.Manual"
+                 EditMode="DataGridEditMode.Form"
+                 Hover="true" Dense="true" Striped="true"
+                 FixedHeader="true">
+        <NoRecordsContent>
+            <div class="height:100px;">
+                <h6 class="text-secondary">@_messageResources[MessageResources.NoRecordFound]</h6>
+            </div>
+        </NoRecordsContent>
+        <Columns>
+            <Column T="TenantResponse" Field="Name" Title="@_contextResources[ContextResources.Client_Name]" />
+            <Column T="TenantResponse" Field="ExpireDate" Title="@_contextResources[ContextResources.Client_ExpireDate]" />
+            <Column Resizable="false" Context="rowData" T="TenantResponse" Sortable="false">
+                <CellTemplate>
+                    <MudButtonGroup Color="Color.Primary" Variant="Variant.Text" Class="d-flex justify-end">
+                            <MudIconButton Color="@Color.Inherit" OnClick="()=>AddRemoveUsers(rowData.Item)"><i class="far fa-user-group"></i> <span>@rowData.Item.UsersCount</span></MudIconButton>
+                            <MudIconButton Color="@Color.Inherit" OnClick="()=>AddOrUpdateTenant(rowData.Item)"><i class="far fa-edit" /></MudIconButton>
+                            <MudIconButton Color="@Color.Error" OnClick="()=>DeleteTenant(rowData.Item)"><i class="fas fa-trash-can" /></MudIconButton>
+                    </MudButtonGroup>
+                </CellTemplate>
+            </Column>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="TenantResponse" />
+        </PagerContent>
+
+    </MudDataGrid>
+
+

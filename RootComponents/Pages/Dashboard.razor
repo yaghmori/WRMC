@@ -1,0 +1,104 @@
+﻿@page "/Dashboard"
+@page "/"
+@inherits BaseComponent
+
+<MudHidden Breakpoint="Breakpoint.Xs">
+    <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">@_viewResources[ViewResources.Dashboard]</MudText>
+</MudHidden>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" sm="12" md="6">
+        <MudItem xs="12" sm="12" md="12">
+            <MudPaper Class="d-flex flex-row pt-6 pb-4" Elevation="2" Style="height:100px;">
+                <div class="d-flex flex-row">
+                    <i class="fad fa-coins fa-4x mx-4" style="color:dodgerblue" />
+                    <div>
+                        <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Clients</MudText>
+                        <MudText Typo="Typo.h5">@TenantCount</MudText>
+                    </div>
+                </div>
+            </MudPaper>
+
+        </MudItem>
+        <MudItem xs="12" sm="12" md="12">
+            <MudPaper Class="d-flex flex-row pt-6 pb-4 mt-5" Elevation="2" Style="height:100px;">
+                <i class="fad fa-user-group fa-4x mx-4" style="color:orangered" />
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Users</MudText>
+                    <MudText Typo="Typo.h5">@UserCount</MudText>
+                </div>
+            </MudPaper>
+
+        </MudItem>
+        <MudItem xs="12" sm="12" md="12">
+            <MudPaper Class="d-flex flex-row pt-6 pb-4 mt-5" Elevation="2" Style="height:100px;">
+                <i class="fad fa-message-exclamation fa-4x mx-4" style="color:yellow" />
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="mud-text-secondary mb-n1">Active Issue</MudText>
+                    <MudText Typo="Typo.h5">17</MudText>
+                </div>
+            </MudPaper>
+
+        </MudItem>
+    </MudItem>
+    <MudItem xs="12" sm="12" md="6">
+        <MudPaper Class="pa-5">
+            <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" @bind-SelectedIndex="_index" XAxisLabels="@XAxisLabels" Width="100%"></MudChart>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="12" md="6">
+        <MudPaper Class="pa-5">
+            <MudChart ChartType="ChartType.Line" ChartSeries="@Series1" @bind-SelectedIndex="_index1" XAxisLabels="@XAxisLabels1" Width="100%" Height="350px"></MudChart>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="12" md="6">
+        <MudCard Elevation="2" Style="height:100%;">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Recent incidents</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent Class="px-0">
+                <MudList Clickable="true">
+                    <MudListItem>
+                        <div class="d-flex flex-row">
+                            <MudAvatar Class="mud-elevation-25">
+                                <MudIcon Icon="@Icons.Custom.Brands.GitHub" Class="mx-4" />
+                            </MudAvatar>
+                            <div class="ml-6">
+                                <MudText Typo="Typo.subtitle2">Issues rising</MudText>
+                                <MudText Typo="Typo.body2">Issues is almost reaching 100</MudText>
+                            </div>
+                            <MudChip Label="true" Color="Color.Error" Size="Size.Small" Class="ml-auto mud-elevation-25">Danger</MudChip>
+                        </div>
+                    </MudListItem>
+                    <MudListItem>
+                        <div class="d-flex flex-row">
+                            <MudAvatar Class="mud-elevation-25">
+                                <MudIcon Icon="@Icons.Custom.Uncategorized.Radioactive" Class="mx-4" />
+                            </MudAvatar>
+                            <div class="ml-6">
+                                <MudText Typo="Typo.subtitle2">Incident in plant number 4</MudText>
+                                <MudText Typo="Typo.body2">Fire in reactor core</MudText>
+                            </div>
+                            <MudChip Label="true" Color="Color.Info" Size="Size.Small" Class="ml-auto mud-elevation-25">Minor</MudChip>
+                        </div>
+                    </MudListItem>
+                    <MudListItem>
+                        <div class="d-flex flex-row">
+                            <MudAvatar Class="mud-elevation-25">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" Class="mx-4" />
+                            </MudAvatar>
+                            <div class="ml-6">
+                                <MudText Typo="Typo.subtitle2">Occupational injury</MudText>
+                                <MudText Typo="Typo.body2">Employee broke a finger while writing some code</MudText>
+                            </div>
+                            <MudChip Label="true" Color="Color.Success" Size="Size.Small" Class="ml-auto mud-elevation-25">Dismissed</MudChip>
+                        </div>
+                    </MudListItem>
+                </MudList>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+

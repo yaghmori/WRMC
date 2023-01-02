@@ -1,0 +1,68 @@
+﻿@inherits BaseComponent
+@if (!IsLoading)
+{
+    <div class="d-flex  align-content-center  justify-content-between mb-3">
+        <h5>@_viewResources[ViewResources.Addresses]</h5>
+        <MudButton StartIcon="@Icons.Rounded.AddCircle" Variant="Variant.Filled" OnClick="()=>AddOrUpdateAddress(null)" Color="Color.Primary">@_viewResources[ViewResources.AddNewAddress]</MudButton>
+    </div>
+    <MudDataGrid T="UserAddressResponse"
+             Items="AddressCollection"
+             Loading=IsLoading
+             Elevation="2"
+             ColumnResizeMode="ResizeMode.Column"
+             ReadOnly="false"
+             EditTrigger="DataGridEditTrigger.Manual"
+             EditMode="DataGridEditMode.Form"
+             Hover="true" Dense="true" Striped="true"
+             FixedHeader="true">
+        <NoRecordsContent>
+            <div class="height:100px;">
+                <h6 class="text-secondary">@_messageResources[MessageResources.NoRecordFound]</h6>
+            </div>
+        </NoRecordsContent>
+        <Columns>
+            <Column T="UserAddressResponse" Field="@nameof(UserAddressResponse.Address)" Title="@_displayResources[DisplayResources.UserAddress_Address]">
+                <CellTemplate>
+                    <div class="d-flex flex-column align-items-start justify-content-start gap-1" >
+                        <div class="d-flex flex-row align-items-center justify-content-start">
+                            <i class="far fa-@context.Item?.AddressType?.GetDisplayShortName()" />
+                            <div class="mx-2">@context.Item?.Region?.Path</div>
+                        </div>
+                        <div>@context.Item?.Address</div>
+                        @if (!string.IsNullOrEmpty(context.Item?.ZipCode))
+                        {
+                            <div class="d-flex flex-row align-items-center justify-content-start">
+                                <small><b>Zip/Postal code :</b></small>
+                                <small class="mx-1">@context.Item?.ZipCode</small>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(context.Item?.Description))
+                        {
+                            <div class="d-flex flex-row align-items-center justify-content-start">
+                                <small><b>Description :</b></small>
+                                <small class="mx-1">@context.Item?.Description</small>
+                            </div>
+                        }
+                    </div>
+                </CellTemplate>
+            </Column>
+            <Column Resizable="false" Context="rowData" Sortable="false" T="UserAddressResponse">
+                <CellTemplate>
+                    <MudButtonGroup Color="Color.Primary" Variant="Variant.Text" Class="d-flex justify-end">
+                        <MudIconButton Color="@Color.Inherit" OnClick="()=>AddOrUpdateAddress(rowData.Item)"><i class="far fa-edit" /></MudIconButton>
+                        <MudIconButton Color="@Color.Error" OnClick="()=>DeleteAddress(rowData.Item)"><i class="fas fa-trash-can" /></MudIconButton>
+                    </MudButtonGroup>
+                </CellTemplate>
+            </Column>
+        </Columns>
+    </MudDataGrid>
+}
+else
+{
+    <Loading />
+}
+
+
+
+

@@ -1,0 +1,85 @@
+﻿
+<div class="menu-content d-flex align-items-center">
+
+    <div class="symbol me-2">
+        <div class="icon-badge-container">
+            @if (!string.IsNullOrWhiteSpace(Image))
+            {
+                <img src="@Image" class="avatar p1" alt="Avatar" style="width:35px; height:35px;">
+            }
+            else
+            {
+
+
+               @* <i class="fad fa-user fa-2x"/>*@
+                <img src="_content/WRMC.RootComponents/Assets/media/ProfilePictures/avatar.jpeg" style="width:35px; height:35px;" class="avatar p1" alt="Avatar">
+            }
+            @if (Badge > 0)
+            {
+                <div class="icon-badge">@Badge</div>
+            }
+        </div>
+
+
+    </div>
+
+    <div class="d-flex flex-column">
+        @Name
+        <small>@Description</small>
+    </div>
+
+</div>
+@code {
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public string Image { get; set; } = "";
+
+    [Parameter]
+    public string Description { get; set; }
+    [Parameter]
+    public int? Badge { get; set; } = 0;
+}
+<style>
+    .avatar {
+        vertical-align: middle;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+    }
+
+    .icon-badge-group {
+    }
+
+        .icon-badge-group .icon-badge-container {
+            display: inline-block;
+            margin-left: 15px;
+        }
+
+            .icon-badge-group .icon-badge-container:first-child {
+                margin-left: 0
+            }
+
+    .icon-badge-container {
+        position: relative;
+    }
+
+    .icon-badge-icon {
+        font-size: 30px;
+        position: relative;
+    }
+
+    .icon-badge {
+        background-color: orange;
+        font-size: 12px;
+        color: white;
+        text-align: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 35%;
+        position: absolute; /* changed */
+        top: -0px; /* changed */
+        left: 40px; /* changed */
+    }
+</style>

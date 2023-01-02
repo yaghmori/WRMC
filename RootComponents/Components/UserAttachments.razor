@@ -1,0 +1,59 @@
+﻿@inherits BaseComponent
+@if (!IsLoading)
+{
+    <div class="d-flex  align-content-center  justify-content-between mb-3">
+        <h5>@_viewResources[ViewResources.Attachments]</h5>
+        <MudButton StartIcon="@Icons.Rounded.AddCircle" Variant="Variant.Filled" OnClick="()=>AddOrUpdateAttachment(null)" Color="Color.Primary">@_viewResources[ViewResources.AddNewAttachment]</MudButton>
+    </div>
+
+    <MudDataGrid T="UserAttachmentResponse"
+             Items="AttachmentCollection"
+             Loading=IsLoading
+             Elevation="2"
+             ColumnResizeMode="ResizeMode.Column"
+             ReadOnly="false"
+             EditTrigger="DataGridEditTrigger.Manual"
+             EditMode="DataGridEditMode.Form"
+             Hover="true" Dense="true" Striped="true"
+             FixedHeader="true">
+        <NoRecordsContent>
+            <div class="height:100px;">
+                <h6 class="text-secondary">@_messageResources[MessageResources.NoRecordFound]</h6>
+            </div>
+        </NoRecordsContent>
+
+        <Columns>
+            <Column T="UserAttachmentResponse" Field="@nameof(UserAttachmentResponse.Type)" Title="@_displayResources[DisplayResources.UserAttachment_Type]">
+                <CellTemplate>
+                    <div>
+                        <i class="far fa-@context.Item.Type.GetDisplayShortName()" />
+                        @context.Item.Type.GetDisplayDescription()
+                    </div>
+                </CellTemplate>
+
+            </Column>
+            <Column T="UserAttachmentResponse" Field="@nameof(UserAttachmentResponse.Description)" Title="@_displayResources[DisplayResources.UserAttachment_Description]" />
+            <Column Resizable="false" Context="rowData" Sortable="false" T="UserAttachmentResponse">
+                <CellTemplate>
+                    <MudButtonGroup Color="Color.Primary" Variant="Variant.Text" Class="d-flex justify-end">
+                        <MudIconButton Color="@Color.Inherit" OnClick="()=>ViewAttachment(rowData.Item)"><i class="far fa-memo-circle-info" /></MudIconButton>
+                        <MudIconButton Color="@Color.Inherit" OnClick="()=>AddOrUpdateAttachment(rowData.Item)"><i class="far fa-edit" /></MudIconButton>
+                        <MudIconButton Color="@Color.Error" OnClick="()=>DeleteAttachment(rowData.Item)"><i class="fas fa-trash-can" /></MudIconButton>
+                    </MudButtonGroup>
+                </CellTemplate>
+            </Column>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T=UserResponse />
+        </PagerContent>
+    </MudDataGrid>
+
+}
+else
+{
+    <Loading />
+}
+
+
+
+

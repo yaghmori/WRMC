@@ -1,0 +1,13 @@
+﻿@inherits BaseComponent
+<MudMenu Class="@Class" Dense="true" OffsetX="true" Icon="@Icons.Filled.Translate" Color="Color.Inherit" MaxHeight="200">
+    @foreach (var culture in Cultures)
+    {
+        if (culture.CultureInfo != null)
+        {
+            <MudMenuItem OnClick="(()=>OnClick(culture))">
+                <img src="@culture.Image" height="20" />
+                @culture.DisplayName
+            </MudMenuItem>
+        }
+    }
+</MudMenu>

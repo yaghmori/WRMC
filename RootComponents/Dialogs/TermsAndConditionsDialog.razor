@@ -1,0 +1,24 @@
+﻿<MudDialog>
+    <DialogContent>
+        <h4>Statement of Confidentiality</h4>
+        The Women's Resource Medical Centers of Southern Nevada (WRMCSN) will hold in strict confidence all client information with certain exceptions. Due to concern for the safety of our clients and state law, we are required to report knowledge of clients who are homicidal, suicidal, abusing a minor, or a victim of statutory sexual seduction.
+        <br />
+        <br />
+        <h4>Statement of Confidentiality</h4>
+        This facility is a non-profit, limited medical center. The pregnancy tests are 97% to 99% accurate. Regardless of your test result, we recommend that you consult with your physician. The counseling obtained here is not intended as a substitute for therapeutic counseling. This center does not perform or refer for abortion nor do we provide or refer for birth control or abortifacients.
+        <br />
+        I understand, agree and accept the statements of service and confidentiality by WRMCSN and I acknowledge that I have received a copy of the ' Notice of Privacy Practices' by checking and saving the form.&nbsp;
+        <br />
+        <div class="d-flex flex-row justify-content-end mt-4 mb-2 gap-2">
+            <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+            <MudButton 
+                       OnClick="OnSubmit"
+                       Class="w-85"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary">
+                @_viewResources[ViewResources.Confirm]
+            </MudButton>
+        </div>
+    </DialogContent>
+</MudDialog>
+

@@ -1,0 +1,41 @@
+﻿@inherits BaseComponent
+
+<MudDialog >
+    <DialogContent >
+        <MudPaper Elevation="0" Class="ml-n2 mr-n2 mb-2 pa-1">
+            @if (!IsLoading)
+            {
+                <div style="max-height:400px;" class="overflow-y-auto">
+                <MudTreeView Color="Color.Primary"
+                         T="IntroMethodResponse"
+                         Items="IntroMethodCollection.ToHashSet<IntroMethodResponse>()"
+                         ExpandOnClick=true
+                         Context="treeContext"
+                         Dense=false
+                         Hover=true>
+                    <ItemTemplate>
+                        <MudTreeViewItem Expanded=treeContext.IsExpanded OnClick="()=>OnItemClicked(treeContext)" ExpandedChanged="()=>OnExpanding(treeContext)" Items="@treeContext.IntroMethods.ToHashSet()">
+                            <Content>
+                                <div class="d-flex flex-row justify-content-between align-items-center " style="width:100%">
+                                    <div class="d-flex flex-row  align-items-center align-items-center ml-n2">
+                                            <MudTreeViewItemToggleButton ExpandedChanged="()=>OnExpanding(treeContext)" Expanded=treeContext.IsExpanded Visible="@treeContext.HasChild" />
+                                        <span><i Class="@treeContext.Icon fa mr-1" />@treeContext.DisplayTitle</span>
+                                    </div>
+                                </div>
+                            </Content>
+                        </MudTreeViewItem>
+                    </ItemTemplate>
+                </MudTreeView>
+                        </div>
+            }
+            else
+            {
+                <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-0" />
+            }
+        </MudPaper>
+
+    </DialogContent>
+</MudDialog>
+
+
+

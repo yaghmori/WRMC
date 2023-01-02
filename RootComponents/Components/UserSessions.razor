@@ -1,0 +1,39 @@
+﻿@inherits BaseComponent
+@if (!IsLoading)
+{
+    <MudDataGrid T="UserSessionResponse"
+             Loading=IsLoading
+             Elevation="2"
+             ColumnResizeMode="ResizeMode.Column"
+             Items="@SessionCollection"
+             ReadOnly="false"
+             EditTrigger="DataGridEditTrigger.Manual"
+             EditMode="DataGridEditMode.Form"
+             Hover="true" Dense="true" Striped="true"
+             FixedHeader="true">
+        <NoRecordsContent>
+            <div class="height:100px;">
+                <h6 class="text-secondary">@_messageResources[MessageResources.NoRecordFound]</h6>
+            </div>
+        </NoRecordsContent>
+
+        <Columns>
+            <Column T="UserSessionResponse" Field="@nameof(UserSessionResponse.Name)" Title="@_contextResources[ContextResources.UserSession_Name]" />
+            <Column T="UserSessionResponse" Field="@nameof(UserSessionResponse.StartDate)" Title="@_contextResources[ContextResources.UserSession_StartDate]" />
+            <Column T="UserSessionResponse" Field="@nameof(UserSessionResponse.LoginProvider)" Title="@_contextResources[ContextResources.UserSession_LoginProvider]" />
+            <Column Resizable="false" Context="rowData" Sortable="false" T="UserSessionResponse">
+                <CellTemplate>
+                    <MudButtonGroup Color="Color.Primary" Variant="Variant.Text" Class="d-flex justify-end">
+                        <MudIconButton Color="@Color.Error" OnClick="()=>TerminateSession(rowData.Item)"><i class="fas fa-trash-can" /></MudIconButton>
+                    </MudButtonGroup>
+                </CellTemplate>
+            </Column>
+        </Columns>
+    </MudDataGrid>
+}
+else
+{
+    <Loading />
+}
+
+

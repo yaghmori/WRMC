@@ -1,0 +1,297 @@
+    public static class SelectExpressions
+    {
+        public static class Sections
+        {
+            public static Expression<Func<Section, SectionResponse>> SectionResponse = s => new SectionResponse
+            {
+                Id = s.Id.ToString(),
+                Name = s.Name,
+                ParentId = s.ParentId.ToString(),
+                SectionType = s.SectionType,
+                IsRequired = s.IsRequired,
+                DisplayTitle = s.DisplayTitle,
+                Level = s.Level,
+                Sex = s.Sex,
+                Claims = s.SectionClaims.Select(x => new SectionClaimResponse
+                {
+                    Id = x.Id.ToString(),
+                    ClaimType = x.ClaimType,
+                    ClaimValue = x.ClaimValue
+                }).ToList(),
+                Visits = s.VisitSections.Select(x=>new SectionVisitResponse
+                {
+                    Id = x.Visit.Id.ToString(),
+                    CaseId = x.Visit.CaseId,
+                    Comment = x.Visit.Comment,
+                    Status = x.Visit.Status,
+                    TerminationComment = x.Visit.TerminationComment
+                }).ToList()
+            };
+        }
+        public static class Visits
+        {
+            public static Expression<Func<Visit, VisitResponse>> VisitResponse = s => new VisitResponse
+            {
+                Id = s.Id.ToString(),
+                Comment = s.Comment,
+                CaseId = s.CaseId,
+                Status = s.Status,
+                TerminationComment = s.TerminationComment,
+                Sections = s.VisitSections.Select(x=>new VisitSectionResponse
+                {
+                    Id = x.Section.Id.ToString(),
+                    SectionType = x.Section.SectionType,
+                    DisplayFlag = x.Section.DisplayFlag,
+                    DisplayTitle = x.Section.DisplayTitle,
+                    Level = x.Section.Level,
+                    Name = x.Section.Name,
+                    Sex = x.Section.Sex,
+                    ParentId = x.Section.ParentId.ToString(),
+                }).ToList()
+            };
+
+        }
+        public static class VisitSections
+        {
+            public static Expression<Func<VisitSection, SectionResponse>> SectionResponse = s => new SectionResponse
+            {
+                Id = s.Section.Id.ToString(),
+                Name = s.Section.Name,
+                ParentId = s.Section.ParentId.ToString(),
+                SectionType = s.Section.SectionType,
+                DisplayFlag = s.Section.DisplayFlag,
+                DisplayTitle = s.Section.DisplayTitle,
+                Level = s.Section.Level,
+                Sex = s.Section.Sex,
+            };
+        }
+        public static class Tenants
+        {
+            public static Expression<Func<Tenant, TenantResponse>> TenantResponse = s => new TenantResponse
+            {
+                Id = s.Id.ToString(),
+                Name = s.Name,
+                IsActive = s.IsActive,
+                ExpireDate = s.ExpireDate,
+                Description = s.Description,
+                DBProvider = s.DBProvider,
+                ConnectionString = s.ConnectionString,
+                Users = s.UserTenants.Select(u => new UserResponse
+                {
+                    Image = u.User.Image,
+                    Id = u.User.Id.ToString(),
+                    PhoneNumber = u.User.PhoneNumber,
+                    FirstName = u.User.FirstName,
+                    LastName = u.User.LastName,
+                    Email = u.User.Email
+                }).ToList()
+            };
+        }
+        public static class Users
+        {
+            public static Expression<Func<User, UserResponse>> UserResponse = s => new UserResponse
+            {
+                Id = s.Id.ToString(),
+                Email = s.Email,
+                PhoneNumber = s.PhoneNumber,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                Description = s.Description,
+                Image = s.Image,
+                IsActive = s.IsActive,
+                UserSettings = new UserSettingsResponse
+                {
+                    Id = s.UserSettings.Id.ToString(),
+                    Culture = s.UserSettings.Culture,
+                    DarkMode = s.UserSettings.DarkMode,
+                    DefaultTenantId = s.UserSettings.DefaultTenantId.ToString(),
+                    RightToLeft = s.UserSettings.RightToLeft,
+                    Theme = s.UserSettings.Theme
+                },
+                //Roles = s.UserRoles.Select(r => new UserRoleResponse
+                //{
+                //    Id = r.Role.Id.ToString(),
+                //    Name = r.Role.Name
+                //}).ToList(),
+                //Tenants = s.UserTenants.Select(d => new UserTenantResponse
+                //{
+                //    Id = d.Tenant.Id.ToString().ToLowerInvariant(),
+                //    Name = d.Tenant.Name,
+                //    ExpireDate = d.Tenant.ExpireDate,
+                //    IsActive = d.Tenant.IsActive,
+                //    Description = d.Tenant.Description,
+                //    DBProvider = d.Tenant.DBProvider,
+                //    ConnectionString = d.Tenant.ConnectionString,
+                //}).ToList(),
+                //Claims = s.UserClaims.Select(c => new UserClaimResponse
+                //{
+                //    ClaimType = c.ClaimType,
+                //    ClaimValue = c.ClaimValue,
+                //}).ToList(),
+                //Sessions = s.UserSessions.Select(t => new UserSessionResponse
+                //{
+                //    Id=t.Id.ToString(),
+                //    Name = t.Name,
+                //    LoginProvider = t.LoginProvider,
+                //    BuildVersion = t.BuildVersion,
+                //}).ToList()
+            };
+        }
+        public static class UserClaims
+        {
+            public static Expression<Func<UserClaim, UserClaimResponse>> UserClaimResponse = s => new UserClaimResponse
+            {
+                ClaimType = s.ClaimType,
+                ClaimValue = s.ClaimValue
+            };
+            public static Expression<Func<UserClaim, ClaimResponse>> ClaimResponse = s => new ClaimResponse
+            {
+                ClaimType = s.ClaimType,
+                ClaimValue = s.ClaimValue,
+
+            };
+
+        }
+        public static class UserTenants
+        {
+            public static Expression<Func<UserTenant, UserResponse>> UserResponse = s => new UserResponse
+            {
+                Id = s.User.Id.ToString(),
+                Email = s.User.Email,
+                PhoneNumber = s.User.PhoneNumber,
+                FirstName = s.User.FirstName,
+                LastName = s.User.LastName,
+                Description = s.User.Description,
+                Image = s.User.Image,
+            };
+            public static Expression<Func<UserTenant, TenantResponse>> TenantResponse = s => new TenantResponse
+            {
+                Id = s.Tenant.Id.ToString(),
+                Description = s.Tenant.Description,
+                ExpireDate = s.Tenant.ExpireDate,
+                ConnectionString = s.Tenant.ConnectionString,
+                DBProvider = s.Tenant.DBProvider,
+                IsActive = s.Tenant.IsActive,
+                Name = s.Tenant.Name,
+            };
+        }
+        public static class UserSessions
+        {
+            public static Expression<Func<UserSession, UserSessionResponse>> UserSessionResponse = s => new UserSessionResponse
+            {
+                Id = s.Id.ToString(),
+                //UserId = s.UserId.ToString(),
+                Name = s.Name,
+                LoginProvider = s.LoginProvider,
+                StartDate = s.StartDate,
+                BuildVersion = s.BuildVersion,
+                SessionIpAddress = s.SessionIpAddress,
+               // RefreshToken = s.RefreshToken,
+              //  RefreshTokenExpires = s.RefreshTokenExpires,
+            };
+        }
+        public static class UserRoles
+        {
+            public static Expression<Func<UserRole, RoleResponse>> RoleResponse = s => new RoleResponse
+            {
+                Id = s.Role.Id.ToString(),
+                Name = s.Role.Name
+            };
+
+            public static Expression<Func<UserRole, UserResponse>> UserResponse = s => new UserResponse
+            {
+                Id = s.User.Id.ToString(),
+                Email = s.User.Email,
+                FirstName = s.User.FirstName,
+                LastName = s.User.LastName,
+                Image = s.User.Image
+            };
+        }
+        public static class Roles
+        {
+            public static Expression<Func<Role, RoleResponse>> DetailedRoleResponse = s => new RoleResponse
+            {
+                Id = s.Id.ToString(),
+                Name = s.Name,
+                //Claims = s.RoleClaims.Select(x => new RoleClaimResponse
+                //{
+                //    ClaimType = x.ClaimType,
+                //    ClaimValue = x.ClaimValue,
+                //}).ToList(),
+                //Users = s.UserRoles.Select(x => new RoleUserResponse
+                //{
+                //    Id = x.User.Id.ToString(),
+                //    Description = x.User.Description,
+                //    Email = x.User.Email,
+                //    FirstName = x.User.FirstName,
+                //    LastName = x.User.LastName,
+                //    Image = x.User.Image,
+                //    PhoneNumber = x.User.PhoneNumber,
+                //}).ToList()
+            };
+            public static Expression<Func<Role, RoleResponse>> RoleResponse = s => new RoleResponse
+            {
+                Id = s.Id.ToString(),
+                Name = s.Name,
+            };
+
+
+        }
+        public static class RoleClaims
+        {
+            public static Expression<Func<RoleClaim, ClaimResponse>> ClaimResponse = s => new ClaimResponse
+            {
+                ClaimType = s.ClaimType,
+                ClaimValue = s.ClaimValue,
+
+            };
+
+        }
+        public static class AppSettings
+        {
+            public static Expression<Func<AppSetting, AppSettingsResponse>> AppSettingsResponse = s => new AppSettingsResponse
+            {
+                Id = s.Id.ToString(),
+                Key = s.Key,
+                Value = s.Value,
+                Description = s.Description,
+                IsReadOnly = s.IsReadOnly,
+            };
+        }
+        public static class UserSettings
+        {
+            public static Expression<Func<UserSetting, UserSettingsResponse>> UserSettingsResponse = s => new UserSettingsResponse
+            {
+                Id = s.Id.ToString(),
+                Culture = s.Culture,
+                DarkMode = s.DarkMode,
+                DefaultTenantId = s.DefaultTenantId.ToString(),
+                RightToLeft = s.RightToLeft,
+                Theme = s.Theme,
+                UserId = s.UserId.ToString(),
+            };
+        }
+        public static class Cultures
+        {
+            public static Expression<Func<Culture, CultureResponse>> CultureResponse = x => new CultureResponse
+            {
+                Id = x.Id.ToString(),
+                DisplayName = x.DisplayName,
+                CultureName = x.CultureName,
+                RightToLeft = x.RightToLeft,
+                DateSeparator = x.DateSeparator,
+                FullDateTimePattern = x.FullDateTimePattern,
+                FirstDayOfWeek = DayOfWeek.Monday,
+                IsDefault = x.IsDefault,
+                LongDatePattern = x.LongDatePattern,
+                LongTimePattern = x.LongTimePattern,
+                MonthDayPattern = x.MonthDayPattern,
+                ShortDatePattern = x.ShortDatePattern,
+                ShortTimePattern = x.ShortTimePattern,
+                TimeSeparator = x.TimeSeparator,
+                YearMonthPattern = x.YearMonthPattern,
+                Image = x.Image,
+            };
+        }
+
+    }

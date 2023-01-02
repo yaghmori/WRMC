@@ -1,0 +1,76 @@
+﻿@inherits BaseComponent
+@if (!IsLoading)
+{
+    <EditForm EditContext="EditContext">
+        <FluentValidator />
+
+        <MudGrid Spacing="3">
+
+
+            <MudItem sm="12" md="6">
+                @_messageResources[MessageResources.DoYouHaveAccessToPrenatalCare]
+                <MudRadioGroup For="()=>Model.AffordPrenatal" @bind-SelectedOption=Model.AffordPrenatal>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                </MudRadioGroup>
+            </MudItem>
+            <MudItem sm="12" md="6">
+                @_messageResources[MessageResources.DoYouFeelHavingAChildNowWouldCreateAnUndueBurdenFinancially]
+                <MudRadioGroup For="()=>Model.UndueBurden" @bind-SelectedOption=Model.UndueBurden>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                </MudRadioGroup>
+            </MudItem>
+            <MudItem sm="12" md="6">
+                @_messageResources[MessageResources.IsYourCurrentLivingArrangementConduciveToRaisingChildren]
+                <MudRadioGroup For="()=>Model.ConduciveRaising" @bind-SelectedOption=Model.ConduciveRaising>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                </MudRadioGroup>
+            </MudItem>
+            <MudItem sm="12" md="6">
+                @if (Model?.Gender == GenderEnum.Female)
+                {
+                    @_messageResources[MessageResources.ShouldTheTestResultBePositiveDoYouFeelYouNeedToHideYourPregnancy]
+                    <MudRadioGroup For="()=>Model.HidePregnancy" @bind-SelectedOption=Model.HidePregnancy>
+                        <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
+                        <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                    </MudRadioGroup>
+
+                }
+            </MudItem>
+
+            <MudItem sm="12" md="6">
+                @_messageResources[MessageResources.AreYouDisabledAndOrDevelopmentallyDisabled]
+                <MudRadioGroup For="()=>Model.Disabled" @bind-SelectedOption=Model.Disabled>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                </MudRadioGroup>
+            </MudItem>
+        </MudGrid>
+        <div class="d-flex flex-row justify-content-end m-2 gap-2">
+            <MudButton Disabled="@(!context.Validate() || !context.IsModified() || IsBusy)"
+                   Class="w-85"
+                   ButtonType="ButtonType.Submit"
+                   Size="Size.Large"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary">
+                @if (IsBusy)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                }
+                else
+                {
+                    @_viewResources[ViewResources.Submit]
+                }
+            </MudButton>
+        </div>
+
+    </EditForm>
+
+}
+else
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-0" />
+}

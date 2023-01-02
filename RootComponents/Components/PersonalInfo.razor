@@ -1,0 +1,163 @@
+﻿@inherits BaseComponent
+@if (!IsLoading)
+{
+    <EditForm Model="@UserProfileRequest" OnValidSubmit="SubmitPersonalInfoAsync">
+        <FluentValidator />
+        <MudGrid Spacing="3">
+            <MudItem xs="12" sm="5" md="4" lg="3">
+                <MudPaper Class="d-flex flex-column justify-content-center align-items-center">
+                    <MudAvatar Class="m-2" Image="@UserProfileRequest.ProfileImage" Style="height:200px; width:200px;">
+                        @if (UserProfileRequest.ProfileImage == null)
+                        {
+                            <MudIcon Size="Size.Large"></MudIcon>
+                        }
+                    </MudAvatar>
+                    <div class="m-3"> <i class="far fa-envelope fa-lg"></i> @UserProfileRequest.Email</div>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="7" md="8" lg="9">
+                <MudCard>
+                    <MudCardContent>
+                        <MudGrid>
+                            <MudItem xs="12" md="6">
+                                <MudRadioGroup @bind-SelectedOption=UserProfileRequest.Gender
+                                           For="@(()=>UserProfileRequest.Gender)">
+                                    @foreach (var item in Enum.GetValues(typeof(GenderEnum)).Cast<GenderEnum?>())
+                                    {
+                                        <MudRadio Option="@item" Color="Color.Primary">@item?.GetDisplayDescription()</MudRadio>
+                                    }
+                                </MudRadioGroup>
+
+                            </MudItem>
+
+                            <MudItem xs="6" md="3">
+                                @if (UserProfileRequest.Gender == GenderEnum.Female)
+                                {
+                                    <MudNumericField @bind-Value="UserProfileRequest.Height" T="short?"
+                                             For="@(()=>UserProfileRequest.Height)"
+                                             Label="@_displayResources[DisplayResources.UserProfile_Height]"
+                                             Immediate=true
+                                             Margin="Margin.Dense"
+                                             Variant="Variant.Outlined">
+                                    </MudNumericField>
+                                }
+                            </MudItem>
+
+                            <MudItem xs="6" md="3">
+                                @if (UserProfileRequest.Gender == GenderEnum.Female)
+                                {
+                                    <MudNumericField @bind-Value="UserProfileRequest.Weight" T="short?"
+                                             For="@(()=>UserProfileRequest.Weight)"
+                                             Label="@_displayResources[DisplayResources.UserProfile_Weight]"
+                                             Immediate=true
+                                             Margin="Margin.Dense"
+                                             Variant="Variant.Outlined">
+                                    </MudNumericField>
+                                }
+                            </MudItem>
+
+                            <MudItem xs="12">
+                                <MudTextField @bind-Value="@UserProfileRequest.IdNumber"
+                                          For="@(() => UserProfileRequest.IdNumber)"
+                                          Label="@_displayResources[DisplayResources.IdNumber]"
+                                          Immediate="true"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.Start"
+                                          AdornmentIcon="@Icons.Material.Filled.Fingerprint" />
+                            </MudItem>
+
+                            <MudItem xs="12" md="6">
+                                <MudDatePicker @bind-Date="UserProfileRequest.BirthDate"
+                                           For="@(()=>UserProfileRequest.BirthDate)"
+                                           Label="@_displayResources[DisplayResources.BirthDate]"
+                                           PickerVariant="PickerVariant.Dialog"
+                                           Variant="Variant.Outlined" />
+                            </MudItem>
+
+                            <MudItem xs="12" md="6">
+                                <MudSelect @bind-Value="UserProfileRequest.RaceNationality"
+                                       Immediate=true
+                                       For="@(()=>UserProfileRequest.RaceNationality)"
+                                       Label="@_displayResources[DisplayResources.RaceNationality]"
+                                       Variant="Variant.Outlined">
+                                    @foreach (var item in Enum.GetValues(typeof(RaceEnum)).Cast<RaceEnum?>())
+                                    {
+                                        <MudSelectItem Value="@item">@item.GetDisplayDescription()</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudItem>
+
+                            <MudItem xs="12" md="4">
+                                <MudTextField @bind-Value="@UserProfileRequest.FirstName"
+                                          For="@(() => UserProfileRequest.FirstName)"
+                                          Label="@_displayResources[DisplayResources.FirstName]"
+                                          Variant="Variant.Outlined" />
+                            </MudItem>
+
+                            <MudItem xs="12" md="4">
+                                <MudTextField @bind-Value="@UserProfileRequest.MiddleName"
+                                          For="@(() => UserProfileRequest.MiddleName)"
+                                          Label="@_displayResources[DisplayResources.MiddleName]"
+                                          Immediate="true"
+                                          Variant="Variant.Outlined" />
+                            </MudItem>
+
+                            <MudItem xs="12" md="4">
+                                <MudTextField @bind-Value="@UserProfileRequest.LastName"
+                                          For="@(() => UserProfileRequest.LastName)"
+                                          Label="@_displayResources[DisplayResources.LastName]"
+                                          Immediate="true"
+                                          Variant="Variant.Outlined" />
+                            </MudItem>
+
+                            <MudItem xs="12" md="4">
+                                <MudTextField Text="@UserProfileRequest.IntroMethod?.Path"
+                                          @bind-Value="@UserProfileRequest.IntroMethod"
+                                          For="@(() => UserProfileRequest.IntroMethod)"
+                                          Label="@_displayResources[DisplayResources.IntroMethodId]"
+                                          @onclick="SelectIntroMethodDialog"
+                                          OnAdornmentClick="SelectIntroMethodDialog"
+                                          Variant="Variant.Outlined"
+                                          Adornment="Adornment.End"
+                                          Immediate=true
+                                          AdornmentIcon="@Icons.Material.Filled.Search" ReadOnly=true />
+                            </MudItem>
+
+                            <MudItem xs="12" md="8">
+                                @if (UserProfileRequest.IsAdditionalInfoRequired == true)
+                                {
+                                    <MudTextField @bind-Value="@UserProfileRequest.IntroMethodDescription"
+                                          For="@(() => UserProfileRequest.IntroMethodDescription)"
+                                          Label="@UserProfileRequest.IntroMethod.AdditionalInfoLabel"
+                                          Variant="Variant.Outlined"
+                                          Immediate=true
+                                          Clearable="true" />
+                                }
+                            </MudItem>
+                        </MudGrid>
+                    </MudCardContent>
+                    <MudCardActions Class="pb-4 pl-4">
+                        <MudButton Disabled="@(!context.Validate() || !context.IsModified() || IsBusy)" ButtonType="ButtonType.Submit" FullWidth=true Size="Size.Large" Variant="Variant.Filled" Color="Color.Primary">
+                            @if (IsBusy)
+                            {
+                                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                            }
+                            else
+                            {
+                                @_viewResources[ViewResources.SaveChanges]
+                            }
+
+                        </MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+}
+else
+{
+    <Loading />
+}
+
+

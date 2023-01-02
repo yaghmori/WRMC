@@ -1,0 +1,139 @@
+﻿@using WRMC.RootComponents.Enums;
+<div class="d-flex align-center justify-center @wizardOrientationClass " style="height:100%; width:100%;">
+    <div class="d-flex justify-between  @stepsOrientationClass" style="@stepsOrientationStyle">
+        @foreach (var step in Steps.OrderBy(x => x.Order))
+        {
+            var maincolor = step.Order == ActiveStep.Order ? "text-primary" : "text-black";
+            var descriptionColor = step.Order == ActiveStep.Order ? "text-primary" : "text-black-50";
+
+            <div class="d-flex justify-start @(Orientation==WizardOrientationEnum.horizontal?"align-center":"align-start ") mb-3 mb-md-5">
+                <div class="d-flex flex-column justify-start align-center">
+                    <div class="@(step.Order==ActiveStep.Order ? "bg-primary":"bg-light border border-light-subtle") rounded-3 mx-1 d-flex justify-content-center align-items-center" style="min-width:40px; min-height:40px; ">
+
+                        @if (@step.Icon == null)
+                        {
+                            <b class="@(step.Order==ActiveStep.Order ? "text-light":"text-black") @(step.IsDone ? "text-light":"")">@step.Order</b>
+                        }
+                        else
+                        {
+                            <i class="@step.Icon @(step.Order==ActiveStep.Order ? "text-light":"text-black") @(step.IsDone ? "text-light":"")"></i>
+                        }
+                    </div>
+                    @if (Orientation == WizardOrientationEnum.Vertical)
+                    {
+                        @if (step?.Order != Steps.Max(x => (int?)x.Order))
+                        {
+
+                            @if (Liner)
+                            {
+                                <hr class="@maincolor @(step.IsDone ? "text-primary":"")" style="width:1px; height: 100%;" />
+                            }
+                            else
+                            {
+                                <i class="fad fa-chevrons-down mt-3 @maincolor @(step.IsDone ? "text-primary":"")"></i>
+                            }
+
+                        }
+                    }
+                </div>
+                <div class="mx-1 d-flex flex-column  justify-start">
+                    <span class="@maincolor">@step.Title</span>
+                    <small class="@maincolor opacity-50">@step.Description</small>
+                </div>
+                @if (Orientation == WizardOrientationEnum.horizontal)
+                {
+                    @if (step?.Order != Steps.Max(x => (int?)x.Order))
+                    {
+                        @if (Liner)
+                        {
+                            <div>
+                                <hr />
+                            </div>
+                        }
+                        else
+                        {
+                            <i class="fad fa-chevrons-right ml-2 mr-3 @maincolor"></i>
+                        }
+                    }
+                }
+            </div>
+        }
+        @if (Orientation == WizardOrientationEnum.horizontal)
+        {
+            <hr />
+        }
+        else
+        {
+            <div class="m-0">
+                <hr class="m-0" style="width:1px; height: 100%;" />
+            </div>
+        }
+    </div>
+
+    <div class="d-flex flex-column align-center justify-center pa-5" style="width:100%; height:100%;">
+        <div class="pa-5">
+            <CascadingValue Value="this">
+                @ChildContent(ActiveStep)
+            </CascadingValue>
+
+        </div>
+
+        <div class="d-flex flex-row align-bottom justify-center" style="width:100%;">
+            @if (ActiveStep?.Order != Steps.Min(x => (int?)x.Order))
+            {
+                var prevStep = Steps.Where(x => x.Order == ActiveStep?.Order - 1).FirstOrDefault();
+                <MudButton OnClick="()=>SetActivateStep(prevStep)" Size="Size.Large"
+                       Style="width:150px;"
+                       StartIcon="fad fa-chevrons-left"
+                       Variant="Variant.Filled"
+                       Color="Color.Default">
+                    @_viewResources[ViewResources.Previous]
+                </MudButton>
+            }
+            <div class="mx-3">
+            </div>
+            @if (ActiveStep?.ShowSubmit==true && IsModified)
+            {
+                <MudButton OnClick="OnValidSubmitAsync" ButtonType="ButtonType.Submit"
+                       Disabled=@(!AllowSubmit || !IsModified)
+                       Style="width:150px;"
+                       EndIcon="fad fa-chevrons-right"
+                       Size="Size.Large"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary">
+                    @_viewResources[ViewResources.Submit]
+                </MudButton>
+            }
+            else
+            {
+                @if (ActiveStep?.Order != Steps.Max(x => (int?)x.Order))
+                {
+                    var nextStep = Steps.Where(x => x.Order == ActiveStep?.Order + 1).FirstOrDefault();
+                    <MudButton OnClick="()=>SetActivateStep(nextStep)"
+                       Disabled=@(!ActiveStep.IsValid)
+                       Style="width:150px;"
+                       EndIcon="fad fa-chevrons-right"
+                       Size="Size.Large"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary">
+                        @_viewResources[ViewResources.Next]
+                    </MudButton>
+                }
+
+            }
+
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+

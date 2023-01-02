@@ -1,0 +1,300 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Birth" xml:space="preserve">
+    <value>Birth</value>
+  </data>
+  <data name="BirthDate" xml:space="preserve">
+    <value>Date of birth</value>
+  </data>
+  <data name="ConnectionString" xml:space="preserve">
+    <value>Connection String</value>
+  </data>
+  <data name="CurrentPassword" xml:space="preserve">
+    <value>Current Password</value>
+  </data>
+  <data name="DemographicIntake_Employer" xml:space="preserve">
+    <value>Employer</value>
+  </data>
+  <data name="DemographicIntake_EmploymentStatus" xml:space="preserve">
+    <value>Employment Status</value>
+  </data>
+  <data name="DemographicIntake_FinancialSupportSource" xml:space="preserve">
+    <value>Financial Support Source</value>
+  </data>
+  <data name="DemographicIntake_ImmigrationStatus" xml:space="preserve">
+    <value>Immigration Status</value>
+  </data>
+  <data name="DemographicIntake_Income" xml:space="preserve">
+    <value>Household Income</value>
+  </data>
+  <data name="DemographicIntake_InsuranceName" xml:space="preserve">
+    <value>Insurance Name</value>
+  </data>
+  <data name="DemographicIntake_InsuranceNumber" xml:space="preserve">
+    <value>Insurance Number</value>
+  </data>
+  <data name="DemographicIntake_LastGrade" xml:space="preserve">
+    <value>Last Grade</value>
+  </data>
+  <data name="DemographicIntake_LivingArrangement" xml:space="preserve">
+    <value>Living Arrangement</value>
+  </data>
+  <data name="DemographicIntake_MaritalStatus" xml:space="preserve">
+    <value>Marital Status</value>
+  </data>
+  <data name="DemographicIntake_NumberOfPeopleInHousehold" xml:space="preserve">
+    <value># of people in household</value>
+  </data>
+  <data name="DemographicIntake_NumberOfPeopleOnYourTaxReturn" xml:space="preserve">
+    <value># of people on your tax return</value>
+  </data>
+  <data name="DemographicIntake_Occupation" xml:space="preserve">
+    <value>Occupation</value>
+  </data>
+  <data name="DemographicIntake_SchoolName" xml:space="preserve">
+    <value>School Name</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="EmergencyName" xml:space="preserve">
+    <value>Emergency Contact Name</value>
+  </data>
+  <data name="EmergencyPhone" xml:space="preserve">
+    <value>Emergency PhoneNumber</value>
+  </data>
+  <data name="ExpireDate" xml:space="preserve">
+    <value>Expire Date</value>
+  </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>First Name</value>
+  </data>
+  <data name="Gender" xml:space="preserve">
+    <value>Gender</value>
+  </data>
+  <data name="IdNumber" xml:space="preserve">
+    <value>Id Number</value>
+  </data>
+  <data name="IntroMethodDescription" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="IntroMethodId" xml:space="preserve">
+    <value>Introduction Methods</value>
+  </data>
+  <data name="IsNoticeAccepted" xml:space="preserve">
+    <value>Notice Accepted</value>
+  </data>
+  <data name="IsVolunteer" xml:space="preserve">
+    <value>Is Volunteer</value>
+  </data>
+  <data name="LastName" xml:space="preserve">
+    <value>Last Name</value>
+  </data>
+  <data name="MiddleName" xml:space="preserve">
+    <value>Middle Name</value>
+  </data>
+  <data name="NewPassword" xml:space="preserve">
+    <value>New Password</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="PasswordConfirmation" xml:space="preserve">
+    <value>Password Confirmation</value>
+  </data>
+  <data name="ProfileImage" xml:space="preserve">
+    <value>Profile Image</value>
+  </data>
+  <data name="RaceNationality" xml:space="preserve">
+    <value>Race Nationality</value>
+  </data>
+  <data name="Region.Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="RoleName" xml:space="preserve">
+    <value>Role Name</value>
+  </data>
+  <data name="TenantName" xml:space="preserve">
+    <value>Tenant Name</value>
+  </data>
+  <data name="UserAddress_Address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="UserAddress_AddressType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="UserAddress_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="UserAddress_IsDefault" xml:space="preserve">
+    <value>IsDefault</value>
+  </data>
+  <data name="UserAddress_Region" xml:space="preserve">
+    <value>Region</value>
+  </data>
+  <data name="UserAddress_UserId" xml:space="preserve">
+    <value>UserId</value>
+  </data>
+  <data name="UserAddress_ZipCode" xml:space="preserve">
+    <value>Zip code</value>
+  </data>
+  <data name="UserAttachment.Content" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="UserAttachment.Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="UserAttachment.IsDefault" xml:space="preserve">
+    <value>IsDefault</value>
+  </data>
+  <data name="UserAttachment.Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="UserAttachment.URL" xml:space="preserve">
+    <value>URL</value>
+  </data>
+  <data name="UserAttachment.UserId" xml:space="preserve">
+    <value>UserId</value>
+  </data>
+  <data name="UserPhoneNumber.Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="UserPhoneNumber.IsDefault" xml:space="preserve">
+    <value>IsDefault</value>
+  </data>
+  <data name="UserPhoneNumber.PhoneNumber" xml:space="preserve">
+    <value>Phone number</value>
+  </data>
+  <data name="UserPhoneNumber.Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="UserPhoneNumber.UserId" xml:space="preserve">
+    <value>UserId</value>
+  </data>
+  <data name="UserProfile_Height" xml:space="preserve">
+    <value>Height</value>
+  </data>
+  <data name="UserProfile_Weight" xml:space="preserve">
+    <value>Weight</value>
+  </data>
+</root>

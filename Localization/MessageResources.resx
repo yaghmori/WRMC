@@ -1,0 +1,352 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AddressSuccessfullyAdded" xml:space="preserve">
+    <value>Address successfully added.</value>
+  </data>
+  <data name="AddressSuccessfullyDeleted" xml:space="preserve">
+    <value>Address successfully deleted.</value>
+  </data>
+  <data name="AddressSuccessfullyUpdated" xml:space="preserve">
+    <value>Address successfully updated.</value>
+  </data>
+  <data name="AreYouCurrentlyAttendingSchool" xml:space="preserve">
+    <value>Are you currently attending school?</value>
+  </data>
+  <data name="AreYouDisabledAndOrDevelopmentallyDisabled" xml:space="preserve">
+    <value>Are you disabled and/or developmentally disabled?</value>
+  </data>
+  <data name="AreYouSureYouWantToTerminateThisSession" xml:space="preserve">
+    <value>Are you sure you want to terminate this session?</value>
+  </data>
+  <data name="AttachmentSuccessfullyAdded" xml:space="preserve">
+    <value>Attachment successfully added.</value>
+  </data>
+  <data name="AttachmentSuccessfullyDeleted" xml:space="preserve">
+    <value>Attachment successfully deleted.</value>
+  </data>
+  <data name="AttachmentSuccessfullyUpdated" xml:space="preserve">
+    <value>Attachment successfully updated.</value>
+  </data>
+  <data name="ClientSuccessfullyCreated" xml:space="preserve">
+    <value>Client successfully created.</value>
+  </data>
+  <data name="ClientSuccessfullyDeleted" xml:space="preserve">
+    <value>Client successfully deleted.</value>
+  </data>
+  <data name="ClientSuccessfullyUpdated" xml:space="preserve">
+    <value>Client successfully updated.</value>
+  </data>
+  <data name="CreatingClientFailed" xml:space="preserve">
+    <value>Creating Client failed.</value>
+  </data>
+  <data name="CreatingRoleFailed" xml:space="preserve">
+    <value>Creating Role failed.</value>
+  </data>
+  <data name="CreatingSiloItemFailed" xml:space="preserve">
+    <value>Creating siloItem failed.</value>
+  </data>
+  <data name="CreatingUserFailed" xml:space="preserve">
+    <value>Creating user failed.</value>
+  </data>
+  <data name="DeleteAllSiloItemConfirmation" xml:space="preserve">
+    <value>By confirming this operation, all the data related to the client including all the information related to the temperature history of the sensors, as well as the information related to the mapping (configuration) of the project will be deleted and cannot be recovered.
+
+Are you sure you want to confirm this operation ?</value>
+  </data>
+  <data name="DeleteAllSiloItemsCompletedSuccessfull" xml:space="preserve">
+    <value>All silo items have been successfully deleted.</value>
+  </data>
+  <data name="DeleteAllSiloItemsFailed" xml:space="preserve">
+    <value>Delete all silo items failed.</value>
+  </data>
+  <data name="DeleteSiloItemConfirmation" xml:space="preserve">
+    <value>By confirming this operation, all data related to this {0} ,including information related to mapping (configuration) and temperature history will be irreversibly deleted.
+
+Are you sure you want to confirm this operation?</value>
+  </data>
+  <data name="DeleteSiloItemFailed" xml:space="preserve">
+    <value>Deleting SiloItem failed.</value>
+  </data>
+  <data name="DeleteSiloItemSuccessfull" xml:space="preserve">
+    <value>SiloItem successfully deleted.</value>
+  </data>
+  <data name="DeletingClientFailed" xml:space="preserve">
+    <value>Deleting Client failed.</value>
+  </data>
+  <data name="DeletingRoleFailed" xml:space="preserve">
+    <value>Deleting role failed.</value>
+  </data>
+  <data name="DeletingUserFailed" xml:space="preserve">
+    <value>Deleting user failed.</value>
+  </data>
+  <data name="DemographicIntakeSuccessfullyCompleted" xml:space="preserve">
+    <value>Demographic Intake successfully completed</value>
+  </data>
+  <data name="DoYouFeelHavingAChildNowWouldCreateAnUndueBurdenFinancially" xml:space="preserve">
+    <value>Do you feel having a child now would create an undue burden financially?</value>
+  </data>
+  <data name="DoYouForgotPassword" xml:space="preserve">
+    <value>Forgot your Password?</value>
+  </data>
+  <data name="DoYouHaveAccessToPrenatalCare" xml:space="preserve">
+    <value>Do you have access to prenatal care?</value>
+  </data>
+  <data name="DoYouHaveAnInsurance" xml:space="preserve">
+    <value>Do you have an insurance?</value>
+  </data>
+  <data name="DoYouReallyWantToDeleteAddress" xml:space="preserve">
+    <value>Do you really want to delete Address ?</value>
+  </data>
+  <data name="DoYouReallyWantToDeleteAttachment" xml:space="preserve">
+    <value>Do you really want to delete Attachment ?</value>
+  </data>
+  <data name="DoYouReallyWantToDeleteClient" xml:space="preserve">
+    <value>Do you really want to delete Client? This process cannot be undone.</value>
+  </data>
+  <data name="DoYouReallyWantToDeletePhoneNumber" xml:space="preserve">
+    <value>Do you really want to delete Phone number ?</value>
+  </data>
+  <data name="DoYouReallyWantToDeleteRole" xml:space="preserve">
+    <value>Do you really want to delete '{0}'? Users who have this role will be restricted.</value>
+  </data>
+  <data name="DoYouReallyWantToDeleteUser" xml:space="preserve">
+    <value>Do you really want to delete '{0}'? All data releated to this user will be deleted too.</value>
+  </data>
+  <data name="EnterEmailToReciveForgotPasswordCode" xml:space="preserve">
+    <value>Enter the email address linked to your account and you will recive an email containing a link to reset your password.</value>
+  </data>
+  <data name="IhaveReadAndAgreeToTheTermsAndConditions" xml:space="preserve">
+    <value>I have read and agree to the terms and conditions.</value>
+  </data>
+  <data name="IsYourCurrentLivingArrangementConduciveToRaisingChildren" xml:space="preserve">
+    <value>Is your current living arrangement conducive to raising children (Check No if you're Homeless/Unsafe)?</value>
+  </data>
+  <data name="IsYourIncomeCombinedFromMultipleSources" xml:space="preserve">
+    <value>Is your income combined from multiple sources?</value>
+  </data>
+  <data name="NoRecordFound" xml:space="preserve">
+    <value>No record found</value>
+  </data>
+  <data name="NotAuthorizedToAccessThisResource" xml:space="preserve">
+    <value>You are not authorized to access this resource.</value>
+  </data>
+  <data name="PageNotFoundMessage" xml:space="preserve">
+    <value>Requested Page Not Found!</value>
+  </data>
+  <data name="PhoneNumberSuccessfullyAdded" xml:space="preserve">
+    <value>Phone number successfully added.</value>
+  </data>
+  <data name="PhoneNumberSuccessfullyDeleted" xml:space="preserve">
+    <value>Phone number successfully deleted.</value>
+  </data>
+  <data name="PhoneNumberSuccessfullyUpdated" xml:space="preserve">
+    <value>Phone number successfully updated.</value>
+  </data>
+  <data name="PleaseSelectClientToContinue" xml:space="preserve">
+    <value>Please select a data system to continue</value>
+  </data>
+  <data name="RegisterSuccessfull" xml:space="preserve">
+    <value>Registration has been successfully completed.</value>
+  </data>
+  <data name="RegistrationFailed" xml:space="preserve">
+    <value>Registration failed. please try again.</value>
+  </data>
+  <data name="RoleSuccessfullyCreated" xml:space="preserve">
+    <value>Role successfully created.</value>
+  </data>
+  <data name="RoleSuccessfullyDeleted" xml:space="preserve">
+    <value>Role successfully deleted.</value>
+  </data>
+  <data name="RoleSuccessfullyUpdated" xml:space="preserve">
+    <value>Role successfully updated.</value>
+  </data>
+  <data name="SessionSuccessfullyTerminated" xml:space="preserve">
+    <value>Session successfully terminated.</value>
+  </data>
+  <data name="ShouldTheTestResultBePositiveDoYouFeelYouNeedToHideYourPregnancy" xml:space="preserve">
+    <value>Should the test result be positive, do you feel you need to hide your pregnancy?</value>
+  </data>
+  <data name="SiloItemsSuccessfullyAdded" xml:space="preserve">
+    <value>{0} SiloItem successfully added.</value>
+  </data>
+  <data name="SiloItemSuccessfullyAdded" xml:space="preserve">
+    <value>SiloItem successfully added.</value>
+  </data>
+  <data name="SiloItemSuccessfullyUpdated" xml:space="preserve">
+    <value>SiloItem successfully updated.</value>
+  </data>
+  <data name="SpouseChildrenAndEtc" xml:space="preserve">
+    <value>Spouse, children and etc.</value>
+  </data>
+  <data name="TenantSelected" xml:space="preserve">
+    <value>{0} Tenant(s) selected</value>
+  </data>
+  <data name="TerminatingSessionFailed" xml:space="preserve">
+    <value>Terminating session failed.</value>
+  </data>
+  <data name="TheUsernameOrPasswordIsIncorrect" xml:space="preserve">
+    <value>The username or password is incorrect.</value>
+  </data>
+  <data name="UpdatingClientFailed" xml:space="preserve">
+    <value>Updating Client failed.</value>
+  </data>
+  <data name="UpdatingRoleFailed" xml:space="preserve">
+    <value>Updating Role failed.</value>
+  </data>
+  <data name="UpdatingSiloItemFailed" xml:space="preserve">
+    <value>Updating siloItem failed.</value>
+  </data>
+  <data name="UpdatingUserFailed" xml:space="preserve">
+    <value>Updating user failed.</value>
+  </data>
+  <data name="USCitizen" xml:space="preserve">
+    <value>US Citizen?</value>
+  </data>
+  <data name="UserAccountNotUpdated" xml:space="preserve">
+    <value>There was a problem updating the user account.</value>
+  </data>
+  <data name="UserAccountUpdatedSuccessfully" xml:space="preserve">
+    <value>Your account has been successfully updated.</value>
+  </data>
+  <data name="UserPasswordChangeSuccessfully" xml:space="preserve">
+    <value>Password successfully changed.</value>
+  </data>
+  <data name="UserPassworNotUpdated" xml:space="preserve">
+    <value>Changing the password encountered an error.</value>
+  </data>
+  <data name="UserSuccessfullyCreated" xml:space="preserve">
+    <value>User successfully created.</value>
+  </data>
+  <data name="UserSuccessfullyDeleted" xml:space="preserve">
+    <value>User successfully deleted.</value>
+  </data>
+  <data name="UserSuccessfullyUpdated" xml:space="preserve">
+    <value>User successfully updated.</value>
+  </data>
+  <data name="WhereDoesYourFinancialSupportComeFrom" xml:space="preserve">
+    <value>Where does your financial support come from?</value>
+  </data>
+  <data name="WouldYouLikeAssistanceInGettingInsurance" xml:space="preserve">
+    <value>Would you like assistance in getting insurance?</value>
+  </data>
+  <data name="YouAreNotAuthorizedToAccessThisResource" xml:space="preserve">
+    <value>You are not authorized to access this resource.</value>
+  </data>
+</root>

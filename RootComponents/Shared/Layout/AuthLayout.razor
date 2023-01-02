@@ -1,0 +1,14 @@
+﻿@inherits LayoutComponentBase
+<MudRTLProvider RightToLeft="false">
+
+    <MudThemeProvider Theme="ApplicationThemes.DefaultTheme" />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+
+    <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex flex-column align-center justify-content-center" Style="height: 100vh;">
+        <img height="70" src="_content/WRMC.RootComponents/assets/media/logos/logo.png" class="m-3" />
+        <MudPaper Class="pa-8" MaxWidth="400px" Width="100%">
+            @Body
+        </MudPaper>
+    </MudContainer>
+</MudRTLProvider>

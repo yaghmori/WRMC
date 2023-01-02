@@ -1,0 +1,49 @@
+﻿@inherits BaseComponent
+
+<MudDialog>
+
+    <DialogContent>
+        <EditForm Model="@User" OnValidSubmit="SaveChangesSubmit">
+            @if (!IsLoading)
+            {
+                <DataAnnotationsValidator />
+                <div class="d-flex flex-column gap-2">
+                    <MudTextField @bind-Value="@User.Email" For="() => User.Email" Label="@_displayResources[DisplayResources.Email]" Variant="Variant.Outlined" Immediate="true" />
+                    <div class="d-flex flex-row gap-2">
+                        <MudTextField @bind-Value="@User.FirstName" For="() => User.FirstName" Label="@_displayResources[DisplayResources.FirstName]" Variant="Variant.Outlined" Immediate="true" />
+                        <MudTextField @bind-Value="@User.LastName" For="() => User.LastName" Label="@_displayResources[DisplayResources.LastName]" Variant="Variant.Outlined" Immediate="true" />
+                    </div>
+
+                </div>
+                <div class="d-flex flex-row justify-content-end mt-4 mb-2 gap-2">
+                    <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+                    <MudButton Disabled="@(!context.Validate() ||  !context.IsModified() || IsBusy)"
+                           ButtonType="ButtonType.Submit"
+                           Class="w-85"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary">
+                        @if (IsBusy)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                            <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                        }
+                        else
+                        {
+                            @_viewResources[ViewResources.SaveChanges].Value
+                        }
+                    </MudButton>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex align-items-center justify-content-center" style="height:200px;">
+                    <Loading />
+                </div>
+            }
+        </EditForm>
+
+    </DialogContent>
+
+
+</MudDialog>
+

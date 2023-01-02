@@ -1,0 +1,59 @@
+﻿@inherits BaseComponent
+
+<MudDialog>
+
+    <DialogContent>
+        @if (!IsLoading)
+        {
+            <MudSelect @bind-Value="SelectedSection"
+                   Immediate=true
+                   AutoFocus=true
+                   Clearable=true
+                   InputMode="InputMode.text"
+                   ToStringFunc="@(x=> x.SectionType.GetDisplayName())"
+                   For="@(()=>SelectedSection)"
+                   Label="@_viewResources[ViewResources.AppointmentType]"
+                   Variant="Variant.Outlined">
+                @foreach (var item in AvailableSections)
+                {
+                    <MudSelectItem Value="@item">
+                        
+                        <div class="d-flex flex-column justify-content-start">
+                            @item.DisplayTitle
+                            <small>@item.Help</small>
+                        </div>
+                    </MudSelectItem>
+                }
+            </MudSelect>
+            <div class="d-flex flex-row justify-content-end mt-4 mb-2 gap-2">
+                <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+                <MudButton OnClick="SubmitAsync" Disabled="@(SelectedSection==null || IsBusy)"
+                       Class="w-85"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary">
+                    @if (IsBusy)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                        <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                    }
+                    else
+                    {
+                        @_viewResources[ViewResources.Submit]
+
+                    }
+                </MudButton>
+            </div>
+
+        }
+        else
+        {
+
+            <div class="d-flex align-items-center justify-content-center" style="height:200px;">
+                <Loading />
+            </div>
+        }
+    </DialogContent>
+</MudDialog>
+
+
+
