@@ -14,7 +14,7 @@ using WRMC.RootComponents.SignalRClient;
 
 namespace WRMC.RootComponents.Shared.Layout
 {
-    public partial class MainLayout : IAsyncDisposable
+    public partial class MainLayout 
     {
 
         [CascadingParameter] public Task<AuthenticationState>? AuthState { get; set; }
@@ -25,17 +25,11 @@ namespace WRMC.RootComponents.Shared.Layout
         public string ModeIcon => User.UserSetting.DarkMode ? Icons.Outlined.LightMode : Icons.Outlined.DarkMode;
         public string RTLIcon => User.UserSetting.RightToLeft ? Icons.Filled.FormatTextdirectionLToR : Icons.Filled.FormatTextdirectionRToL;
 
-        private HubConnection _hubConnection;
 
         public List<BreadcrumbItem> BreadcrumbItems = new();
 
         protected override async Task OnInitializedAsync()
         {
-            _hubConnection = new HubConnectionBuilder()
-                   .WithUrl(ApplicationConstants.ServerBaseAddress)
-                   .WithAutomaticReconnect()
-                   .Build();
-
             var authState = await AuthState!;
             var user = authState.User;
 
@@ -118,13 +112,6 @@ namespace WRMC.RootComponents.Shared.Layout
             var patchDoc = new JsonPatchDocument<UserSettingRequest>();
             patchDoc.Replace(e => e.RightToLeft, User.UserSetting.RightToLeft);
             var result = await _userSettingDataService.UpdateSettingsAsync(User.UserSetting.Id, patchDoc);
-
-            //SignalR
-            var users = new List<string> { User.Id };
-            if (_hubConnection is not null)
-            {
-                await _hubConnection.SendAsync(EndPoints.Hub.SendUpdateUser, users);
-            }
             //  await OnUserUpdated.InvokeAsync(User);
         }
 
@@ -141,13 +128,6 @@ namespace WRMC.RootComponents.Shared.Layout
             StateHasChanged();
         }
 
-        public async ValueTask DisposeAsync()
-        {
-            if (_hubConnection is not null)
-            {
-                await _hubConnection.DisposeAsync();
-            }
-        }
 
     }
 }

@@ -49,7 +49,6 @@ namespace WRMC.Core.Shared.Responses
         }
         public virtual ICollection<RegionResponse> Regions { get; set; } = new List<RegionResponse>();
         public int UserAddressesCount { get; set; }= default!;
-        public int DemographicIntakesCount { get; set; } = default!;
 
     }
 }

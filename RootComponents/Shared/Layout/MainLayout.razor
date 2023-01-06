@@ -4,7 +4,6 @@
 <AuthorizeView >
     <Authorized>
         <CascadingValue Value="User">
-            <CascadingValue Value="_hubConnection">
                 <MudRTLProvider RightToLeft="@User.UserSetting.RightToLeft">
                     <MudThemeProvider @bind-IsDarkMode="@User.UserSetting.DarkMode" Theme="ApplicationThemes.DefaultTheme" />
                     <MudDialogProvider />
@@ -47,7 +46,6 @@
                     </MudLayout>
                 </MudRTLProvider>
             </CascadingValue>
-        </CascadingValue>
     </Authorized>
     <NotAuthorized>
         <RedirectToLogin/>

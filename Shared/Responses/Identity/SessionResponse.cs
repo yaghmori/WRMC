@@ -4,6 +4,7 @@
     {
         public string Id { get; set; } = default!;
         public string UserId { get; set; } = default!;
+        public string? ConnectionID { get; set; } = default!;
         public virtual string LoginProvider { get; set; } = default!;
         public virtual string BuildVersion { get; set; } = default!;
         public string Name { get; set; } = default!;

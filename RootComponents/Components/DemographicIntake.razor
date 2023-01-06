@@ -19,7 +19,7 @@
             <FluentValidator/>
             <ValidationSummary />
 
-            <Wizard @ref=_wizard AllowSubmit =@ctx.Validate() OnValidSubmit="OnValidSubmitAsync" Liner="useTimeLine" Orientation="orientation">
+            <Wizard @ref=_wizard IsNextSubmit=true AllowSubmit =@ctx.Validate()  OnValidSubmit="OnValidSubmitAsync" Liner="useTimeLine" Orientation="orientation">
                 <WizardStep Title="Residential Info" Description="Demographic information">
                     <ResidentialIntake Model=DemographicRequest.ResidentialIntake OnValidationChanged="@_wizard.OnValidationChanged" />
                 </WizardStep>

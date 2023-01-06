@@ -58,7 +58,7 @@ namespace WRMC.RootComponents.Dialogs
             {
                 UserCollection = userCollectionResult.Data;
             }
-            var selectedUsersResult = await _roleDataService.GetUserRolesAsync(RoleId);
+            var selectedUsersResult = await _roleDataService.GetRoleUsersAsync(RoleId);
             if (selectedUsersResult.Succeeded)
             {
                 SelectedUsers = selectedUsersResult.Data.Select(x => x.Id).ToList(); 

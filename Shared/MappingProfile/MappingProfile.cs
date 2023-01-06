@@ -112,8 +112,7 @@ namespace WRMC.Core.Shared.MappingProfile
             CreateMap<RegionResponse, Region>().ReverseMap()
                 .ForPath(dest => dest.Parent.Regions, opt => opt.Ignore())
                 .ForMember(dest => dest.Parent, opt => opt.MapFrom(src => src.Parent)).MaxDepth(2)
-                .ForMember(dest => dest.UserAddressesCount, opt => opt.MapFrom(src => src.UserAddresses.Count))
-                .ForMember(dest => dest.DemographicIntakesCount, opt => opt.MapFrom(src => src.DemographicIntakes.Count));
+                .ForMember(dest => dest.UserAddressesCount, opt => opt.MapFrom(src => src.UserAddresses.Count));
             CreateMap<RegionRequest, Region>().ReverseMap();
             CreateMap<RegionRequest, RegionResponse>().ReverseMap();
             //==========================================================================
@@ -126,7 +125,6 @@ namespace WRMC.Core.Shared.MappingProfile
                 .ForMember(dest => dest.Symptoms, opt => opt.MapFrom(src => JsonConvert.SerializeObject(src.Symptoms)))
                 .ForMember(dest => dest.StdTypes, opt => opt.MapFrom(src => JsonConvert.SerializeObject(src.StdTypes)))
                 .ForMember(dest => dest.DrugFrequency, opt => opt.MapFrom(src => JsonConvert.SerializeObject(src.DrugFrequency)));
-
             CreateMap<MedicalIntakeResponse, MedicalIntakeRequest>().ReverseMap();
             //TODO : Define Mapping
             //==========================================================================

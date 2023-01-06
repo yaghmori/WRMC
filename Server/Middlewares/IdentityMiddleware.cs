@@ -16,7 +16,7 @@ namespace WRMC.Server.Middlewares
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, IUnitOfWork<ServerDbContext> unitOfWork,IMapper mapper)
+        public async Task InvokeAsync(HttpContext context, IUnitOfWork unitOfWork,IMapper mapper)
         {
             if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
             {

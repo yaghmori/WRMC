@@ -24,11 +24,10 @@ namespace WRMC.Core.Application.DataServices
         public async Task<IResult<string>> AddTenantAsync(TenantRequest request)
         {
             var uri = EndPoints.TenantController.AddTenant;
-            string result = null;
 
             var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync(uri, content);
-            var a = await response.ToResult<string>();
+           var a= await response.ToResult<string>();
             return a;
         }
 
@@ -173,7 +172,8 @@ namespace WRMC.Core.Application.DataServices
 
 
             var response = await _httpClient.PostAsync(uri, null);
-            return await response.ToResult<bool>();
+            var a =  await response.ToResult<bool>();
+            return a;
         }
 
         public async Task<IResult<bool>> MigrateDatabaseAsync(string tenantId)

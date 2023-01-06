@@ -18,6 +18,7 @@ namespace WRMC.Core.Shared.Requests
         public string? Image { get; set; } = string.Empty;
         public string? Description { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
+        public bool IsOnline { get; set; } = false;
 
         public string NormalizedEmail => Email.Normalize().ToUpper();
         public string NormalizedUserName => Email.Normalize().ToUpper();

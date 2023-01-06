@@ -12,14 +12,14 @@ using WRMC.Server.Extensions;
 
 namespace WRMC.Server.Controllers
 {
-    [Route("api/v1/server/intakes/medicals")]
+    [Route("api/v1/tenants/intakes/medicals")]
     [ApiController]
     public class MedicalIntakeController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork<ServerDbContext> _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public MedicalIntakeController(IMapper mapper, IUnitOfWork<ServerDbContext> unitOfWork)
+        public MedicalIntakeController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -34,48 +34,31 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MedicalIntakeResponse>))]
         public async Task<IActionResult> GetMedicalIntakes()
         {
-            try
-            {
-                var results = await _unitOfWork.MedicalIntakes.GetAllAsync();
-                var response = _mapper.Map<List<MedicalIntakeResponse>>(results);
-                return Ok(await Result<List<MedicalIntakeResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var results = await _unitOfWork.MedicalIntakes.GetAllAsync();
+            var response = _mapper.Map<List<MedicalIntakeResponse>>(results);
+            return Ok(await Result<List<MedicalIntakeResponse>>.SuccessAsync(response));
+
         }
 
         /// <summary>
         /// Get MedicalIntake by id
         /// </summary>
-        /// <param name="medicalIntakeId"></param>
+        /// <param name="id"></param>
         /// <returns>MedicalIntakeResponse</returns>
-        [HttpGet("{medicalIntakeId}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MedicalIntakeResponse))]
-        public async Task<IActionResult> GetMedicalIntakeById(string medicalIntakeId)
+        public async Task<IActionResult> GetMedicalIntakeById(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(medicalIntakeId))
-                    return BadRequest(await Result.FailAsync("RequestId is null or empty."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var result = await _unitOfWork.MedicalIntakes.GetFirstOrDefaultAsync(
-                    predicate: x => x.Id.ToString().Equals(medicalIntakeId),
-                   include: i => i.Include(x => x.Visit).ThenInclude(x => x.Case));
+            var result = await _unitOfWork.MedicalIntakes.GetFirstOrDefaultAsync(
+                predicate: x => x.Id.ToString().Equals(id),
+               include: i => i.Include(x => x.Visit).ThenInclude(x => x.Case));
 
-                if (result == null)
-                    return NotFound(await Result.FailAsync("Medical Intake not found."));
-
-                var response = _mapper.Map<MedicalIntakeResponse>(result);
-                return Ok(await Result<MedicalIntakeResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var response = _mapper.Map<MedicalIntakeResponse>(result);
+            return Ok(await Result<MedicalIntakeResponse>.SuccessAsync(response));
         }
 
 
@@ -88,30 +71,20 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MedicalIntakeResponse))]
         public async Task<IActionResult> GetMedicalIntakeByTaskId(string taskId)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(taskId))
-                    return BadRequest(await Result.FailAsync("Invalid TaskId."));
+            if (string.IsNullOrWhiteSpace(taskId))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var result = await _unitOfWork.MedicalIntakes.GetFirstOrDefaultAsync(
-                    predicate: x => x.TaskId.ToString().Equals(taskId),
-                    include: i => i.Include(x => x.Visit).ThenInclude(x => x.Case));
+            var result = await _unitOfWork.MedicalIntakes.GetFirstOrDefaultAsync(
+                predicate: x => x.TaskId.ToString().Equals(taskId),
+                include: i => i.Include(x => x.Visit).ThenInclude(x => x.Case));
 
-                var response = _mapper.Map<MedicalIntakeResponse>(result);
-                return Ok(await Result<MedicalIntakeResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var response = _mapper.Map<MedicalIntakeResponse>(result);
+            return Ok(await Result<MedicalIntakeResponse>.SuccessAsync(response));
         }
 
         /// <summary>
         /// Create new MedicalIntake
         /// </summary>
-        /// <param name="taskId"></param>
-        /// <param name="visitId"></param>
         /// <returns>string</returns>
         [HttpPost("new")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
@@ -138,7 +111,7 @@ namespace WRMC.Server.Controllers
                 TaskId = task.Id,
                 IsComplete = request.IsComplete,
             });
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
             return Ok(await Result<string>.SuccessAsync(data: medicalIntake.Entity.Id.ToString(), message: "Medical Intake successfully created."));
 
         }
@@ -166,7 +139,7 @@ namespace WRMC.Server.Controllers
 
             var medicalIntake = _mapper.Map<MedicalIntake>(request);
             await _unitOfWork.MedicalIntakes.AddAsync(medicalIntake);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
             return Ok(await Result<string>.SuccessAsync(data: medicalIntake.Id.ToString(), message: "Medical Intake successfully created."));
 
         }
@@ -174,70 +147,47 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// delete MedicalIntake by Id
         /// </summary>
-        /// <param name="medicalIntakeId"></param>
+        /// <param name="id"></param>
         /// <returns>OK</returns>
-        [HttpDelete("{medicalIntakeId}")]
-        public async Task<IActionResult> DeleteMedicalIntakeById(string medicalIntakeId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteMedicalIntakeById(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(medicalIntakeId))
-                    return BadRequest(await Result.FailAsync("RequestId is null or empty."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var medicalIntake = await _unitOfWork.MedicalIntakes.FindAsync(Guid.Parse(medicalIntakeId));
-                if (medicalIntake is null)
-                    return NotFound(await Result.FailAsync("Medical Intake not found."));
+            var medicalIntake = await _unitOfWork.MedicalIntakes.FindAsync(Guid.Parse(id));
+            if (medicalIntake is null)
+                return NotFound(await Result.FailAsync("Medical Intake not found."));
 
-                _unitOfWork.MedicalIntakes.Remove(medicalIntake);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "Medical Intake successfully deleted."));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            _unitOfWork.MedicalIntakes.Remove(medicalIntake);
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            return Ok(await Result<bool>.SuccessAsync(true, "Medical Intake successfully deleted."));
         }
 
         /// <summary>
         /// Update MedicalIntake
         /// </summary>
-        /// <param name="medicalIntakeId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>OK</returns>
-        [HttpPatch("{medicalIntakeId}")]
-        public async Task<IActionResult> UpdateMedicalIntakeById(string medicalIntakeId, [FromBody] JsonPatchDocument<MedicalIntakeRequest> request)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateMedicalIntakeById(string id, [FromBody] JsonPatchDocument<MedicalIntakeRequest> request)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(medicalIntakeId))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var medicalIntake = await _unitOfWork.MedicalIntakes.FindAsync(Guid.Parse(medicalIntakeId));
-                if (medicalIntake is null)
-                    return NotFound(await Result.FailAsync("Medical Intake not found."));
+            var medicalIntake = await _unitOfWork.MedicalIntakes.FindAsync(Guid.Parse(id));
+            if (medicalIntake is null)
+                return NotFound(await Result.FailAsync("Medical Intake not found."));
 
-                var medicalIntakeRequest = _mapper.Map<MedicalIntakeRequest>(medicalIntake);
-                request.ApplyTo(medicalIntakeRequest);
-                _mapper.Map(medicalIntakeRequest, medicalIntake);
+            var medicalIntakeRequest = _mapper.Map<MedicalIntakeRequest>(medicalIntake);
+            request.ApplyTo(medicalIntakeRequest);
+            _mapper.Map(medicalIntakeRequest, medicalIntake);
 
-                _unitOfWork.MedicalIntakes.Update(medicalIntake);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "Medical Intake successfully updated."));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            _unitOfWork.MedicalIntakes.Update(medicalIntake);
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            return Ok(await Result<bool>.SuccessAsync(true, "Medical Intake successfully updated."));
         }
-
-
-
-
-
-
-
 
     }
 }

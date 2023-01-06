@@ -13,7 +13,6 @@ namespace WRMC.RootComponents.Pages.Identity
     public partial class Users
     {
         [Parameter] public EventCallback<bool> OnDrawerToggle { get; set; }
-        [CascadingParameter] public HubConnection hubConnection { get; set; }
 
         private IPagedList<UserResponse> UserPagedCollection = new PagedList<UserResponse>();
 
@@ -21,13 +20,6 @@ namespace WRMC.RootComponents.Pages.Identity
 
         private string Query { get; set; } = string.Empty;
 
-        protected override async Task OnInitializedAsync()
-        {
-            if (hubConnection.State == HubConnectionState.Disconnected)
-            {
-                await hubConnection.StartAsync();
-            }
-        }
 
         private async Task UpdateUserRoles(UserResponse user)
         {
@@ -38,11 +30,6 @@ namespace WRMC.RootComponents.Pages.Identity
             var result = await dialog.Result;
             if (!result.Cancelled)
             {
-                var users = new List<string> { user.Id };
-                if (hubConnection is not null)
-                {
-                    await hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, users);
-                }
                 await _mudDataGrid.ReloadServerData();
             }
         }
@@ -56,11 +43,6 @@ namespace WRMC.RootComponents.Pages.Identity
             var result = await dialog.Result;
             if (!result.Cancelled)
             {
-                var users = new List<string> { user.Id };
-                if (hubConnection is not null)
-                {
-                    await hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, users);
-                }
                 await _mudDataGrid.ReloadServerData();
             }
         }
@@ -79,11 +61,6 @@ namespace WRMC.RootComponents.Pages.Identity
             var result = await dialog.Result;
             if (!result.Cancelled)
             {
-                var users = new List<string> { user.Id };
-                if (hubConnection is not null)
-                {
-                    await hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, users);
-                }
                 await _mudDataGrid.ReloadServerData();
             }
         }
@@ -139,10 +116,6 @@ namespace WRMC.RootComponents.Pages.Identity
                 if (result?.Succeeded==true)
                 {
                     var users = new List<string> { user.Id };
-                    if (hubConnection is not null)
-                    {
-                        await hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, users);
-                    }
                     _snackbar.Add(_messageResources[MessageResources.UserSuccessfullyDeleted].Value, Severity.Success);
                     await _mudDataGrid.ReloadServerData();
                 }

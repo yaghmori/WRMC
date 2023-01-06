@@ -1,34 +1,29 @@
-﻿using System.Collections.Immutable;
-using System.Text.RegularExpressions;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WRMC.Core.Shared.PagedCollections;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
 using WRMC.Core.Shared.ResultWrapper;
-using WRMC.Infrastructure.DataAccess.Context;
-using WRMC.Infrastructure.DataAccess.Extensions;
 using WRMC.Infrastructure.Domain.Entities;
 using WRMC.Infrastructure.Domain.Enums;
 using WRMC.Infrastructure.UnitOfWork;
 using WRMC.Server.Extensions;
-using static System.Collections.Specialized.BitVector32;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace WRMC.Server.Controllers
 {
-    [Route("api/v1/server/visits")]
+    [Route("api/v1/tenants/visits")]
     [ApiController]
 
     public class VisitController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork<ServerDbContext> _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public VisitController(IMapper mapper, IUnitOfWork<ServerDbContext> unitOfWork)
+        public VisitController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -47,18 +42,12 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public async Task<IActionResult> CreateNewVisit(VisitRequest request)
         {
-            try
-            {
-                var visit = _mapper.Map<Visit>(request);
-                await _unitOfWork.Visits.AddAsync(visit);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<string>.SuccessAsync(data: visit.Id.ToString(), "Visit successfully Created."));
-            }
-            catch (Exception ex)
-            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var visit = _mapper.Map<Visit>(request);
+            await _unitOfWork.Visits.AddAsync(visit);
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            return Ok(await Result<string>.SuccessAsync(data: visit.Id.ToString(), "Visit successfully Created."));
+
         }
 
 
@@ -70,158 +59,179 @@ namespace WRMC.Server.Controllers
         /// <returns>List of VisitResponse</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<VisitResponse>))]
-        public async Task<IActionResult> GetVisits(string? query = null)
+        public async Task<IActionResult> GetVisits(string? query = null, int page = 0, int pageSize = 10, bool paged = true)
         {
-            try
+            //TODO : Paged Result
+            if (paged)
+            {
+                var visits = await _unitOfWork.Visits.GetPagedListAsync(
+                    predicate: x => (!string.IsNullOrWhiteSpace(query) ? x.Comment.Contains(query) : true),
+                    include: i => i.Include(x => x.Tasks).ThenInclude(x => x.Section),
+                    orderBy: o => o.OrderByDescending(k => k.StartDate),
+                    pageIndex: Convert.ToInt32(page),
+                    pageSize: Convert.ToInt32(pageSize) > 100 ? 100 : Convert.ToInt32(pageSize));
+
+                var response = _mapper.Map<PagedList<VisitResponse>>(visits);
+                foreach (var visit in visits.Items)
+                {
+                    var userId = visit?.Case?.UserId;
+                    var user = _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(userId),
+                        include: i => i.Include(x => x.UserSetting).Include(x => x.UserProfile));
+
+                    //mapp user
+                    var visitResponse = response.Items.Where(x => x.Id.Equals(visit.Id.ToString())).FirstOrDefault();
+                    if (visitResponse != null)
+                    {
+                        visitResponse.Case.User = _mapper.Map<UserResponse>(user);
+                        visitResponse.User = _mapper.Map<UserResponse>(user);
+
+                    }
+                }
+
+                return Ok(await Result<IPagedList<VisitResponse>>.SuccessAsync(response));
+
+            }
+            else
             {
                 var visits = await _unitOfWork.Visits.GetAllAsync(
-                    predicate: x => (!string.IsNullOrWhiteSpace(query) ? x.Comment.Contains(query) : true),
-                    include: i => i.Include(x => x.Tasks).ThenInclude(x => x.Section));
-
+                   predicate: x => (!string.IsNullOrWhiteSpace(query) ? x.Comment.Contains(query) : true),
+                   include: i => i.Include(x => x.Tasks).ThenInclude(x => x.Section));
 
                 var response = _mapper.Map<List<VisitResponse>>(visits);
-                //var response = _mapper.Map<List<VisitResponse>>(visits);
+
+                //Disable for performance issues 
+                #region include user
+                //foreach (var visit in visits)
+                //{
+                //    var userId = visit?.Case?.UserId;
+                //    var user = _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(userId),
+                //        include: i => i.Include(x => x.UserSetting).Include(x => x.UserProfile));
+
+                //    //mapp user
+                //    var visitResponse = response.Where(x => x.Id.Equals(visit.Id.ToString())).FirstOrDefault();
+                //    if (visitResponse != null)
+                //    {
+                //        visitResponse.Case.User = _mapper.Map<UserResponse>(user);
+                //        visitResponse.User = _mapper.Map<UserResponse>(user);
+
+                //    }
+                //}
+                #endregion
+
                 return Ok(await Result<List<VisitResponse>>.SuccessAsync(response));
             }
-            catch (Exception ex)
-            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
         /// <summary>
         /// Get Visit By Id
         /// </summary>
-        /// <param name="visitId"></param>
+        /// <param name="id"></param>
         /// <returns>VisitResponse</returns>
-        [HttpGet("{visitId}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VisitResponse))]
-        public async Task<IActionResult> GetVisitById(string visitId)
+        public async Task<IActionResult> GetVisitById(string id)
         {
-            try
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("VisitId is null or empty."));
+
+            var visit = await _unitOfWork.Visits.GetFirstOrDefaultAsync(
+                 predicate: x => x.Id.ToString().Equals(id),
+                include: i => i.Include(x => x.Tasks).ThenInclude(x => x.Section).ThenInclude(x => x.Sections).Include(x => x.Case));
+
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(visit.Case.UserId),
+                include: i => i.Include(x => x.UserProfile));
+
+            var response = _mapper.Map<VisitResponse>(visit);
+
+            //mapp user
+            if (response != null)
             {
-                if (string.IsNullOrWhiteSpace(visitId))
-                    return BadRequest(await Result.FailAsync("VisitId is null or empty."));
-
-                var visit = await _unitOfWork.Visits.GetFirstOrDefaultAsync(
-                     predicate: x => x.Id.ToString().Equals(visitId),
-                    include: i => i.Include(x => x.Tasks).ThenInclude(x => x.Section).ThenInclude(x => x.Sections).Include(x => x.Case));
-
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(visit.Case.UserId),
-                    include: i => i.Include(x => x.UserProfile));
-
-                if (visit == null)
-                    return NotFound(await Result.FailAsync("Visit not found."));
-
-                if (user == null)
-                    return NotFound(await Result.FailAsync("user not found."));
-
-                var response = _mapper.Map<VisitResponse>(visit);
                 response.Case.User = _mapper.Map<UserResponse>(user);
-
-                return Ok(await Result<VisitResponse>.SuccessAsync(response));
+                response.User = _mapper.Map<UserResponse>(user);
             }
-            catch (Exception ex)
-            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<VisitResponse>.SuccessAsync(response));
+
         }
 
 
         /// <summary>
         /// Get User By VisitId
         /// </summary>
-        /// <param name="visitId"></param>
+        /// <param name="id"></param>
         /// <returns>UserResponse</returns>
-        [HttpGet("{visitId}/user")]
+        [HttpGet("{id}/user")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VisitResponse))]
-        public async Task<IActionResult> GetUserByVisitId(string visitId)
+        public async Task<IActionResult> GetUserByVisitId(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(visitId))
-                    return BadRequest(await Result.FailAsync("Invalid RequestId."));
 
-                var visit = await _unitOfWork.DbContext.Visits.FirstOrDefaultAsync(x => x.Id.ToString().Equals(visitId));
-                var userId = visit?.Case?.UserId;
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(userId),
-                    include: i => i.Include(x => x.UserProfile).Include(x => x.UserSetting)
-                );
-                var response = _mapper.Map<UserResponse>(user);
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid RequestId."));
 
-                return Ok(await Result<UserResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            var visit = await _unitOfWork.Visits.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(id),
+                include: i => i.Include(x => x.Case));
+            var userId = visit?.Case?.UserId;
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(userId),
+                include: i => i.Include(x => x.UserProfile).Include(x => x.UserSetting));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var response = _mapper.Map<UserResponse>(user);
+
+            return Ok(await Result<UserResponse>.SuccessAsync(response));
+
         }
 
 
         /// <summary>
         /// Delete Visit
         /// </summary>
-        /// <param name="visitId"></param>
+        /// <param name="id"></param>
         /// <returns>bool</returns>
-        [HttpDelete("{visitId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteVisitById(string visitId)
+        public async Task<IActionResult> DeleteVisitById(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(visitId))
-                    return BadRequest(await Result.FailAsync("VisitId is null or empty."));
 
-                var visit = await _unitOfWork.Visits.FindAsync(Guid.Parse(visitId));
-                if (visit is null)
-                    return NotFound(await Result.FailAsync("Visit not found."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("VisitId is null or empty."));
 
-                _unitOfWork.Visits.Remove(visit);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "Visit successfully deleted."));
-            }
-            catch (Exception ex)
-            {
+            var visit = await _unitOfWork.Visits.FindAsync(Guid.Parse(id));
+            if (visit is null)
+                return NotFound(await Result.FailAsync("Visit not found."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            _unitOfWork.Visits.Remove(visit);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            return Ok(await Result<bool>.SuccessAsync(true, "Visit successfully deleted."));
+
         }
 
 
         /// <summary>
         /// Update Visit
         /// </summary>
-        /// <param name="visitId"></param>
+        /// <param name="id"></param>
         /// <returns>bool</returns>
-        [HttpPatch("{visitId}")]
+        [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateVisit(string visitId, [FromBody] JsonPatchDocument<VisitRequest> request)
+        public async Task<IActionResult> UpdateVisit(string id, [FromBody] JsonPatchDocument<VisitRequest> request)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(visitId))
-                    return BadRequest(await Result.FailAsync("Invalid Request Id."));
 
-                var visit = await _unitOfWork.Visits.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(visitId));
-                if (visit is null)
-                    return NotFound(await Result.FailAsync("Visit not found."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid Request Id."));
 
-                var requestToPatch = _mapper.Map<VisitRequest>(visit);
-                request.ApplyTo(requestToPatch);
-                _mapper.Map(requestToPatch, visit);
-                _unitOfWork.Visits.Update(visit);
-                await _unitOfWork.SaveChangesAsync();
+            var visit = await _unitOfWork.Visits.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(id));
+            if (visit is null)
+                return NotFound(await Result.FailAsync("Visit not found."));
 
-                return Ok(await Result<bool>.SuccessAsync(true, "Visit successfully updated."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var requestToPatch = _mapper.Map<VisitRequest>(visit);
+            request.ApplyTo(requestToPatch);
+            _mapper.Map(requestToPatch, visit);
+            _unitOfWork.Visits.Update(visit);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+
+            return Ok(await Result<bool>.SuccessAsync(true, "Visit successfully updated."));
+
         }
 
         #endregion
@@ -231,258 +241,218 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Get Tasks
         /// </summary>
-        /// <param name="visitId"></param>
+        /// <param name="id"></param>
         /// <returns>List of TaskResponse</returns>
-        [HttpGet("{visitId}/Tasks")]
+        [HttpGet("{id}/tasks")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<TaskResponse>))]
-        public async Task<IActionResult> GetTasks(string visitId)
+        public async Task<IActionResult> GetTasks(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(visitId))
-                    return BadRequest(await Result.FailAsync("VisitId is null or empty."));
 
-                var visit = await _unitOfWork.Visits.FindAsync(Guid.Parse(visitId));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("VisitId is null or empty."));
 
-                if (visit == null)
-                    return NotFound(await Result.FailAsync("Visit not found."));
+            var visit = await _unitOfWork.Visits.FindAsync(Guid.Parse(id));
 
-                var sections = await _unitOfWork.Tasks.GetAllAsync(
-                    predicate: x => x.VisitId.ToString().Equals(visitId),
-                    include: i => i.Include(x => x.Section).ThenInclude(x => x.Sections).ThenInclude(x => x.Sections)
-                    .Include(x=>x.Section).ThenInclude(x=>x.Parent));
+            if (visit == null)
+                return NotFound(await Result.FailAsync("Visit not found."));
 
-                var response = _mapper.Map<List<TaskResponse>>(sections);
+            var sections = await _unitOfWork.Tasks.GetAllAsync(
+                predicate: x => x.VisitId.ToString().Equals(id),
+                include: i => i.Include(x => x.Section).ThenInclude(x => x.Sections).ThenInclude(x => x.Sections)
+                .Include(x => x.Section).ThenInclude(x => x.Parent));
 
-                return Ok(await Result<IList<TaskResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            var response = _mapper.Map<List<TaskResponse>>(sections);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<IList<TaskResponse>>.SuccessAsync(response));
+
         }
 
 
         /// <summary>
         /// Get Visit By TaskId
         /// </summary>
-        /// <param name="taskId"></param>
+        /// <param name="id">task Id</param>
         /// <returns>VisitResponse</returns>
-        [HttpGet("Tasks/{taskId}/Visit")]
+        [HttpGet("tasks/{id}/visit")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VisitResponse))]
-        public async Task<IActionResult> GetVisitByTaskId(string taskId)
+        public async Task<IActionResult> GetVisitByTaskId(string id)
         {
-            try
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
+
+            var task = await _unitOfWork.Tasks.FindAsync(Guid.Parse(id));
+            if (task == null)
+                return NotFound(await Result.FailAsync("Task not found."));
+
+            var visit = await _unitOfWork.Visits.GetFirstOrDefaultAsync(
+                 predicate: x => x.Id.Equals(task.VisitId),
+                include: i => i.Include(x => x.Tasks).ThenInclude(x => x.Section).ThenInclude(x => x.Sections).Include(x => x.Case));
+
+            if (visit == null)
+                return NotFound(await Result.FailAsync("Visit not found."));
+
+            //MultiTenancy
+            var userId = visit?.Case?.UserId;
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(userId),
+                include: i => i.Include(x => x.UserProfile));
+
+            var response = _mapper.Map<VisitResponse>(visit);
+
+            //mapp user
+            if (response != null)
             {
-                if (string.IsNullOrWhiteSpace(taskId))
-                    return BadRequest(await Result.FailAsync("Invalid RequestId."));
-
-                var task = await _unitOfWork.Tasks.FindAsync(Guid.Parse(taskId));
-
-                if (task == null)
-                    return NotFound(await Result.FailAsync("Task not found."));
-                var id = task.VisitId;
-                var visit = await _unitOfWork.Visits.GetFirstOrDefaultAsync(
-                     predicate: x => x.Id.Equals(task.VisitId),
-                    include: i => i.Include(x => x.Tasks).ThenInclude(x => x.Section).ThenInclude(x => x.Sections).Include(x => x.Case));
-
-                //TODO : Change dbContext
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(visit.Case.UserId),
-                    include: i => i.Include(x => x.UserProfile));
-
-                if (visit == null)
-                    return NotFound(await Result.FailAsync("Visit not found."));
-
-                if (user == null)
-                    return NotFound(await Result.FailAsync("user not found."));
-
-                var response = _mapper.Map<VisitResponse>(visit);
-                response.Case.User= _mapper.Map<UserResponse>(user);
+                response.Case.User = _mapper.Map<UserResponse>(user);
                 response.User = _mapper.Map<UserResponse>(user);
-
-
-                return Ok(await Result<VisitResponse>.SuccessAsync(response));
             }
-            catch (Exception ex)
-            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<VisitResponse>.SuccessAsync(response));
+
         }
 
         /// <summary>
         /// Get User By SectionId
         /// </summary>
-        /// <param name="taskId"></param>
+        /// <param name="id"></param>
         /// <returns>UserResponse</returns>
-        [HttpGet("Tasks/{taskId}/User")]
+        [HttpGet("tasks/{id}/user")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserResponse))]
-        public async Task<IActionResult> GetUserBySectionId(string taskId)
+        public async Task<IActionResult> GetUserBySectionId(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(taskId))
-                    return BadRequest(await Result.FailAsync("Invalid RequestId."));
+
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid RequestId."));
 
 
 
-                var task = await _unitOfWork.DbContext.Tasks.FirstOrDefaultAsync(x => x.Id.ToString().Equals(taskId));
-                var userId = task?.Visit?.Case?.UserId;
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(userId),
-                    include: i => i.Include(x => x.UserProfile).Include(x => x.UserSetting)
-                );
-                var response = _mapper.Map<UserResponse>(user);
+            var task = await _unitOfWork.Tasks.GetFirstOrDefaultAsync(predicate : x => x.Id.ToString().Equals(id));
+            var userId = task?.Visit?.Case?.UserId;
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(userId),
+                include: i => i.Include(x => x.UserProfile).Include(x => x.UserSetting)
+            );
+            var response = _mapper.Map<UserResponse>(user);
 
-                return Ok(await Result<UserResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            return Ok(await Result<UserResponse>.SuccessAsync(response));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
         /// <summary>
         /// Get Task by Id
         /// </summary>
-        /// <param name="taskId"></param>
+        /// <param name="id">TaskId</param>
         /// <returns>List of TaskResponse</returns>
-        [HttpGet("Tasks/{taskId}")]
+        [HttpGet("tasks/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TaskResponse))]
-        public async Task<IActionResult> GetTaskById(string taskId)
+        public async Task<IActionResult> GetTaskById(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(taskId))
-                    return BadRequest(await Result.FailAsync("Invalid RequestId."));
 
-                var task = await _unitOfWork.Tasks.FindAsync(Guid.Parse(taskId));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid RequestId."));
 
-                if (task == null)
-                    return NotFound(await Result.FailAsync("Task not found."));
+            var task = await _unitOfWork.Tasks.FindAsync(Guid.Parse(id));
+            var response = _mapper.Map<TaskResponse>(task);
 
-                var response = _mapper.Map<TaskResponse>(task);
+            return Ok(await Result<TaskResponse>.SuccessAsync(response));
 
-                return Ok(await Result<TaskResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
         /// <summary>
         /// Add Task
         /// </summary>
-        /// <param name="visitId"></param>
-        /// <param name="sectionId"></param>
+        /// <param name="vid">Visit Id</param>
+        /// <param name="sid">Section Id</param>
         /// <returns>string</returns>
-        [HttpPost("{visitId}/Tasks/{sectionId}")]
+        [HttpPost("{vid}/tasks/{sid}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> AddTask(string visitId, string sectionId)
+        public async Task<IActionResult> AddTask(string vid, string sid)
         {
-            try
+
+            if (string.IsNullOrWhiteSpace(vid))
+                return BadRequest(await Result.FailAsync("VisitId is null or empty."));
+
+            var visit = await _unitOfWork.Visits.FindAsync(Guid.Parse(vid));
+
+            if (visit == null)
+                return NotFound(await Result.FailAsync("Visit not found."));
+
+            var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(sid));
+            if (section == null)
+                return NotFound(await Result.FailAsync("Section not found."));
+
+            //var isDuplicate = await _unitOfWork.Tasks.AnyAsync(x => x.VisitId == visit.Id && x.SectionId == section.Id);
+            //if (isDuplicate)
+            //    return NotFound(await Result.FailAsync("Current section already created for this visit."));
+
+            var workflows = await _unitOfWork.Sections.GetAllAsync(
+                predicate: x => x.Parent.ParentId == section.Id,
+                include: i => i.Include(x => x.Parent).ThenInclude(x => x.Parent));
+
+            var addedSectionList = new List<string>();
+            var firstStepItems = workflows?.Where(x => x.Parent.Order == workflows.Min(m => m.Parent.Order));
+
+            foreach (var workflow in workflows)
             {
-                if (string.IsNullOrWhiteSpace(visitId))
-                    return BadRequest(await Result.FailAsync("VisitId is null or empty."));
-
-                var visit = await _unitOfWork.Visits.FindAsync(Guid.Parse(visitId));
-
-                if (visit == null)
-                    return NotFound(await Result.FailAsync("Visit not found."));
-
-                var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(sectionId));
-                if (section == null)
-                    return NotFound(await Result.FailAsync("Section not found."));
-
-                //var isDuplicate = await _unitOfWork.Tasks.AnyAsync(x => x.VisitId == visit.Id && x.SectionId == section.Id);
-                //if (isDuplicate)
-                //    return NotFound(await Result.FailAsync("Current section already created for this visit."));
-
-                var workflows = await _unitOfWork.Sections.GetAllAsync(
-                    predicate: x => x.Parent.ParentId == section.Id,
-                    include: i => i.Include(x => x.Parent).ThenInclude(x => x.Parent));
-
-                var addedSectionList = new List<string>();
-                var firstStepItems = workflows?.Where(x => x.Parent.Order == workflows.Min(m => m.Parent.Order));
-
-                foreach (var workflow in workflows)
+                var task = new Tasks
                 {
-                    var task = new Tasks
-                    {
-                        SectionId = workflow.Id,
-                        VisitId = visit.Id,
-                        Status = TaskStatusEnum.NotCompleted,
-                    };
+                    SectionId = workflow.Id,
+                    VisitId = visit.Id,
+                    Status = TaskStatusEnum.NotCompleted,
+                };
 
 
-                    if (firstStepItems.Any(x => x.Id == workflow.Id))
-                    {
-                        task.Status = TaskStatusEnum.InProgress;
-                        task.StartDate = DateTime.UtcNow;
-                    }
-
-                    var record = await _unitOfWork.Tasks.AddAsync(task);
-                    addedSectionList.Add(record.Entity.Id.ToString());
-
-                    //var firstStep = workflows?.FirstOrDefault(x => x.SectionGroup == SectionGroupEnum.Step && x.Order == workflows.Min(m => m.Order));
-                    ////First Step
-                    //if (item.Id == firstStep?.Id)
-                    //{
-                    //    task.Status = TaskStatusEnum.InProgress;
-                    //    task.StartDate = DateTime.UtcNow;
-                    //}
-                    //First workflow(s) of firstStep
-
-
-
+                if (firstStepItems.Any(x => x.Id == workflow.Id))
+                {
+                    task.Status = TaskStatusEnum.InProgress;
+                    task.StartDate = DateTime.UtcNow;
                 }
 
+                var record = await _unitOfWork.Tasks.AddAsync(task);
+                addedSectionList.Add(record.Entity.Id.ToString());
 
-                await _unitOfWork.SaveChangesAsync();
+                //var firstStep = workflows?.FirstOrDefault(x => x.SectionGroup == SectionGroupEnum.Step && x.Order == workflows.Min(m => m.Order));
+                ////First Step
+                //if (item.Id == firstStep?.Id)
+                //{
+                //    task.Status = TaskStatusEnum.InProgress;
+                //    task.StartDate = DateTime.UtcNow;
+                //}
+                //First workflow(s) of firstStep
 
-                return Ok(await Result<List<string>>.SuccessAsync(addedSectionList, $"{addedSectionList.Count} VisitSection(0) successfully added."));
+
+
             }
-            catch (Exception ex)
-            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+
+            return Ok(await Result<List<string>>.SuccessAsync(addedSectionList, $"{addedSectionList.Count} VisitSection(0) successfully added."));
+
         }
 
 
         /// <summary>
         /// Delete Section
         /// </summary>
-        /// <param name="visitSectionId"></param>
+        /// <param name="id"></param>
         /// <returns>string</returns>
-        [HttpDelete("VisitSections/{visitSectionId}")]
+        [HttpDelete("visit-sections/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> DeleteVisitSection(string visitSectionId)
+        public async Task<IActionResult> DeleteVisitSection(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(visitSectionId))
-                    return BadRequest(await Result.FailAsync("VisitSectionId is null or empty."));
 
-                var visitSection = await _unitOfWork.Tasks.FindAsync(Guid.Parse(visitSectionId));
-                if (visitSection == null)
-                    return NotFound(await Result.FailAsync("VisitSection not found."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("VisitSectionId is null or empty."));
 
-                _unitOfWork.Tasks.Remove(visitSection);
-                await _unitOfWork.SaveChangesAsync();
+            var visitSection = await _unitOfWork.Tasks.FindAsync(Guid.Parse(id));
+            if (visitSection == null)
+                return NotFound(await Result.FailAsync("VisitSection not found."));
 
-                return Ok(await Result<bool>.SuccessAsync(true, "VisitSection successfully deleted."));
-            }
-            catch (Exception ex)
-            {
+            _unitOfWork.Tasks.Remove(visitSection);
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<bool>.SuccessAsync(true, "VisitSection successfully deleted."));
+
         }
 
 
@@ -490,251 +460,26 @@ namespace WRMC.Server.Controllers
         /// Update Section Status
         /// </summary>
         /// <param name="visitId"></param>
-        /// <param name="visitSectionId"></param>
+        /// <param name="id"></param>
         /// <param name="status"></param>
         /// <returns>bool</returns>
-        [HttpPatch("VisitSections/{visitSectionId}")]
+        [HttpPatch("visit-sections/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateVisitSection(string visitSectionId, [FromBody] JsonPatchDocument<TaskRequest> request)
-        {
-            try
-            {
-                var visitSection = await _unitOfWork.Tasks.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(visitSectionId));
-                if (visitSection is null)
-                    return NotFound(await Result.FailAsync("visitSection not found."));
-
-                var requestToPatch = _mapper.Map<TaskRequest>(visitSection);
-                request.ApplyTo(requestToPatch);
-                _mapper.Map(requestToPatch, visitSection);
-                _unitOfWork.Tasks.Update(visitSection);
-                await _unitOfWork.SaveChangesAsync();
-
-                return Ok(await Result<bool>.SuccessAsync(true, " VisitSection successfully updated."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
-        }
-
-        #endregion
-
-        #region MedicalIntakes
-
-        /// <summary>
-        /// Add MedicalIntake
-        /// </summary>
-        /// <param name="visitId"></param>
-        /// <param name="request"></param>
-        /// <returns>string</returns>
-        [HttpPost("{visitId}/MedicalIntakes")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> AddMedicalIntake(string visitId, MedicalIntakeRequest request)
+        public async Task<IActionResult> UpdateVisitSection(string id, [FromBody] JsonPatchDocument<TaskRequest> request)
         {
 
-            try
-            {
-                if (string.IsNullOrWhiteSpace(visitId))
-                    return BadRequest(await Result.FailAsync("Invalid RequestId."));
+            var visitSection = await _unitOfWork.Tasks.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(id));
+            if (visitSection is null)
+                return NotFound(await Result.FailAsync("visitSection not found."));
 
-                var visit = await _unitOfWork.Visits.FindAsync(Guid.Parse(visitId));
+            var requestToPatch = _mapper.Map<TaskRequest>(visitSection);
+            request.ApplyTo(requestToPatch);
+            _mapper.Map(requestToPatch, visitSection);
+            _unitOfWork.Tasks.Update(visitSection);
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
 
-                if (visit == null)
-                    return NotFound(await Result.FailAsync("Visit not found."));
+            return Ok(await Result<bool>.SuccessAsync(true, " VisitSection successfully updated."));
 
-                if (await _unitOfWork.MedicalIntakes.AnyAsync(a => a.VisitId.Equals(visitId)))
-                    return Conflict(await Result.FailAsync("Medical information for this visit is already exist."));
-
-                var medicalInfo = _mapper.Map<MedicalIntake>(request);
-                await _unitOfWork.MedicalIntakes.AddAsync(medicalInfo);
-                await _unitOfWork.SaveChangesAsync();
-
-                return Ok(await Result<string>.SuccessAsync(data: medicalInfo.Id.ToString(), "Medical information successfully Created."));
-
-
-
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
-
-        }
-
-
-        /// <summary>
-        /// Get MedicalIntakes
-        /// </summary>
-        /// <param name="visitId"></param>
-        /// <returns>List of MedicalInfoResponse</returns>
-        [HttpGet("{visitId}/MedicalIntakes")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MedicalIntakeResponse>))]
-        public async Task<IActionResult> GetMedicalIntakes(string visitId)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(visitId))
-                    return BadRequest(await Result.FailAsync("Invalid RequestId."));
-
-                var visit = await _unitOfWork.Visits.FindAsync(Guid.Parse(visitId));
-
-                if (visit == null)
-                    return NotFound(await Result.FailAsync("Visit not found."));
-
-                var medicalInfo = await _unitOfWork.MedicalIntakes.GetAllAsync(
-                    predicate: x => x.VisitId.Equals(visitId));
-
-                var response = _mapper.Map<List<MedicalIntakeResponse>>(medicalInfo);
-
-                return Ok(await Result<List<MedicalIntakeResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
-        }
-
-
-        /// <summary>
-        /// Delete MedicalIntake
-        /// </summary>
-        /// <param name="medicalIntakeId"></param>
-        /// <returns>bool</returns>
-        [HttpDelete("MedicalIntakes/{medicalIntakeId}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> DeleteMedicalIntake(string medicalIntakeId)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(medicalIntakeId))
-                    return BadRequest(await Result.FailAsync("MedicalInfo Id is null or empty."));
-
-                var medicalInfo = await _unitOfWork.MedicalIntakes.FindAsync(Guid.Parse(medicalIntakeId));
-                if (medicalInfo == null)
-                    return NotFound(await Result.FailAsync("MedicalInfo not found."));
-
-                _unitOfWork.MedicalIntakes.Remove(medicalInfo);
-                await _unitOfWork.SaveChangesAsync();
-
-                return Ok(await Result<bool>.SuccessAsync(true, "MedicalInfo successfully deleted."));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
-        }
-
-        #endregion
-
-        #region DemographicIntake
-
-        /// <summary>
-        /// Add DemographicIntake
-        /// </summary>
-        /// <param name="visitId"></param>
-        /// <param name="request"></param>
-        /// <returns>string</returns>
-        [HttpPost("{visitId}/DemographicIntake")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> AddDemographicIntake(string visitId, DemographicIntakeRequest request)
-        {
-
-            try
-            {
-                if (string.IsNullOrWhiteSpace(visitId))
-                    return BadRequest(await Result.FailAsync("VisitId is null or empty."));
-
-                var visit = await _unitOfWork.Visits.FindAsync(Guid.Parse(visitId));
-
-                if (visit == null)
-                    return NotFound(await Result.FailAsync("Visit not found."));
-
-                if (await _unitOfWork.DemographicIntakes.AnyAsync(a => a.VisitId.Equals(visitId)))
-                    return Conflict(await Result.FailAsync("Demographic intake for this visit is already exist."));
-
-                var demographicIntake = _mapper.Map<DemographicIntake>(request);
-                await _unitOfWork.DemographicIntakes.AddAsync(demographicIntake);
-                await _unitOfWork.SaveChangesAsync();
-
-                return Ok(await Result<string>.SuccessAsync(data: demographicIntake.Id.ToString(), "Demographic intake successfully Created."));
-
-
-
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
-
-        }
-
-
-        /// <summary>
-        /// Get Demographic Intake
-        /// </summary>
-        /// <param name="visitId"></param>
-        /// <returns>List of DemographicIntakeResponse</returns>
-        [HttpGet("{visitId}/DemographicIntake")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<DemographicIntakeResponse>))]
-        public async Task<IActionResult> GetDemographicIntake(string visitId)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(visitId))
-                    return BadRequest(await Result.FailAsync("VisitId is null or empty."));
-
-                var visit = await _unitOfWork.Visits.FindAsync(Guid.Parse(visitId));
-
-                if (visit == null)
-                    return NotFound(await Result.FailAsync("Visit not found."));
-
-                var demographicIntakes = await _unitOfWork.DemographicIntakes.GetAllAsync(
-                    predicate: x => x.VisitId.Equals(visitId));
-
-                var response = _mapper.Map<List<DemographicIntakeResponse>>(demographicIntakes);
-
-                return Ok(await Result<List<DemographicIntakeResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
-        }
-
-
-        /// <summary>
-        /// Delete DemographicIntake
-        /// </summary>
-        /// <param name="demographicIntakeId"></param>
-        /// <returns>bool</returns>
-        [HttpDelete("DemographicIntake/{demographicIntakeId}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> DeleteDemographicIntake(string demographicIntakeId)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(demographicIntakeId))
-                    return BadRequest(await Result.FailAsync("Demographic Intake Id is null or empty."));
-
-                var demographicIntake = await _unitOfWork.DemographicIntakes.FindAsync(Guid.Parse(demographicIntakeId));
-                if (demographicIntake == null)
-                    return NotFound(await Result.FailAsync("Demographic Intake not found."));
-
-                _unitOfWork.DemographicIntakes.Remove(demographicIntake);
-                await _unitOfWork.SaveChangesAsync();
-
-                return Ok(await Result<bool>.SuccessAsync(true, "Demographic Intake successfully deleted."));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
         #endregion

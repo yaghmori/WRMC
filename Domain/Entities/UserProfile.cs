@@ -62,6 +62,5 @@ namespace WRMC.Infrastructure.Domain.Entities
 
 
         public virtual User User { get; set; }
-        public virtual IntroMethod? IntroMethod { get; set; }
     }
 }

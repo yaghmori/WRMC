@@ -11,6 +11,8 @@
         public string? ProfileImage { get; set; } = default!;
         public string? Description { get; set; } = default!;
         public bool IsActive { get; set; } = true;
+        public bool IsOnline { get; set; } = true;
+
         public string FullName => $"{FirstName} {LastName}";
 
     }

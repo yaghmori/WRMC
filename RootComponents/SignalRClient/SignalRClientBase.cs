@@ -10,7 +10,7 @@ namespace WRMC.RootComponents.SignalR
     {
         protected bool Started { get; private set; }
 
-        protected SignalRClientBase(ISyncLocalStorageService localStorage, ISyncSessionStorageService sessionStorageService,string hubPath)
+        protected SignalRClientBase(ISyncLocalStorageService localStorage, ISyncSessionStorageService sessionStorageService, string hubPath)
         {
             string accessToken;
             var isPersistent = localStorage.GetItem<bool>(ApplicationConstants.IsPersistent);
@@ -18,23 +18,23 @@ namespace WRMC.RootComponents.SignalR
                 accessToken = localStorage.GetItem<string>(ApplicationConstants.AccessToken);
             else
                 accessToken = sessionStorageService.GetItem<string>(ApplicationConstants.AccessToken);
-            if (accessToken == null)
 
+            HubConnection = new HubConnectionBuilder()
+               .WithUrl(ApplicationConstants.ServerBaseAddress + hubPath, options =>
+               {
+                   options.AccessTokenProvider = async () => await Task.FromResult(accessToken);
+               })
+               .WithAutomaticReconnect()
+               .Build();
 
-                HubConnection = new HubConnectionBuilder()
-                   .WithUrl(ApplicationConstants.ServerBaseAddress + hubPath , options =>
-                   {
-                       options.AccessTokenProvider = async () => await Task.FromResult(accessToken);
-                   })
-                   .WithAutomaticReconnect()
-                   .Build();
         }
 
 
-        public bool IsConnected =>
-            HubConnection.State == HubConnectionState.Connected;
+        public bool IsConnected => HubConnection.State == HubConnectionState.Connected;
+        public HubConnectionState State => HubConnection.State;
 
-        public HubConnection HubConnection { get; set; }
+        public HubConnection HubConnection { get; private set; }
+
 
         public async ValueTask DisposeAsync()
         {

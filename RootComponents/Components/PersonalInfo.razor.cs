@@ -15,7 +15,6 @@ namespace WRMC.RootComponents.Components
     public partial class PersonalInfo
     {
         [Parameter] public string UserId { get; set; } = string.Empty;
-        [CascadingParameter] public HubConnection hubConnection { get; set; }
         private UserProfileRequest UserProfileRequest { get; set; } = new();
 
 
@@ -25,11 +24,7 @@ namespace WRMC.RootComponents.Components
             _appState.SetAppTitle(_viewResources[ViewResources.Profile]);
             //Load Personal Info
             await LoadPersonalInfo();
-            //Hub Connection
-            if (hubConnection.State == HubConnectionState.Disconnected)
-            {
-                await hubConnection.StartAsync();
-            }
+
 
             IsLoading = false;
             StateHasChanged();
@@ -38,7 +33,6 @@ namespace WRMC.RootComponents.Components
         private async Task LoadPersonalInfo()
         {
             IsLoading = true;
-
             var userResponse = await _userDataService.GetUserAsync(UserId);
             if (userResponse?.Succeeded == true)
             {
@@ -52,13 +46,17 @@ namespace WRMC.RootComponents.Components
                 }
             }
             IsLoading = false;
-
         }
 
         private async Task SelectIntroMethodDialog()
         {
             var options = new DialogOptions()
-            {CloseButton = true, FullWidth = true, MaxWidth = MaxWidth.ExtraSmall};
+            {
+                CloseButton = true,
+                FullWidth = true,
+                MaxWidth = MaxWidth.ExtraSmall
+            };
+
             var dialog = _dialog.Show<SelectIntroMethodDialog>(_displayResources[DisplayResources.IntroMethodId], options);
             var result = await dialog.Result;
             if (!result.Cancelled)
@@ -94,13 +92,6 @@ namespace WRMC.RootComponents.Components
             if (result.Succeeded)
             {
                 context.MarkAsUnmodified();
-                //SignalR
-                List<string> users = new List<string>{UserProfileRequest.UserId};
-                if (hubConnection is not null)
-                {
-                    await hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, users);
-                }
-
                 _snackbar.Add(_messageResources[MessageResources.UserAccountUpdatedSuccessfully], Severity.Success);
             }
             else

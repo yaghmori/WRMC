@@ -13,7 +13,7 @@ namespace WRMC.Server.Middlewares
         {
             _next = next;
         }
-        public async Task Invoke(HttpContext context, IUnitOfWork<ServerDbContext> unitOfWork)
+        public async Task Invoke(HttpContext context, IUnitOfWork unitOfWork)
         {
 
 
@@ -24,7 +24,7 @@ namespace WRMC.Server.Middlewares
                 var tenant =await unitOfWork.Tenants.FindAsync(Guid.Parse(tenantId));
                 if(tenant is not null)
                 {
-                    unitOfWork.DbContext.Database.SetConnectionString(tenant.ConnectionString);
+                    unitOfWork.TenantDbContext.Database.SetConnectionString(tenant.ConnectionString);
                     //TODO : Set Connection String 
                     //TenantDbContext.ConnectionString = tenant.ConnectionString;
                 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 using WRMC.Core.Shared.Constant;
 using WRMC.Core.Shared.PagedCollections;
 using WRMC.Core.Shared.Requests;
@@ -23,12 +24,12 @@ namespace WRMC.Server.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUnitOfWork<ServerDbContext> _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IPasswordHasher<User> _passwordHasher;
-        private readonly IHubContext<MainHub,IMainHub> _mainHubContext;
+        private readonly IHubContext<MainHub, IMainHub> _mainHubContext;
 
-        public UserController(IUnitOfWork<ServerDbContext> unitOfWork,
+        public UserController(IUnitOfWork unitOfWork,
             IMapper mapper, IHubContext<MainHub, IMainHub> mainHub,
             IPasswordHasher<User> passwordHasher)
         {
@@ -43,7 +44,7 @@ namespace WRMC.Server.Controllers
 
 
         /// <summary>
-        /// Add New User by email and with password. return newly added userId as string
+        /// Add New User by email and with password. return newly added id as string
         /// </summary>
         /// <param name="request"></param>
         /// <returns>string</returns>
@@ -51,55 +52,44 @@ namespace WRMC.Server.Controllers
         public async Task<IActionResult> AddNewUser(NewUserRequest request)
         {
 
-            try
+            if (await _unitOfWork.Users.AnyAsync(a => a.Email != null && a.Email.Equals(request.Email)))
+                return Conflict(await Result<TokenResponse>.FailAsync("Email is is already exist."));
+            var user = _mapper.Map<User>(request);
+            user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+
+            //Add User
+            var userEntity = await _unitOfWork.Users.AddAsync(user);
+
+            //Create UserSettings
+            await _unitOfWork.UserSettings.AddAsync(new UserSetting
             {
+                UserId = userEntity.Entity.Id,
+                Culture = "en-US",
+                DarkMode = false,
+                RightToLeft = false,
+            });
 
-                if (await _unitOfWork.Users.AnyAsync(a => a.Email != null && a.Email.Equals(request.Email)))
-                    return Conflict(await Result<TokenResponse>.FailAsync("Email is is already exist."));
-                var user = _mapper.Map<User>(request);
-                user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
-
-                //Add User
-                var userEntity = await _unitOfWork.Users.AddAsync(user);
-
-                //Create UserSettings
-                await _unitOfWork.UserSettings.AddAsync(new UserSetting
-                {
-                    UserId = userEntity.Entity.Id,
-                    Culture = "en-US",
-                    DarkMode = false,
-                    RightToLeft = false,
-                });
-
-                //Create UserProfiles
-                await _unitOfWork.UserProfiles.AddAsync(new UserProfile
-                {
-                    UserId = userEntity.Entity.Id,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                    Gender = request.Gender,
-                });
-
-
-                //Assign Default Role
-                var clientRole = await _unitOfWork.Roles.GetFirstOrDefaultAsync(predicate: x => x.Name.Equals(ApplicationRoles.Client));
-                if (clientRole != null)
-                {
-                    await _unitOfWork.UserRoles.AddAsync(new UserRole(userEntity.Entity.Id, clientRole.Id));
-                }
-
-                //TODO : Send Email Verification Code
-                await _unitOfWork.SaveChangesAsync();
-
-                return Ok(await Result<string>.SuccessAsync(userEntity.Entity.Id.ToString(), "User successfully created."));
-
-
-            }
-            catch (Exception ex)
+            //Create UserProfiles
+            await _unitOfWork.UserProfiles.AddAsync(new UserProfile
             {
+                UserId = userEntity.Entity.Id,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Gender = request.Gender,
+            });
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+
+            //Assign Default Role
+            var clientRole = await _unitOfWork.Roles.GetFirstOrDefaultAsync(predicate: x => x.Name.Equals(ApplicationRoles.Client));
+            if (clientRole != null)
+            {
+                await _unitOfWork.UserRoles.AddAsync(new UserRole(userEntity.Entity.Id, clientRole.Id));
             }
+
+            //TODO : Send Email Verification Code
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+
+            return Ok(await Result<string>.SuccessAsync(userEntity.Entity.Id.ToString(), "User successfully created."));
 
         }
 
@@ -117,47 +107,39 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserResponse>))]
         public async Task<IActionResult> GetUsers(string? query = null, int page = 0, int pageSize = 10, bool paged = true)
         {
-            try
+            if (paged)
             {
-                if (paged)
-                {
-                    var users = await _unitOfWork.Users.GetPagedListAsync(
-                    predicate: x => !string.IsNullOrWhiteSpace(query) ? x.Email.ToLower().Contains(query) : true,
-                    include: i => i.Include(x => x.UserClaims)
-                        .Include(x => x.UserSetting)
-                        .Include(x => x.UserProfile).ThenInclude(x => x.IntroMethod)
-                        .Include(x => x.UserRoles).ThenInclude(x => x.Role)
-                        .Include(x => x.UserTenants).ThenInclude(x => x.Tenant)
-                        .Include(x => x.UserSessions),
-                    orderBy: o => o.OrderByDescending(k => k.CreatedDate),
-                    pageIndex: Convert.ToInt32(page),
-                    pageSize: Convert.ToInt32(pageSize) > 100 ? 100 : Convert.ToInt32(pageSize));
-
-
-                    var response = _mapper.Map<PagedList<UserResponse>>(users);
-
-                    return Ok(await Result<IPagedList<UserResponse>>.SuccessAsync(response));
-
-                }
-                else
-                {
-                    var users = await _unitOfWork.Users.GetAllAsync(
+                var users = await _unitOfWork.Users.GetPagedListAsync(
                 predicate: x => !string.IsNullOrWhiteSpace(query) ? x.Email.ToLower().Contains(query) : true,
-                orderBy: o => o.OrderByDescending(k => k.CreatedDate),
                 include: i => i.Include(x => x.UserClaims)
                     .Include(x => x.UserSetting)
-                    .Include(x => x.UserProfile).ThenInclude(x => x.IntroMethod)
+                    .Include(x => x.UserProfile)
                     .Include(x => x.UserRoles).ThenInclude(x => x.Role)
                     .Include(x => x.UserTenants).ThenInclude(x => x.Tenant)
-                    .Include(x => x.UserSessions));
-                    var response = _mapper.Map<List<UserResponse>>(users);
-                    return Ok(await Result<List<UserResponse>>.SuccessAsync(response));
-                }
-            }
-            catch (Exception ex)
-            {
+                    .Include(x => x.UserSessions),
+                orderBy: o => o.OrderByDescending(k => k.CreatedDate),
+                pageIndex: Convert.ToInt32(page),
+                pageSize: Convert.ToInt32(pageSize) > 100 ? 100 : Convert.ToInt32(pageSize));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+
+                var response = _mapper.Map<PagedList<UserResponse>>(users);
+
+                return Ok(await Result<IPagedList<UserResponse>>.SuccessAsync(response));
+
+            }
+            else
+            {
+                var users = await _unitOfWork.Users.GetAllAsync(
+            predicate: x => !string.IsNullOrWhiteSpace(query) ? x.Email.ToLower().Contains(query) : true,
+            orderBy: o => o.OrderByDescending(k => k.CreatedDate),
+            include: i => i.Include(x => x.UserClaims)
+                .Include(x => x.UserSetting)
+                .Include(x => x.UserProfile)
+                .Include(x => x.UserRoles).ThenInclude(x => x.Role)
+                .Include(x => x.UserTenants).ThenInclude(x => x.Tenant)
+                .Include(x => x.UserSessions));
+                var response = _mapper.Map<List<UserResponse>>(users);
+                return Ok(await Result<List<UserResponse>>.SuccessAsync(response));
             }
         }
 
@@ -165,200 +147,178 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Get User By Id
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>UserResponse</returns>
-        [HttpGet("{userId}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserResponse))]
-        public async Task<IActionResult> GetUserById(string userId)
+        public async Task<IActionResult> GetUserById(string id)
         {
-            try
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
+
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(
+                predicate: x => x.Id.ToString().Equals(id),
+                include: i => i.Include(x => x.UserClaims)
+                    .Include(x => x.UserSetting)
+                    .Include(x => x.UserProfile)
+                    .Include(x => x.UserRoles).ThenInclude(x => x.Role)
+                    .Include(x => x.UserTenants).ThenInclude(x => x.Tenant)
+                    .Include(x => x.UserSessions));
+
+            var response = _mapper.Map<UserResponse>(user);
+
+            //TODO : Resolve Code Redundancy
+            //MultiTenancy
+            if (user?.UserProfile != null)
             {
-
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
-
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(
-                    predicate: x => x.Id.ToString().Equals(userId),
-                    include: i => i.Include(x => x.UserClaims)
-                        .Include(x => x.UserSetting)
-                        .Include(x => x.UserProfile).ThenInclude(x => x.IntroMethod)
-                        .Include(x => x.UserRoles).ThenInclude(x => x.Role)
-                        .Include(x => x.UserTenants).ThenInclude(x => x.Tenant)
-                        .Include(x => x.UserSessions));
-
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
-
-                var response = _mapper.Map<UserResponse>(user);
-
-                return Ok(await Result<UserResponse>.SuccessAsync(response));
+                var introMethod = await _unitOfWork.IntroMethods.GetFirstOrDefaultAsync(predicate: x => x.Id.Equals(user.UserProfile.IntroMethodId),
+                    include: i => i.Include(x => x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent));
+                response.UserProfile.IntroMethod = _mapper.Map<IntroMethodResponse>(introMethod);
             }
-            catch (Exception ex)
-            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<UserResponse>.SuccessAsync(response));
         }
 
 
         /// <summary>
         /// Update User By Id
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>bool</returns>
-        [HttpPatch("{userId}")]
+        [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateUserById(string userId, [FromBody] JsonPatchDocument<UserRequest> request)
+        public async Task<IActionResult> UpdateUserById(string id, [FromBody] JsonPatchDocument<UserRequest> request)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                var requestToPatch = _mapper.Map<UserRequest>(user);
-                request.ApplyTo(requestToPatch);
-                _mapper.Map(requestToPatch, user);
-                _unitOfWork.Users.Update(user);
+            var requestToPatch = _mapper.Map<UserRequest>(user);
+            request.ApplyTo(requestToPatch);
+            _mapper.Map(requestToPatch, user);
+            _unitOfWork.Users.Update(user);
 
-                await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                //SignalR
-                //await _mainHubContext.UpdateUser(new List<string>() { user.Id.ToString() });
+            //SignalR
+            var hubUsers = new List<string>() { user.Id.ToString().ToLower() };
+            await _mainHubContext.Clients.Users(hubUsers).UpdateUser(hubUsers);
 
-                return Ok(await Result<bool>.SuccessAsync(true, "User successfully updated."));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<bool>.SuccessAsync(true, "User successfully updated."));
         }
 
 
         /// <summary>
         /// Change User Password
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>bool</returns>
-        [HttpPost("{userId}/change-password")]
+        [HttpPost("{id}/change-password")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> ChangePassword(string userId, [FromBody] ChangePasswordRequest request)
+        public async Task<IActionResult> ChangePassword(string id, [FromBody] ChangePasswordRequest request)
         {
-            try
+
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
+
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
+
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.CurrentPassword);
+
+            if (result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded)
             {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+                user.PasswordHash = _passwordHasher.HashPassword(user, request.NewPassword);
+                user.SecurityStamp = Guid.NewGuid().ToString();
+                user.PasswordToken = null;
+                user.PasswordTokenExpires = null;
+                user.PasswordResetAt = DateTime.UtcNow;
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+                //SignalR
+                var hubUsers = new List<string>() { user.Id.ToString().ToLower() };
+                await _mainHubContext.Clients.Users(hubUsers).UpdateUser(hubUsers);
+                await _mainHubContext.Clients.Users(hubUsers).RegenerateTokens();
 
-                var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.CurrentPassword);
-
-                if (result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded)
-                {
-                    user.PasswordHash = _passwordHasher.HashPassword(user, request.NewPassword);
-                    user.SecurityStamp = Guid.NewGuid().ToString();
-                    user.PasswordToken = null;
-                    user.PasswordTokenExpires = null;
-                    user.PasswordResetAt = DateTime.UtcNow;
-                    await _unitOfWork.SaveChangesAsync();
-
-                    return Ok(await Result<bool>.SuccessAsync(true, "Password successfully changed."));
-                }
-                else
-                    return NotFound(await Result.FailAsync("Incorrect Password."));
-
+                return Ok(await Result<bool>.SuccessAsync(true, "Password successfully changed."));
             }
-            catch (Exception ex)
-            {
+            else
+                return NotFound(await Result.FailAsync("Incorrect Password."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
         /// <summary>
         /// Delete User By Id
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>bool</returns>
-        [HttpDelete("{userId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteUserById(string userId)
+        public async Task<IActionResult> DeleteUserById(string id)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                _unitOfWork.Users.Remove(user);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "User successfully deleted."));
-            }
-            catch (Exception ex)
-            {
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            _unitOfWork.Users.Remove(user);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+
+
+            return Ok(await Result<bool>.SuccessAsync(true, "User successfully deleted."));
+
         }
 
         /// <summary>
         /// Get Profile Completion Status
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>List of string</returns>
-        [HttpGet("{userId}/Profile/Status")]
+        [HttpGet("{id}/Profile/Status")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<string>))]
-        public async Task<IActionResult> GetProfileStatus(string userId)
+        public async Task<IActionResult> GetProfileStatus(string id)
         {
-            try
+
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
+
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.Equals(Guid.Parse(id)),
+                include: i => i.Include(x => x.UserProfile));
+
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
+
+            var userRsponse = _mapper.Map<UserResponse>(user);
+            var userRequest = _mapper.Map<UserProfileRequest>(userRsponse);
+
+            var errors = new List<string>();
+            var properties = userRequest.GetType().GetProperties();
+            var validationRequireProps = properties.Where(x => x.GetCustomAttributes(typeof(ValidationAttribute), true).Any()).ToList();
+
+
+            List<ValidationResult> validationResults = new List<ValidationResult>();
+            bool IsValid = Validator.TryValidateObject(userRequest, new ValidationContext(userRequest), validationResults, true);
+
+            if (!IsValid)
             {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
-
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.Equals(Guid.Parse(userId)),
-                    include: i => i.Include(x => x.UserProfile).ThenInclude(x => x.IntroMethod));
-
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
-
-                var userRsponse = _mapper.Map<UserResponse>(user);
-                var userRequest = _mapper.Map<UserProfileRequest>(userRsponse);
-
-                var errors = new List<string>();
-                var properties = userRequest.GetType().GetProperties();
-                var validationRequireProps = properties.Where(x => x.GetCustomAttributes(typeof(ValidationAttribute), true).Any()).ToList();
-
-
-                List<ValidationResult> validationResults = new List<ValidationResult>();
-                bool IsValid = Validator.TryValidateObject(userRequest, new ValidationContext(userRequest), validationResults, true);
-
-                if (!IsValid)
+                foreach (ValidationResult result in validationResults)
                 {
-                    foreach (ValidationResult result in validationResults)
-                    {
-                        errors.Add(result.ErrorMessage);
-                    }
+                    errors.Add(result.ErrorMessage);
                 }
-                //var percent = (int)Math.Round((double)(100 * validationResults.SelectMany(x => x.MemberNames).Distinct().Count()) / validationRequireProps.Count);
-
-                return Ok(await Result<int>.SuccessAsync(validationResults.SelectMany(x => x.MemberNames).Distinct().Count(), errors));
             }
-            catch (Exception ex)
-            {
+            //var percent = (int)Math.Round((double)(100 * validationResults.SelectMany(x => x.MemberNames).Distinct().Count()) / validationRequireProps.Count);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<int>.SuccessAsync(validationResults.SelectMany(x => x.MemberNames).Distinct().Count(), errors));
+
         }
 
         #endregion
@@ -367,61 +327,55 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Get User Sessions
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>List of UserSessionResponse</returns>
-        [HttpGet("{userId}/sessions")]
+        [HttpGet("{id}/sessions")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserSessionResponse>))]
-        public async Task<IActionResult> GetUserSessionsByUserId(string userId)
+        public async Task<IActionResult> GetUserSessionsByUserId(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(userId))
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                var userSession = await _unitOfWork.UserSessions.GetAllAsync(predicate: x => x.UserId == user.Id);
-                var response = _mapper.Map<List<UserSessionResponse>>(userSession);
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                return Ok(await Result<List<UserSessionResponse>>.SuccessAsync(response));
+            var userSession = await _unitOfWork.UserSessions.GetAllAsync(predicate: x => x.UserId == user.Id);
+            var response = _mapper.Map<List<UserSessionResponse>>(userSession);
 
-            }
-            catch (Exception ex)
-            {
+            return Ok(await Result<List<UserSessionResponse>>.SuccessAsync(response));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+
         }
 
 
         /// <summary>
         /// Terminate Session By SessionId
         /// </summary>
-        /// <param name="sessionId"></param>
+        /// <param name="id"></param>
         /// <returns>bool</returns>
-        [HttpDelete("sessions/{sessionId}")]
+        [HttpDelete("sessions/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> TerminateSession(string sessionId)
+        public async Task<IActionResult> TerminateSession(string id)
         {
-            try
-            {
-                if (sessionId is null)
-                    return BadRequest(await Result.FailAsync("SessionId is null or empty."));
 
-                var session = await _unitOfWork.UserSessions.FindAsync(Guid.Parse(sessionId));
-                if (session is null)
-                    return NotFound(await Result.FailAsync("Session not found."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                _unitOfWork.UserSessions.Remove(session);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "Session successfully Terminated."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var session = await _unitOfWork.UserSessions.FindAsync(Guid.Parse(id));
+            if (session is null)
+                return NotFound(await Result.FailAsync("Session not found."));
+
+            _unitOfWork.UserSessions.Remove(session);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+
+            //SignalR
+            var hubUsers = new List<string>() { session.UserId.ToString().ToLowerInvariant() };
+            await _mainHubContext.Clients.Users(hubUsers).TerminateSession(hubUsers);
+
+            return Ok(await Result<bool>.SuccessAsync(true, "Session successfully Terminated."));
+
         }
 
         #endregion
@@ -431,68 +385,61 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Get User Claims
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>List of UserClaimResponse</returns>
-        [HttpGet("{userId}/claims")]
+        [HttpGet("{id}/claims")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserClaimResponse>))]
-        public async Task<IActionResult> GetClaimsByUserId(string userId)
+        public async Task<IActionResult> GetClaimsByUserId(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(userId))
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                var userClaims = await _unitOfWork.UserClaims.GetAllAsync(predicate: x => x.UserId == user.Id);
-                var response = _mapper.Map<List<UserClaimResponse>>(userClaims);
+            var userClaims = await _unitOfWork.UserClaims.GetAllAsync(predicate: x => x.UserId == user.Id);
+            var response = _mapper.Map<List<UserClaimResponse>>(userClaims);
 
-                return Ok(await Result<List<UserClaimResponse>>.SuccessAsync(response));
+            return Ok(await Result<List<UserClaimResponse>>.SuccessAsync(response));
 
-            }
-            catch (Exception ex)
-            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
         /// <summary>
         /// Update User Claims
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>bool</returns>
-        [HttpPut("{userId}/Claims")]
+        [HttpPut("{id}/claims")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateUserClaims(string userId, [FromBody] List<UserClaimRequest> request)
+        public async Task<IActionResult> UpdateUserClaims(string id, [FromBody] List<UserClaimRequest> request)
         {
-            try
+
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
+
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
+
+            _unitOfWork.UserClaims.RemoveRange(predicate: x => x.UserId == user.Id);
+            foreach (var item in request)
             {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
-
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
-
-                _unitOfWork.UserClaims.RemoveRange(predicate: x => x.UserId == user.Id);
-                foreach (var item in request)
-                {
-                    if (item is not null)
-                        await _unitOfWork.UserClaims.AddAsync(new UserClaim { UserId = Guid.Parse(userId), ClaimType = item.ClaimType, ClaimValue = item.ClaimValue });
-                }
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "User claims successfully updated."));
+                if (item is not null)
+                    await _unitOfWork.UserClaims.AddAsync(new UserClaim { UserId = Guid.Parse(id), ClaimType = item.ClaimType, ClaimValue = item.ClaimValue });
             }
-            catch (Exception ex)
-            {
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+
+            //SignalR
+            var hubUsers = new List<string>() { id.ToLowerInvariant() };
+            await _mainHubContext.Clients.Users(hubUsers).UpdateAuthState(hubUsers);
+
+            return Ok(await Result<bool>.SuccessAsync(true, "User claims successfully updated."));
+
         }
 
         #endregion
@@ -501,32 +448,24 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Get User Tenants
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>List of UserTenantResponse</returns>
-        [HttpGet("{userId}/tenants")]
+        [HttpGet("{id}/tenants")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserTenantResponse>))]
-        public async Task<IActionResult> GetUserTenants(string userId)
+        public async Task<IActionResult> GetUserTenants(string id)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                var tenants = await _unitOfWork.UserTenants.GetAllAsync(predicate: x => x.UserId == user.Id,
-                    include: i => i.Include(x => x.Tenant));
-                var response = _mapper.Map<List<UserTenantResponse>>(tenants);
+            var tenants = await _unitOfWork.UserTenants.GetAllAsync(predicate: x => x.UserId == user.Id,
+                include: i => i.Include(x => x.Tenant));
+            var response = _mapper.Map<List<UserTenantResponse>>(tenants);
 
-                return Ok(await Result<List<UserTenantResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<List<UserTenantResponse>>.SuccessAsync(response));
         }
 
 
@@ -534,36 +473,34 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Update User Tenants
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>bool</returns>
-        [HttpPut("{userId}/Tenants")]
+        [HttpPut("{id}/tenants")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateUserTenants(string userId, [FromBody] List<string> request)
+        public async Task<IActionResult> UpdateUserTenants(string id, [FromBody] List<string> request)
         {
-            try
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
+
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
+
+            _unitOfWork.UserTenants.RemoveRange(predicate: x => x.UserId == user.Id);
+            foreach (var item in request)
             {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
-
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
-
-                _unitOfWork.UserTenants.RemoveRange(predicate: x => x.UserId == user.Id);
-                foreach (var item in request)
-                {
-                    if (item is not null)
-                        await _unitOfWork.UserTenants.AddAsync(new UserTenant { UserId = Guid.Parse(userId), TenantId = Guid.Parse(item) });
-                }
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "User tenants successfully updated."));
+                if (item is not null)
+                    await _unitOfWork.UserTenants.AddAsync(new UserTenant { UserId = Guid.Parse(id), TenantId = Guid.Parse(item) });
             }
-            catch (Exception ex)
-            {
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            //SignalR
+            var hubUsers = new List<string>() { id.ToLowerInvariant() };
+            await _mainHubContext.Clients.Users(hubUsers).UpdateAuthState(hubUsers);
+
+
+            return Ok(await Result<bool>.SuccessAsync(true, "User tenants successfully updated."));
         }
 
         #endregion
@@ -576,33 +513,31 @@ namespace WRMC.Server.Controllers
         /// <param name="userId"></param>
         /// <param name="roleId"></param>
         /// <returns></returns>
-        [HttpDelete("{userId}/roles")]
+        [HttpDelete("{id}/roles")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         public async Task<IActionResult> RemoveUserRole(string userId, string roleId)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (userId is null)
+                return BadRequest(await Result.FailAsync("Invalid user id."));
 
-                if (roleId is null)
-                    return BadRequest(await Result.FailAsync("RoleId is null or empty."));
+            if (roleId is null)
+                return BadRequest(await Result.FailAsync("Invalid role id."));
 
-                var userRole = await _unitOfWork.UserRoles.GetFirstOrDefaultAsync(
-                    predicate: x => x.RoleId.ToString().Equals(roleId) && x.UserId.ToString().Equals(userId));
+            var userRole = await _unitOfWork.UserRoles.GetFirstOrDefaultAsync(
+                predicate: x => x.RoleId.ToString().Equals(roleId) && x.UserId.ToString().Equals(userId));
 
-                if (userRole == null)
-                    return NotFound(await Result.FailAsync("UserRole not found."));
+            if (userRole == null)
+                return NotFound(await Result.FailAsync("UserRole not found."));
 
-                _unitOfWork.UserRoles.Remove(userRole);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "UserRole successfully removed."));
-            }
-            catch (Exception ex)
-            {
+            _unitOfWork.UserRoles.Remove(userRole);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+
+            //SignalR
+            var hubUsers = new List<string>() { userId.ToLowerInvariant() };
+            await _mainHubContext.Clients.Users(hubUsers).UpdateAuthState(hubUsers);
+
+            return Ok(await Result<bool>.SuccessAsync(true, "UserRole successfully removed."));
         }
 
 
@@ -613,38 +548,36 @@ namespace WRMC.Server.Controllers
         /// <param name="userId"></param>
         /// <param name="roleId"></param>
         /// <returns>UserRoleId as string</returns>
-        [HttpPost("{userId}/roles")]
+        [HttpPost("{id}/roles")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public async Task<IActionResult> AddUserRole(string userId, string roleId)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (userId is null)
+                return BadRequest(await Result.FailAsync("Invalid user id."));
 
-                if (roleId is null)
-                    return BadRequest(await Result.FailAsync("RoleId is null or empty."));
+            if (roleId is null)
+                return BadRequest(await Result.FailAsync("Invalid role id."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                var role = await _unitOfWork.Roles.FindAsync(Guid.Parse(roleId));
-                if (role is null)
-                    return NotFound(await Result.FailAsync("Role not found."));
+            var role = await _unitOfWork.Roles.FindAsync(Guid.Parse(roleId));
+            if (role is null)
+                return NotFound(await Result.FailAsync("Role not found."));
 
-                if (await _unitOfWork.UserRoles.AnyAsync(x => x.UserId == user.Id && x.RoleId == role.Id))
-                    return Conflict(await Result.FailAsync("Alredy assign."));
-                var userRole = new UserRole(Guid.Parse(userId), Guid.Parse(roleId));
-                await _unitOfWork.UserRoles.AddAsync(userRole);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "Role successfully assigned to user."));
-            }
-            catch (Exception ex)
-            {
+            if (await _unitOfWork.UserRoles.AnyAsync(x => x.UserId == user.Id && x.RoleId == role.Id))
+                return Conflict(await Result.FailAsync("Alredy assign."));
+            var userRole = new UserRole(Guid.Parse(userId), Guid.Parse(roleId));
+            await _unitOfWork.UserRoles.AddAsync(userRole);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+
+            //SignalR
+            var hubUsers = new List<string>() { userId.ToLowerInvariant() };
+            await _mainHubContext.Clients.Users(hubUsers).UpdateAuthState(hubUsers);
+
+            return Ok(await Result<bool>.SuccessAsync(true, "Role successfully assigned to user."));
         }
 
 
@@ -652,32 +585,24 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Get User Roles
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>List of RoleResponse</returns>
-        [HttpGet("{userId}/Roles")]
+        [HttpGet("{id}/roles")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserRoleResponse>))]
-        public async Task<IActionResult> GetUserRoles(string userId)
+        public async Task<IActionResult> GetUserRoles(string id)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                var userRoles = await _unitOfWork.UserRoles.GetAllAsync(predicate: x => x.UserId == user.Id,
-                    include: i => i.Include(x => x.Role));
-                var response = _mapper.Map<List<UserRoleResponse>>(userRoles);
+            var userRoles = await _unitOfWork.UserRoles.GetAllAsync(predicate: x => x.UserId == user.Id,
+                include: i => i.Include(x => x.Role));
+            var response = _mapper.Map<List<UserRoleResponse>>(userRoles);
 
-                return Ok(await Result<List<UserRoleResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<List<UserRoleResponse>>.SuccessAsync(response));
         }
 
 
@@ -685,40 +610,36 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Update UserRoles 
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <param name="request">list of roles to replaced</param>
         /// <returns>bool</returns>
-        [HttpPut("{userId}/Roles")]
+        [HttpPut("{id}/roles")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateUserRoles(string userId, [FromBody] List<string> request)
+        public async Task<IActionResult> UpdateUserRoles(string id, [FromBody] List<string> request)
         {
-            try
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
+
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(id), disableTracking: true);
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
+            _unitOfWork.UserRoles.RemoveRange(predicate: x => x.UserId == user.Id);
+
+
+            //await _unitOfWork.ServerDbContext.SaveChangesAsync();
+
+            foreach (var item in request)
             {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
-
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(userId),
-                    disableTracking: true);
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
-                _unitOfWork.UserRoles.RemoveRange(predicate: x => x.UserId == user.Id);
-
-
-                //await _unitOfWork.SaveChangesAsync();
-
-                foreach (var item in request)
-                {
-                    if (item is not null)
-                        await _unitOfWork.DbContext.UserRoles.AddAsync(new UserRole { UserId = user.Id, RoleId = Guid.Parse(item) });
-                }
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "User roles successfully updated."));
+                if (item is not null)
+                    await _unitOfWork.UserRoles.AddAsync(new UserRole { UserId = user.Id, RoleId = Guid.Parse(item) });
             }
-            catch (Exception ex)
-            {
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            //SignalR
+            var hubUsers = new List<string>() { id.ToLowerInvariant() };
+            await _mainHubContext.Clients.Users(hubUsers).UpdateAuthState(hubUsers);
+
+            return Ok(await Result<bool>.SuccessAsync(true, "User roles successfully updated."));
         }
 
         #endregion
@@ -729,145 +650,126 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Add User Settings
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>string</returns>
-        [HttpPost("{userId}/Settings")]
+        [HttpPost("{id}/settings")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> AddUserSetting(string userId, UserSettingRequest request)
+        public async Task<IActionResult> AddUserSetting(string id, UserSettingRequest request)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                var setting = _mapper.Map<UserSetting>(request);
-                setting.UserId = user.Id;
-                var entity = await _unitOfWork.UserSettings.AddAsync(setting);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "Setting successfully created."));
-            }
-            catch (Exception ex)
-            {
+            var setting = _mapper.Map<UserSetting>(request);
+            setting.UserId = user.Id;
+            var entity = await _unitOfWork.UserSettings.AddAsync(setting);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            //SignalR
+            var hubUsers = new List<string>() { id.ToLowerInvariant() };
+            await _mainHubContext.Clients.Users(hubUsers).UpdateUser(hubUsers);
+
+
+            return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "Setting successfully created."));
+
         }
 
 
         /// <summary>
         /// Get User Settings
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>UserSettingResponse</returns>
-        [HttpGet("{userId}/Settings")]
+        [HttpGet("{id}/settings")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserSettingResponse))]
-        public async Task<IActionResult> GetUserSetting(string userId)
+        public async Task<IActionResult> GetUserSetting(string id)
         {
-            try
-            {
 
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var userSetting = await _unitOfWork.UserSettings.GetFirstOrDefaultAsync(
-                    predicate: x => x.Id.ToString().Equals(userId));
+            var userSetting = await _unitOfWork.UserSettings.GetFirstOrDefaultAsync(
+                predicate: x => x.Id.ToString().Equals(id));
 
-                if (userSetting is null)
-                    return NotFound(await Result.FailAsync("Setting not found."));
+            if (userSetting is null)
+                return NotFound(await Result.FailAsync("Setting not found."));
 
-                var response = _mapper.Map<UserSettingResponse>(userSetting);
+            var response = _mapper.Map<UserSettingResponse>(userSetting);
 
-                return Ok(await Result<UserSettingResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            return Ok(await Result<UserSettingResponse>.SuccessAsync(response));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
         /// <summary>
         /// Update User Settings
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>bool</returns>
-        [HttpPatch("{userId}/Settings")]
+        [HttpPatch("{id}/settings")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateUserSetting(string userId, [FromBody] JsonPatchDocument<UserSettingRequest> request)
+        public async Task<IActionResult> UpdateUserSetting(string id, [FromBody] JsonPatchDocument<UserSettingRequest> request)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                var setting = await _unitOfWork.UserSettings.GetFirstOrDefaultAsync(predicate: x => x.UserId.Equals(user.Id));
-                if (setting is null)
-                    return NotFound(await Result.FailAsync("User Setting not found."));
+            var setting = await _unitOfWork.UserSettings.GetFirstOrDefaultAsync(predicate: x => x.UserId.Equals(user.Id));
+            if (setting is null)
+                return NotFound(await Result.FailAsync("User Setting not found."));
 
-                var requestToPatch = _mapper.Map<UserSettingRequest>(setting);
-                request.ApplyTo(requestToPatch);
-                _mapper.Map(requestToPatch, setting);
-                _unitOfWork.UserSettings.Update(setting);
-                await _unitOfWork.SaveChangesAsync();
+            var requestToPatch = _mapper.Map<UserSettingRequest>(setting);
+            request.ApplyTo(requestToPatch);
+            _mapper.Map(requestToPatch, setting);
+            _unitOfWork.UserSettings.Update(setting);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                //SignalR
-                var users = new List<string>() { user.Id.ToString() };
-                await _mainHubContext.Clients.Users(users).UpdateCulture(users);
+            //SignalR
+            var hubUsers = new List<string>() { id.ToLowerInvariant() };
+            await _mainHubContext.Clients.Users(hubUsers).UpdateUser(hubUsers);
 
-                return Ok(await Result<bool>.SuccessAsync(true, "Setting successfully updated."));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<bool>.SuccessAsync(true, "Setting successfully updated."));
         }
 
 
         /// <summary>
         /// Delete User Settings
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>bool</returns>
-        [HttpDelete("{userId}/Settings")]
+        [HttpDelete("{id}/settings")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteUserSetting(string userId)
+        public async Task<IActionResult> DeleteUserSetting(string id)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
 
-                var setting = await _unitOfWork.UserSettings.GetFirstOrDefaultAsync(predicate: x => x.UserId.Equals(user.Id));
-                if (setting is null)
-                    return NotFound(await Result.FailAsync("Setting not found."));
+            var setting = await _unitOfWork.UserSettings.GetFirstOrDefaultAsync(predicate: x => x.UserId.Equals(user.Id));
+            if (setting is null)
+                return NotFound(await Result.FailAsync("Setting not found."));
 
-                _unitOfWork.UserSettings.Remove(setting);
-                await _unitOfWork.SaveChangesAsync();
+            _unitOfWork.UserSettings.Remove(setting);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return Ok(await Result<bool>.SuccessAsync(true, "Setting successfully deleted."));
-            }
-            catch (Exception ex)
-            {
+            //SignalR
+            var hubUsers = new List<string>() { id.ToLowerInvariant() };
+            await _mainHubContext.Clients.Users(hubUsers).UpdateUser(hubUsers);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<bool>.SuccessAsync(true, "Setting successfully deleted."));
+
         }
 
         #endregion
@@ -877,141 +779,130 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Add UserProfile
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>string</returns>
-        [HttpPost("{userId}/UserProfile")]
+        [HttpPost("{id}/user-profile")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> AddUserProfile(string userId, UserProfileRequest request)
+        public async Task<IActionResult> AddUserProfile(string id, UserProfileRequest request)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                var profile = _mapper.Map<UserProfile>(request);
-                profile.UserId = user.Id;
-                var entity = await _unitOfWork.UserProfiles.AddAsync(profile);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "Profile successfully created."));
-            }
-            catch (Exception ex)
-            {
+            var profile = _mapper.Map<UserProfile>(request);
+            profile.UserId = user.Id;
+            var entity = await _unitOfWork.UserProfiles.AddAsync(profile);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            //SignalR
+            var hubUsers = new List<string>() { id.ToLowerInvariant() };
+            await _mainHubContext.Clients.Users(hubUsers).UpdateUser(hubUsers);
+
+            return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "Profile successfully created."));
         }
 
 
         /// <summary>
         /// Get UserProfile
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>UserProfileResponse</returns>
-        [HttpGet("{userId}/UserProfile")]
+        [HttpGet("{id}/user-profile")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserProfileResponse))]
-        public async Task<IActionResult> GetUserProfile(string userId)
+        public async Task<IActionResult> GetUserProfile(string id)
         {
-            try
+
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
+
+            var userProfile = await _unitOfWork.UserProfiles.GetFirstOrDefaultAsync(
+                predicate: x => x.Id.ToString().Equals(id));
+
+            var response = _mapper.Map<UserProfileResponse>(userProfile);
+
+            //TODO : Resolve Code Redundancy
+            //MultiTenancy
+            if (userProfile != null)
             {
-
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
-
-                var userProfile = await _unitOfWork.UserProfiles.GetFirstOrDefaultAsync(
-                    predicate: x => x.Id.ToString().Equals(userId),
-                    include: i => i.Include(x => x.IntroMethod).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent));
-
-                if (userProfile is null)
-                    return NotFound(await Result.FailAsync("Personal info not found."));
-
-                var response = _mapper.Map<UserProfileResponse>(userProfile);
-
-                return Ok(await Result<UserProfileResponse>.SuccessAsync(response));
+                var introMethod = await _unitOfWork.IntroMethods.GetFirstOrDefaultAsync(predicate : x => x.Id.Equals(userProfile.IntroMethodId),
+                    include: i=>i.Include(x=>x.Parent).ThenInclude(x=>x.Parent).ThenInclude(x=>x.Parent).ThenInclude(x=>x.Parent));
+                response.IntroMethod = _mapper.Map<IntroMethodResponse>(introMethod);
             }
-            catch (Exception ex)
-            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<UserProfileResponse>.SuccessAsync(response));
         }
 
         /// <summary>
         /// Update UserProfile
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>bool</returns>
-        [HttpPatch("{userId}/UserProfile")]
+        [HttpPatch("{id}/user-profile")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateUserProfile(string userId, [FromBody] JsonPatchDocument<UserProfileRequest> request)
+        public async Task<IActionResult> UpdateUserProfile(string id, [FromBody] JsonPatchDocument<UserProfileRequest> request)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                var userProfile = await _unitOfWork.UserProfiles.GetFirstOrDefaultAsync(predicate: x => x.UserId.Equals(user.Id));
-                if (userProfile is null)
-                    return NotFound(await Result.FailAsync("Profile not found."));
+            var userProfile = await _unitOfWork.UserProfiles.GetFirstOrDefaultAsync(predicate: x => x.UserId.Equals(user.Id));
+            if (userProfile is null)
+                return NotFound(await Result.FailAsync("Profile not found."));
 
-                var userProfileRequest = _mapper.Map<UserProfileRequest>(userProfile);
-                request.ApplyTo(userProfileRequest);
-                _mapper.Map(userProfileRequest, userProfile);
+            var userProfileRequest = _mapper.Map<UserProfileRequest>(userProfile);
+            request.ApplyTo(userProfileRequest);
+            _mapper.Map(userProfileRequest, userProfile);
 
-                _unitOfWork.UserProfiles.Update(userProfile);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "Profile successfully updated."));
-            }
-            catch (Exception ex)
-            {
+            _unitOfWork.UserProfiles.Update(userProfile);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+
+            //SignalR
+            var hubUsers = new List<string>() { id.ToLowerInvariant() };
+            await _mainHubContext.Clients.Users(hubUsers).UpdateUser(hubUsers);
+
+            return Ok(await Result<bool>.SuccessAsync(true, "Profile successfully updated."));
         }
 
 
         /// <summary>
         /// Delete UserProfile
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>bool</returns>
-        [HttpDelete("{userId}/UserProfile")]
+        [HttpDelete("{id}/user-profile")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteUserProfile(string userId)
+        public async Task<IActionResult> DeleteUserProfile(string id)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
 
-                var userProfile = await _unitOfWork.UserProfiles.GetFirstOrDefaultAsync(predicate: x => x.UserId.Equals(user.Id));
-                if (userProfile is null)
-                    return NotFound(await Result.FailAsync("Profile not found."));
+            var userProfile = await _unitOfWork.UserProfiles.GetFirstOrDefaultAsync(predicate: x => x.UserId.Equals(user.Id));
+            if (userProfile is null)
+                return NotFound(await Result.FailAsync("Profile not found."));
 
-                _unitOfWork.UserProfiles.Remove(userProfile);
-                await _unitOfWork.SaveChangesAsync();
+            _unitOfWork.UserProfiles.Remove(userProfile);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return Ok(await Result<bool>.SuccessAsync(true, "Profile successfully deleted."));
-            }
-            catch (Exception ex)
-            {
+            //SignalR
+            var hubUsers = new List<string>() { id.ToLowerInvariant() };
+            await _mainHubContext.Clients.Users(hubUsers).UpdateUser(hubUsers);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+
+            return Ok(await Result<bool>.SuccessAsync(true, "Profile successfully deleted."));
         }
 
 
@@ -1022,139 +913,108 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Add UserPhoneNumber
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>string</returns>
-        [HttpPost("{userId}/PhoneNumbers")]
+        [HttpPost("{id}/phone-numbers")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> AddPhoneNumber(string userId, UserPhoneNumberRequest request)
+        public async Task<IActionResult> AddPhoneNumber(string id, UserPhoneNumberRequest request)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                var phoneNumber = _mapper.Map<UserPhoneNumber>(request);
-                phoneNumber.UserId = user.Id;
-                var entity = await _unitOfWork.UserPhoneNumbers.AddAsync(phoneNumber);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "PhoneNumber successfully Added."));
-            }
-            catch (Exception ex)
-            {
+            var phoneNumber = _mapper.Map<UserPhoneNumber>(request);
+            phoneNumber.UserId = user.Id;
+            var entity = await _unitOfWork.UserPhoneNumbers.AddAsync(phoneNumber);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "PhoneNumber successfully Added."));
         }
 
 
         /// <summary>
         /// Get UserPhoneNumbers
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>UserPhoneNumberResponse</returns>
-        [HttpGet("{userId}/PhoneNumbers")]
+        [HttpGet("{id}/phone-numbers")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserPhoneNumberResponse>))]
-        public async Task<IActionResult> GetPhoneNumbers(string userId)
+        public async Task<IActionResult> GetPhoneNumbers(string id)
         {
-            try
-            {
 
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                var phoneNumbers = await _unitOfWork.UserPhoneNumbers.GetAllAsync(
-                    predicate: x => x.UserId.ToString().Equals(userId),
-                    orderBy: o => o.OrderBy(x => x.Order));
+            var phoneNumbers = await _unitOfWork.UserPhoneNumbers.GetAllAsync(
+                predicate: x => x.UserId.ToString().Equals(id),
+                orderBy: o => o.OrderBy(x => x.Order));
 
 
-                var response = _mapper.Map<List<UserPhoneNumberResponse>>(phoneNumbers);
+            var response = _mapper.Map<List<UserPhoneNumberResponse>>(phoneNumbers);
 
-                return Ok(await Result<List<UserPhoneNumberResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            return Ok(await Result<List<UserPhoneNumberResponse>>.SuccessAsync(response));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
         /// <summary>
         /// Get UserPhoneNumber
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="phoneNumberId"></param>
+        /// <param name="id"></param>
+        /// <param name="pid"></param>
         /// <returns>UserPhoneNumberResponse</returns>
-        [HttpGet("{userId}/PhoneNumbers/{phoneNumberId}")]
+        [HttpGet("{id}/phone-numbers/{pid}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserPhoneNumberResponse))]
-        public async Task<IActionResult> GetPhoneNumber(string userId, string phoneNumberId)
+        public async Task<IActionResult> GetPhoneNumber(string id, string pid)
         {
-            try
-            {
 
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                var phoneNumber = await _unitOfWork.UserPhoneNumbers.GetFirstOrDefaultAsync(
-                    predicate: x => x.UserId.ToString().Equals(userId) && x.Id.ToString().Equals(phoneNumberId));
+            var phoneNumber = await _unitOfWork.UserPhoneNumbers.GetFirstOrDefaultAsync(
+                predicate: x => x.UserId.ToString().Equals(id) && x.Id.ToString().Equals(pid));
 
-                if (phoneNumber is null)
-                    return NotFound(await Result.FailAsync("PhoneNumber not found."));
+            var response = _mapper.Map<UserPhoneNumberResponse>(phoneNumber);
 
+            return Ok(await Result<UserPhoneNumberResponse>.SuccessAsync(response));
 
-                var response = _mapper.Map<UserPhoneNumberResponse>(phoneNumber);
-
-                return Ok(await Result<UserPhoneNumberResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
         /// <summary>
         /// Update UserPhoneNumber
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="phoneNumberId"></param>
+        /// <param name="id"></param>
+        /// <param name="pid"></param>
         /// <param name="request"></param>
         /// <returns>bool</returns>
-        [HttpPatch("{userId}/PhoneNumbers/{phoneNumberId}")]
+        [HttpPatch("{id}/phone-numbers/{pid}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateUserPhoneNumbers(string userId, string phoneNumberId, [FromBody] JsonPatchDocument<UserPhoneNumberRequest> request)
+        public async Task<IActionResult> UpdateUserPhoneNumbers(string id, string pid, [FromBody] JsonPatchDocument<UserPhoneNumberRequest> request)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                var userPhoneNumber = await _unitOfWork.UserPhoneNumbers.GetFirstOrDefaultAsync(predicate: x => x.UserId.Equals(user.Id) && x.Id.ToString().Equals(phoneNumberId));
-                if (userPhoneNumber is null)
-                    return NotFound(await Result.FailAsync("PhoneNumber not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                var requestToPatch = _mapper.Map<UserPhoneNumberRequest>(userPhoneNumber);
-                request.ApplyTo(requestToPatch);
-                _mapper.Map(requestToPatch, userPhoneNumber);
-                _unitOfWork.UserPhoneNumbers.Update(userPhoneNumber);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "PhoneNumber successfully updated."));
-            }
-            catch (Exception ex)
-            {
+            var userPhoneNumber = await _unitOfWork.UserPhoneNumbers.GetFirstOrDefaultAsync(predicate: x => x.UserId.Equals(user.Id) && x.Id.ToString().Equals(pid));
+            if (userPhoneNumber is null)
+                return NotFound(await Result.FailAsync("PhoneNumber not found."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var requestToPatch = _mapper.Map<UserPhoneNumberRequest>(userPhoneNumber);
+            request.ApplyTo(requestToPatch);
+            _mapper.Map(requestToPatch, userPhoneNumber);
+            _unitOfWork.UserPhoneNumbers.Update(userPhoneNumber);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            return Ok(await Result<bool>.SuccessAsync(true, "PhoneNumber successfully updated."));
+
         }
 
 
@@ -1162,39 +1022,33 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Delete PhoneNumber
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="phoneNumberId"></param>
+        /// <param name="id"></param>
+        /// <param name="pid"></param>
         /// <returns>bool</returns>
-        [HttpDelete("{userId}/PhoneNumbers/{phoneNumberId}")]
+        [HttpDelete("{id}/phone-numbers/{pid}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeletePhoneNumber(string userId, string phoneNumberId)
+        public async Task<IActionResult> DeletePhoneNumber(string id, string pid)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
+
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
 
-                var phoneNumber = await _unitOfWork.UserPhoneNumbers.GetFirstOrDefaultAsync(
-                    predicate: x => x.UserId.ToString().Equals(userId) && x.Id.ToString().Equals(phoneNumberId));
+            var phoneNumber = await _unitOfWork.UserPhoneNumbers.GetFirstOrDefaultAsync(
+                predicate: x => x.UserId.ToString().Equals(id) && x.Id.ToString().Equals(pid));
 
-                if (phoneNumber is null)
-                    return NotFound(await Result.FailAsync("PhoneNumber not found."));
+            if (phoneNumber is null)
+                return NotFound(await Result.FailAsync("PhoneNumber not found."));
 
-                _unitOfWork.UserPhoneNumbers.Remove(phoneNumber);
-                await _unitOfWork.SaveChangesAsync();
+            _unitOfWork.UserPhoneNumbers.Remove(phoneNumber);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return Ok(await Result<bool>.SuccessAsync(true, "PhoneNumber successfully deleted."));
-            }
-            catch (Exception ex)
-            {
+            return Ok(await Result<bool>.SuccessAsync(true, "PhoneNumber successfully deleted."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
@@ -1205,66 +1059,54 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Add UserAddress
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>string</returns>
-        [HttpPost("{userId}/Addresses")]
+        [HttpPost("{id}/addresses")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> AddAddress(string userId, UserAddressRequest request)
+        public async Task<IActionResult> AddAddress(string id, UserAddressRequest request)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                var address = _mapper.Map<UserAddress>(request);
-                address.UserId = user.Id;
-                var entity = await _unitOfWork.UserAddresses.AddAsync(address);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "Address successfully Added."));
-            }
-            catch (Exception ex)
-            {
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var address = _mapper.Map<UserAddress>(request);
+            address.UserId = user.Id;
+            var entity = await _unitOfWork.UserAddresses.AddAsync(address);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "Address successfully Added."));
+
         }
 
 
         /// <summary>
         /// Get UserAddresses
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>list of UserAddressResponse</returns>
-        [HttpGet("{userId}/Addresses")]
+        [HttpGet("{id}/addresses")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserAddressResponse>))]
-        public async Task<IActionResult> GetAddresses(string userId)
+        public async Task<IActionResult> GetAddresses(string id)
         {
-            try
-            {
-
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
-
-                var addresses = await _unitOfWork.UserAddresses.GetAllAsync(
-                    predicate: x => x.UserId.ToString().Equals(userId),
-                    include: i => i.Include(x => x.Region).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent),
-                    orderBy: o => o.OrderBy(x => x.Order));
 
 
-                var response = _mapper.Map<List<UserAddressResponse>>(addresses);
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid Request id."));
 
-                return Ok(await Result<List<UserAddressResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            var addresses = await _unitOfWork.UserAddresses.GetAllAsync(
+                predicate: x => x.UserId.ToString().Equals(id),
+                include: i => i.Include(x => x.Region).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent),
+                orderBy: o => o.OrderBy(x => x.Order));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+
+            var response = _mapper.Map<List<UserAddressResponse>>(addresses);
+
+            return Ok(await Result<List<UserAddressResponse>>.SuccessAsync(response));
+
         }
 
 
@@ -1272,75 +1114,62 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Get UserAddress
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="addressId"></param>
+        /// <param name="id">UserId</param>
+        /// <param name="aid">Address Id</param>
         /// <returns>UserAddressResponse</returns>
-        [HttpGet("{userId}/Addresses/{addressId}")]
+        [HttpGet("{id}/addresses/{aid}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserAddressResponse))]
-        public async Task<IActionResult> GetAddress(string userId, string addressId)
+        public async Task<IActionResult> GetAddress(string id, string aid)
         {
-            try
-            {
 
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var phoneNumber = await _unitOfWork.UserAddresses.GetFirstOrDefaultAsync(
-                    predicate: x => x.UserId.ToString().Equals(userId) && x.Id.ToString().Equals(addressId),
-                    include: i => i.Include(x => x.Region).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent));
+            var phoneNumber = await _unitOfWork.UserAddresses.GetFirstOrDefaultAsync(
+                predicate: x => x.UserId.ToString().Equals(id) && x.Id.ToString().Equals(aid),
+                include: i => i.Include(x => x.Region).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent));
 
-                if (phoneNumber is null)
-                    return NotFound(await Result.FailAsync("Address not found."));
+            if (phoneNumber is null)
+                return NotFound(await Result.FailAsync("Address not found."));
 
 
-                var response = _mapper.Map<UserAddressResponse>(phoneNumber);
+            var response = _mapper.Map<UserAddressResponse>(phoneNumber);
 
-                return Ok(await Result<UserAddressResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            return Ok(await Result<UserAddressResponse>.SuccessAsync(response));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
         /// <summary>
         /// Update UserAddress
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="addressId"></param>
+        /// <param name="id">UserId</param>
+        /// <param name="aid">Address Id</param>
         /// <param name="request"></param>
         /// <returns>bool</returns>
-        [HttpPatch("{userId}/Addresses/{addressId}")]
+        [HttpPatch("{id}/addresses/{aid}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateUserAddress(string userId, string addressId, [FromBody] JsonPatchDocument<UserAddressRequest> request)
+        public async Task<IActionResult> UpdateUserAddress(string id, string aid, [FromBody] JsonPatchDocument<UserAddressRequest> request)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var userAddress = await _unitOfWork.UserAddresses.GetFirstOrDefaultAsync(predicate: x => x.UserId.Equals(user.Id) && x.Id.ToString().Equals(addressId));
-                if (userAddress is null)
-                    return NotFound(await Result.FailAsync("UserAddress not found."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                var requestToPatch = _mapper.Map<UserAddressRequest>(userAddress);
-                request.ApplyTo(requestToPatch);
-                _mapper.Map(requestToPatch, userAddress);
-                _unitOfWork.UserAddresses.Update(userAddress);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "UserAddress successfully updated."));
-            }
-            catch (Exception ex)
-            {
+            var userAddress = await _unitOfWork.UserAddresses.GetFirstOrDefaultAsync(predicate: x => x.UserId.Equals(user.Id) && x.Id.ToString().Equals(aid));
+            if (userAddress is null)
+                return NotFound(await Result.FailAsync("UserAddress not found."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var requestToPatch = _mapper.Map<UserAddressRequest>(userAddress);
+            request.ApplyTo(requestToPatch);
+            _mapper.Map(requestToPatch, userAddress);
+            _unitOfWork.UserAddresses.Update(userAddress);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            return Ok(await Result<bool>.SuccessAsync(true, "UserAddress successfully updated."));
+
         }
 
 
@@ -1348,39 +1177,33 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Delete UserAddress
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="addressId"></param>
+        /// <param name="id">UserId</param>
+        /// <param name="aid">AddressId</param>
         /// <returns>bool</returns>
-        [HttpDelete("{userId}/Addresses/{addressId}")]
+        [HttpDelete("{id}/addresses/{aid}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteAddress(string userId, string addressId)
+        public async Task<IActionResult> DeleteAddress(string id, string aid)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
+
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
 
-                var address = await _unitOfWork.UserAddresses.GetFirstOrDefaultAsync(
-                    predicate: x => x.UserId.ToString().Equals(userId) && x.Id.ToString().Equals(addressId));
+            var address = await _unitOfWork.UserAddresses.GetFirstOrDefaultAsync(
+                predicate: x => x.UserId.ToString().Equals(id) && x.Id.ToString().Equals(aid));
 
-                if (address is null)
-                    return NotFound(await Result.FailAsync("Address not found."));
+            if (address is null)
+                return NotFound(await Result.FailAsync("Address not found."));
 
-                _unitOfWork.UserAddresses.Remove(address);
-                await _unitOfWork.SaveChangesAsync();
+            _unitOfWork.UserAddresses.Remove(address);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return Ok(await Result<bool>.SuccessAsync(true, "Address successfully deleted."));
-            }
-            catch (Exception ex)
-            {
+            return Ok(await Result<bool>.SuccessAsync(true, "Address successfully deleted."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
@@ -1391,65 +1214,53 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Add UserAttachment
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>string</returns>
-        [HttpPost("{userId}/Attachments")]
+        [HttpPost("{id}/attachments")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> AddAttachment(string userId, UserAttachmentRequest request)
+        public async Task<IActionResult> AddAttachment(string id, UserAttachmentRequest request)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var address = _mapper.Map<UserAttachment>(request);
-                address.UserId = user.Id;
-                var entity = await _unitOfWork.UserAttachments.AddAsync(address);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "Attachment successfully Added."));
-            }
-            catch (Exception ex)
-            {
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var address = _mapper.Map<UserAttachment>(request);
+            address.UserId = user.Id;
+            var entity = await _unitOfWork.UserAttachments.AddAsync(address);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "Attachment successfully Added."));
+
         }
 
 
         /// <summary>
         /// Get UserAttachments
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id"></param>
         /// <returns>list of UserAttachmentResponse</returns>
-        [HttpGet("{userId}/Attachments")]
+        [HttpGet("{id}/attachments")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserAttachmentResponse>))]
-        public async Task<IActionResult> GetAttachments(string userId)
+        public async Task<IActionResult> GetAttachments(string id)
         {
-            try
-            {
-
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
-
-                var attachments = await _unitOfWork.UserAttachments.GetAllAsync(
-                    predicate: x => x.UserId.ToString().Equals(userId),
-                    orderBy: o => o.OrderBy(x => x.Order));
 
 
-                var response = _mapper.Map<List<UserAttachmentResponse>>(attachments);
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                return Ok(await Result<List<UserAttachmentResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            var attachments = await _unitOfWork.UserAttachments.GetAllAsync(
+                predicate: x => x.UserId.ToString().Equals(id),
+                orderBy: o => o.OrderBy(x => x.Order));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+
+            var response = _mapper.Map<List<UserAttachmentResponse>>(attachments);
+
+            return Ok(await Result<List<UserAttachmentResponse>>.SuccessAsync(response));
+
         }
 
 
@@ -1457,72 +1268,61 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Get UserAttachment
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id">UserId</param>
+        /// <param name="aid">AttachmentId</param>
         /// <returns>UserAttachmentResponse</returns>
-        [HttpGet("{userId}/Attachments/{attachmenteId}")]
+        [HttpGet("{id}/attachments/{aid}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserAttachmentResponse))]
-        public async Task<IActionResult> GetAttachment(string userId, string attachmenteId)
+        public async Task<IActionResult> GetAttachment(string id, string aid)
         {
-            try
-            {
 
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var attachment = await _unitOfWork.UserAttachments.GetFirstOrDefaultAsync(
-                    predicate: x => x.UserId.ToString().Equals(userId) && x.Id.ToString().Equals(attachmenteId));
+            var attachment = await _unitOfWork.UserAttachments.GetFirstOrDefaultAsync(
+                predicate: x => x.UserId.ToString().Equals(id) && x.Id.ToString().Equals(aid));
 
-                if (attachment is null)
-                    return NotFound(await Result.FailAsync("Attachment not found."));
+            if (attachment is null)
+                return NotFound(await Result.FailAsync("Attachment not found."));
 
 
-                var response = _mapper.Map<UserAttachmentResponse>(attachment);
+            var response = _mapper.Map<UserAttachmentResponse>(attachment);
 
-                return Ok(await Result<UserAttachmentResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            return Ok(await Result<UserAttachmentResponse>.SuccessAsync(response));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
         /// <summary>
         /// Delete UserAttachment
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="id">UserId</param>
+        /// <param name="aid">AttachmentId</param>
         /// <returns>bool</returns>
-        [HttpDelete("{userId}/Attachments/{attachmenteId}")]
+        [HttpDelete("{id}/attachments/{aid}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteAttachment(string userId, string attachmenteId)
+        public async Task<IActionResult> DeleteAttachment(string id, string aid)
         {
-            try
-            {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
 
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                    return NotFound(await Result.FailAsync("User not found."));
+            if (id is null)
+                return BadRequest(await Result.FailAsync("Invalid request id."));
+
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
+            if (user is null)
+                return NotFound(await Result.FailAsync("User not found."));
 
 
-                var attachment = await _unitOfWork.UserAttachments.GetFirstOrDefaultAsync(
-                    predicate: x => x.UserId.ToString().Equals(userId) && x.Id.ToString().Equals(attachmenteId));
+            var attachment = await _unitOfWork.UserAttachments.GetFirstOrDefaultAsync(
+                predicate: x => x.UserId.ToString().Equals(id) && x.Id.ToString().Equals(aid));
 
-                if (attachment is null)
-                    return NotFound(await Result.FailAsync("Attachment not found."));
+            if (attachment is null)
+                return NotFound(await Result.FailAsync("Attachment not found."));
 
-                _unitOfWork.UserAttachments.Remove(attachment);
-                await _unitOfWork.SaveChangesAsync();
+            _unitOfWork.UserAttachments.Remove(attachment);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                return Ok(await Result<bool>.SuccessAsync(true, "Attachment successfully deleted."));
-            }
-            catch (Exception ex)
-            {
+            return Ok(await Result<bool>.SuccessAsync(true, "Attachment successfully deleted."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 

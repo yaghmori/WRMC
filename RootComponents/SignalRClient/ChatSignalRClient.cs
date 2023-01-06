@@ -10,7 +10,7 @@ namespace WRMC.RootComponents.SignalRClient
     public class ChatSignalRClient : SignalRClientBase, IChatHubClient
     {
         public ChatSignalRClient(ISyncLocalStorageService localStorage, ISyncSessionStorageService sessionStorageService)
-            : base(localStorage, sessionStorageService, EndPoints.Hub.MainHubPath)
+            : base(localStorage, sessionStorageService, EndPoints.ChatHub)
         {
         }
 

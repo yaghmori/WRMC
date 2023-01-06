@@ -12,7 +12,6 @@ namespace WRMC.RootComponents.Pages.Identity
 {
     public partial class Roles
     {
-        [CascadingParameter] private HubConnection hubConnection { get; set; }
         private IPagedList<RoleResponse> RolesPagedCollection = new PagedList<RoleResponse>();
         private MudDataGrid<RoleResponse>? _mudDataGrid = new();
         private string Query { get; set; } = string.Empty;
@@ -22,10 +21,6 @@ namespace WRMC.RootComponents.Pages.Identity
         protected override async Task OnInitializedAsync()
         {
             _appState.SetAppTitle(_viewResources[ViewResources.Roles]);
-            if (hubConnection.State == HubConnectionState.Disconnected)
-            {
-                await hubConnection.StartAsync();
-            }
         }
         private async Task AddOrRemoveUsers(RoleResponse role)
         {
@@ -36,11 +31,6 @@ namespace WRMC.RootComponents.Pages.Identity
             var result = await dialog.Result;
             if (!result.Cancelled)
             {
-                //SignalR
-                if (hubConnection is not null)
-                {
-                    await hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, null);
-                }
 
                 await _mudDataGrid.ReloadServerData();
             }
@@ -55,14 +45,9 @@ namespace WRMC.RootComponents.Pages.Identity
             if (!result.Cancelled)
             {
                 //SignalR
-                var usersResponse = await _roleDataService.GetUserRolesAsync(role.Id);
+                var usersResponse = await _roleDataService.GetRoleUsersAsync(role.Id);
                 if (usersResponse.Succeeded)
                 {
-                    List<string> users = usersResponse.Data.Select(x => x.Id).ToList();
-                    if (hubConnection is not null)
-                    {
-                        await hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, users);
-                    }
                 }
 
                 await _mudDataGrid.ReloadServerData();
@@ -82,7 +67,7 @@ namespace WRMC.RootComponents.Pages.Identity
             else //Edit
             {
                 parameters.Add("RoleId", item.Id);
-                var usersResponse = await _roleDataService.GetUserRolesAsync(item.Id);
+                var usersResponse = await _roleDataService.GetRoleUsersAsync(item.Id);
                 if (usersResponse.Succeeded)
                 {
                     users = usersResponse.Data.Select(x => x.Id).ToList();
@@ -120,21 +105,11 @@ namespace WRMC.RootComponents.Pages.Identity
             if (!dgResult.Cancelled)
             {
                 //Get list of RoleUsers before delete role
-                var usersResponse = await _roleDataService.GetUserRolesAsync(role.Id);
+                var usersResponse = await _roleDataService.GetRoleUsersAsync(role.Id);
 
                 var result = await _roleDataService.DeleteRoleAsync(role.Id);
                 if (result.Succeeded)
                 {
-                    //SignalR
-                    if (usersResponse.Succeeded)
-                    {
-                        List<string> users = usersResponse.Data.Select(x => x.Id).ToList();
-                        if (hubConnection is not null)
-                        {
-                            await hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, users);
-                        }
-                    }
-
                     _snackbar.Add(_messageResources[MessageResources.RoleSuccessfullyDeleted], Severity.Success);
                     await _mudDataGrid.ReloadServerData();
                 }

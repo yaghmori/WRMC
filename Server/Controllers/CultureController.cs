@@ -15,9 +15,9 @@ namespace WRMC.Server.Controllers
     public class CultureController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork<ServerDbContext> _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CultureController(IMapper mapper, IUnitOfWork<ServerDbContext> unitOfWork)
+        public CultureController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -31,17 +31,11 @@ namespace WRMC.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCultures()
         {
-            try
-            {
-                var cultures = await _unitOfWork.Cultures.GetAllAsync();
-                var response = _mapper.Map<List<CultureResponse>>(cultures);
-                return Ok(await Result<List<CultureResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var cultures = await _unitOfWork.Cultures.GetAllAsync();
+            var response = _mapper.Map<List<CultureResponse>>(cultures);
+            return Ok(await Result<List<CultureResponse>>.SuccessAsync(response));
+
         }
 
         /// <summary>
@@ -52,22 +46,15 @@ namespace WRMC.Server.Controllers
         [HttpGet("{cultureId}")]
         public async Task<IActionResult> GetCultureById(string cultureId)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(cultureId)) 
-                    return BadRequest(await Result.FailAsync("RequestId is null or empty."));
+            if (string.IsNullOrWhiteSpace(cultureId))
+                return BadRequest(await Result.FailAsync("RequestId is null or empty."));
 
-                var result = await _unitOfWork.Cultures.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(cultureId));
-                if (result == null) 
-                    return NotFound(await Result.FailAsync("Culture not found."));
-                var response = _mapper.Map<CultureResponse>(result);
-                return Ok(await Result<CultureResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            var result = await _unitOfWork.Cultures.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(cultureId));
+            if (result == null)
+                return NotFound(await Result.FailAsync("Culture not found."));
+            var response = _mapper.Map<CultureResponse>(result);
+            return Ok(await Result<CultureResponse>.SuccessAsync(response));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
         /// <summary>
@@ -78,21 +65,14 @@ namespace WRMC.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCulture(CultureRequest request)
         {
-            try
-            {
-                if (await _unitOfWork.Cultures.AnyAsync(x => x.CultureName.Equals(request.CultureName)))
-                    return Conflict(await Result.FailAsync("The culture is already defined."));
+            if (await _unitOfWork.Cultures.AnyAsync(x => x.CultureName.Equals(request.CultureName)))
+                return Conflict(await Result.FailAsync("The culture is already defined."));
 
-                var culture = _mapper.Map<Culture>(request);
-                await _unitOfWork.Cultures.AddAsync(culture);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<string>.SuccessAsync(data: culture.Id.ToString(),message:"Culture successfully created."));
-            }
-            catch (Exception ex)
-            {
+            var culture = _mapper.Map<Culture>(request);
+            await _unitOfWork.Cultures.AddAsync(culture);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            return Ok(await Result<string>.SuccessAsync(data: culture.Id.ToString(), message: "Culture successfully created."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
         /// <summary>
@@ -103,24 +83,17 @@ namespace WRMC.Server.Controllers
         [HttpDelete("{cultureId}")]
         public async Task<IActionResult> DeleteCultureById(string cultureId)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(cultureId))
-                    return BadRequest(await Result.FailAsync("RequestId is null or empty."));
+            if (string.IsNullOrWhiteSpace(cultureId))
+                return BadRequest(await Result.FailAsync("RequestId is null or empty."));
 
-                var culture = await _unitOfWork.Cultures.FindAsync(Guid.Parse(cultureId));
-                if (culture is null)
-                    return NotFound(await Result.FailAsync("Culture not found."));
+            var culture = await _unitOfWork.Cultures.FindAsync(Guid.Parse(cultureId));
+            if (culture is null)
+                return NotFound(await Result.FailAsync("Culture not found."));
 
-                _unitOfWork.Cultures.Remove(culture);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true,"Culture successfully deleted."));
-            }
-            catch (Exception ex)
-            {
+            _unitOfWork.Cultures.Remove(culture);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            return Ok(await Result<bool>.SuccessAsync(true, "Culture successfully deleted."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
         /// <summary>
@@ -132,33 +105,19 @@ namespace WRMC.Server.Controllers
         [HttpPatch("{cultureId}")]
         public async Task<IActionResult> UpdateCultureById(string cultureId, CultureRequest request)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(cultureId))
-                    return BadRequest(await Result.FailAsync("RequestId is null or empty."));
+            if (string.IsNullOrWhiteSpace(cultureId))
+                return BadRequest(await Result.FailAsync("RequestId is null or empty."));
 
-                var culture = await _unitOfWork.Cultures.FindAsync(Guid.Parse(cultureId));
-                if (culture is null)
-                    return NotFound(await Result.FailAsync("Culture not found."));
+            var culture = await _unitOfWork.Cultures.FindAsync(Guid.Parse(cultureId));
+            if (culture is null)
+                return NotFound(await Result.FailAsync("Culture not found."));
 
-                culture = _mapper.Map<Culture>(request);
-                _unitOfWork.Cultures.Update(culture);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true,"Culture successfully updated."));
-            }
-            catch (Exception ex)
-            {
+            culture = _mapper.Map<Culture>(request);
+            _unitOfWork.Cultures.Update(culture);
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            return Ok(await Result<bool>.SuccessAsync(true, "Culture successfully updated."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
-
-
-
-
-
-
-
 
     }
 }

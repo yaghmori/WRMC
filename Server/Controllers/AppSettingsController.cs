@@ -14,15 +14,15 @@ using WRMC.Server.Extensions;
 
 namespace WRMC.Server.Controllers
 {
-    [Route("api/v1/server/AppSettings")]
+    [Route("api/v1/server/app-settings")]
     [ApiController]
 
     public class AppSettingsController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork<ServerDbContext> _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AppSettingsController(IMapper mapper, IUnitOfWork<ServerDbContext> unitOfWork)
+        public AppSettingsController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -47,7 +47,7 @@ namespace WRMC.Server.Controllers
 
                 var appSetting = _mapper.Map<AppSetting>(request);
                 await _unitOfWork.AppSettings.AddAsync(appSetting);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 return Ok(await Result<string>.SuccessAsync(data: appSetting.Id.ToString(),"AppSettings successfully created."));
             }
             catch (Exception ex)
@@ -159,7 +159,7 @@ namespace WRMC.Server.Controllers
                     return NotFound(await Result.FailAsync("AppSetting not found."));
 
                 _unitOfWork.AppSettings.Remove(appSetting);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true,"AppSetting successfully deleted."));
             }
             catch (Exception ex)
@@ -189,7 +189,7 @@ namespace WRMC.Server.Controllers
                     return NotFound(await Result.FailAsync("AppSetting not found."));
 
                 _unitOfWork.AppSettings.Remove(appSetting);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true,"AppSetting successfully deleted."));
             }
             catch (Exception ex)
@@ -222,7 +222,7 @@ namespace WRMC.Server.Controllers
                 request.ApplyTo(requestToPatch);
                 _mapper.Map(requestToPatch, appSetting);
 
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true,"AppSetting successfully updated."));
             }
             catch (Exception ex)

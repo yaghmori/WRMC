@@ -9,7 +9,6 @@
             <div class="d-flex justify-start @(Orientation==WizardOrientationEnum.horizontal?"align-center":"align-start ") mb-3 mb-md-5">
                 <div class="d-flex flex-column justify-start align-center">
                     <div class="@(step.Order==ActiveStep.Order ? "bg-primary":"bg-light border border-light-subtle") rounded-3 mx-1 d-flex justify-content-center align-items-center" style="min-width:40px; min-height:40px; ">
-
                         @if (@step.Icon == null)
                         {
                             <b class="@(step.Order==ActiveStep.Order ? "text-light":"text-black") @(step.IsDone ? "text-light":"")">@step.Order</b>
@@ -23,7 +22,6 @@
                     {
                         @if (step?.Order != Steps.Max(x => (int?)x.Order))
                         {
-
                             @if (Liner)
                             {
                                 <hr class="@maincolor @(step.IsDone ? "text-primary":"")" style="width:1px; height: 100%;" />
@@ -32,7 +30,6 @@
                             {
                                 <i class="fad fa-chevrons-down mt-3 @maincolor @(step.IsDone ? "text-primary":"")"></i>
                             }
-
                         }
                     }
                 </div>
@@ -46,9 +43,7 @@
                     {
                         @if (Liner)
                         {
-                            <div>
-                                <hr />
-                            </div>
+                            <hr />
                         }
                         else
                         {

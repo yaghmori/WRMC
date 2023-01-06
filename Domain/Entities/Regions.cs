@@ -30,7 +30,7 @@ namespace WRMC.Infrastructure.Domain.Entities
             get
             {
                 if (Parent?.Parent?.Parent != null)
-                    return Parent?.Parent?.Parent?.Name + ", " + Parent?.Parent?.Name + ", " + Parent?.Name + ", " + Name;
+                    return Parent?.Parent?.Parent?.Iso3 + ", " + Parent?.Parent?.Name + ", " + Parent?.Name + ", " + Name;
 
                 if (Parent?.Parent != null)
                     return Parent?.Parent?.Name + ", " + Parent?.Name + ", " + Name;
@@ -43,7 +43,6 @@ namespace WRMC.Infrastructure.Domain.Entities
         }
         public virtual ICollection<Region> Regions { get; set; } = new List<Region>();
         public virtual ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
-        public virtual ICollection<DemographicIntake> DemographicIntakes { get; set; } = new List<DemographicIntake>();
 
     }
 }

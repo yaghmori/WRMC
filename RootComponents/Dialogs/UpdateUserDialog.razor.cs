@@ -12,7 +12,6 @@ namespace WRMC.RootComponents.Dialogs
     public partial class UpdateUserDialog
     {
         [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-        [CascadingParameter] public HubConnection hubConnection { get; set; }
         [Parameter] public string UserId { get; set; } = string.Empty;
         public UserRequest User { get; set; } = new();
 
@@ -34,11 +33,6 @@ namespace WRMC.RootComponents.Dialogs
                 }
 
             }
-            if (hubConnection.State == HubConnectionState.Disconnected)
-            {
-                await hubConnection.StartAsync();
-            }
-
             IsLoading = false;
             StateHasChanged();
         }
@@ -57,12 +51,6 @@ namespace WRMC.RootComponents.Dialogs
             {
                 dgResult = true;
                 _snackbar.Add(_messageResources[MessageResources.UserSuccessfullyUpdated].Value, Severity.Success);
-                //SignalR
-                var users = new List<string> { UserId };
-                if (hubConnection is not null)
-                {
-                    await hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, users);
-                }
             }
             else
             {

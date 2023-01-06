@@ -28,14 +28,14 @@ namespace WRMC.Server.Controllers
         private readonly IConfiguration _configuration;
         private readonly ITokenService _tokenServices;
         private readonly bool _registerConfirmationRequired;
-        private readonly IUnitOfWork<ServerDbContext> _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
         public AuthController(ISmtpService messageSender,
             IPasswordHasher<User> passwordHasher,
             IMapper mapper,
             IConfiguration configuration,
             ITokenService tokenServices,
-            IUnitOfWork<ServerDbContext> unitOfWork)
+            IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _messageSender = messageSender;
@@ -79,13 +79,15 @@ namespace WRMC.Server.Controllers
                         BadRequest(await Result.FailAsync("User not found.")); //user deleted!
 
                 userSession.AccessToken = _tokenServices.GenerateJwtToken(user);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 var token = new TokenResponse
                 {
                     AccessToken = userSession.AccessToken,
                     RefreshToken = userSession.RefreshToken
                 };
                 return Ok(await Result<TokenResponse>.SuccessAsync(token));
+
+
             }
             catch (Exception ex)
             {
@@ -143,7 +145,7 @@ namespace WRMC.Server.Controllers
                     RefreshTokenExpires = DateTime.UtcNow.AddDays(Convert.ToInt32(ConfigHelper.JwtSettings.RefreshTokenExpiryInDay)),
                 };
                 await _unitOfWork.UserSessions.AddAsync(session);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
                 var token = new TokenResponse
                 {
@@ -176,7 +178,6 @@ namespace WRMC.Server.Controllers
         {
             try
             {
-
                 if (await _unitOfWork.Users.AnyAsync(a => a.Email != null && a.Email.Equals(request.Email)))
                     return Conflict(await Result<TokenResponse>.FailAsync("Email is is already exist."));
                 var user = _mapper.Map<User>(request);
@@ -210,7 +211,7 @@ namespace WRMC.Server.Controllers
                 }
 
                 //TODO : Send Email Verification Code
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
                 return Ok(await Result<string>.SuccessAsync(userEntity.Entity.Id.ToString(), "User successfully created."));
                 //if (result.Succeeded)
@@ -276,7 +277,7 @@ namespace WRMC.Server.Controllers
                 {
                     await _unitOfWork.UserRoles.AddAsync(new UserRole(userEntity.Entity.Id, clientRole.Id));
                 }
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
                 //TODO : Send Email Verification Code
                 if (_registerConfirmationRequired)
@@ -301,7 +302,7 @@ namespace WRMC.Server.Controllers
                     user.EmailConfirmed = true;
                 }
 
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
                 return Ok(await Result<string>.SuccessAsync(userEntity.Entity.Id.ToString(), "User successfully created."));
             }
@@ -342,7 +343,7 @@ namespace WRMC.Server.Controllers
 
                 user.PhoneNumberToken = null;
                 user.PhoneNumberConfirmed = true;
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
                 var tokenResponse = new TokenResponse
                 {
@@ -387,7 +388,7 @@ namespace WRMC.Server.Controllers
 
                 user.EmailToken = null;
                 user.EmailConfirmed = true;
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 var tokenResponse = new TokenResponse
                 {
                     AccessToken = _tokenServices.GenerateJwtToken(user),
@@ -423,7 +424,7 @@ namespace WRMC.Server.Controllers
                     user.PhoneNumberToken = _tokenServices.GenerateRandomCode();
                     user.PhoneNumberTokenExpires = DateTime.UtcNow.AddHours(1);
                     await _messageSender.SendEmailAsync(user.Email, $"کد ورود به برنامه شماره {user.PhoneNumber}", user.PhoneNumberToken, true);
-                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 }
                 return Ok(await Result.SuccessAsync("Verification token sent."));
             }
@@ -455,7 +456,7 @@ namespace WRMC.Server.Controllers
                     user.PhoneNumberToken = _tokenServices.GenerateRandomCode();
                     user.PhoneNumberTokenExpires = DateTime.UtcNow.AddHours(1);
                     await _messageSender.SendEmailAsync(user.Email, $"کد ورود به برنامه ایمیل {user.Email}", user.PhoneNumberToken, true);
-                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 }
                 return Ok(await Result.SuccessAsync("Verification token sent."));
             }
@@ -489,7 +490,7 @@ namespace WRMC.Server.Controllers
                     user.PasswordToken = _tokenServices.GenerateRandomCode();
                     user.PasswordTokenExpires = DateTime.UtcNow.AddHours(1);
                     await _messageSender.SendEmailAsync(user.Email, $"بازیابی کلمه عبور کاربر {user.UserName}", user.PasswordToken, true);
-                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 }
                 return Ok(await Result.SuccessAsync("Verification token sent."));
             }
@@ -523,7 +524,7 @@ namespace WRMC.Server.Controllers
                     user.PasswordToken = _tokenServices.GenerateRandomCode();
                     user.PasswordTokenExpires = DateTime.UtcNow.AddHours(1);
                     await _messageSender.SendEmailAsync(user.Email, $"بازیابی کلمه عبور ایمیل {user.Email}", user.PasswordToken, true);
-                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 }
                 return Ok(await Result.SuccessAsync("Verification token sent."));
             }
@@ -569,7 +570,7 @@ namespace WRMC.Server.Controllers
                 user.PasswordToken = null;
                 user.PasswordTokenExpires = null;
                 user.PasswordResetAt = DateTime.UtcNow;
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 return Ok(await Result.SuccessAsync("Password successfully reset."));
 
             }

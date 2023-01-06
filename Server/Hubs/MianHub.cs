@@ -1,53 +1,47 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using WRMC.Core.Shared.SignalR;
+using WRMC.Infrastructure.DataAccess.Context;
+using WRMC.Infrastructure.Domain.Entities;
+using WRMC.Infrastructure.UnitOfWork;
 
 namespace WRMC.Server.Hubs
 {
     [Authorize]
     public class MainHub : Hub<IMainHub>
     {
-
-
-        /// <summary>
-        /// Regenerate Access Token
-        /// </summary>
-        /// <returns></returns>
-        public async Task RegenerateTokens()
+        private readonly IUnitOfWork _unitOfWork;
+        public MainHub(IUnitOfWork unitOfWork)
         {
-            await Clients.All.RegenerateTokens();
+            _unitOfWork = unitOfWork;
         }
 
-        /// <summary>
-        /// update Authenticate state Provider
-        /// </summary>
-        /// <param name="userIds"></param>
-        /// <returns></returns>
+
+
+        public async Task RegenerateTokens(List<string> userIds)
+        {
+            if (userIds == null || !userIds.Any())
+                await Clients.All.RegenerateTokens();
+            else
+                await Clients.Users(userIds).RegenerateTokens();
+        }
+
         public async Task UpdateAuthState(List<string> userIds)
         {
             if (userIds == null || !userIds.Any())
                 await Clients.All.UpdateAuthState(userIds);
             else
-                await Clients.Users(userIds.Select(x => x.ToLowerInvariant())).UpdateAuthState(userIds);
+                await Clients.Users(userIds).UpdateAuthState(userIds);
         }
 
-        /// <summary>
-        /// Update Current User
-        /// </summary>
-        /// <param name="userIds"></param>
-        /// <returns></returns>
         public async Task UpdateUser(List<string> userIds)
         {
             if (userIds == null || !userIds.Any())
                 await Clients.All.UpdateUser(userIds);
             else
-                await Clients.Users(userIds.Select(x => x.ToLowerInvariant())).UpdateUser(userIds);
+                await Clients.Users(userIds).UpdateUser(userIds);
         }
-        /// <summary>
-        /// Update currentUser Culture
-        /// </summary>
-        /// <param name="userIds"></param>
-        /// <returns></returns>
+
         public async Task UpdateCulture(List<string> userIds)
         {
             if (userIds == null || !userIds.Any())
@@ -56,11 +50,6 @@ namespace WRMC.Server.Hubs
                 await Clients.Users(userIds.Select(x => x.ToLowerInvariant())).UpdateCulture(userIds);
         }
 
-        /// <summary>
-        /// Terminate User Sessions
-        /// </summary>
-        /// <param name="userIds"></param>
-        /// <returns></returns>
         public async Task TerminateSession(List<string> userIds)
         {
             if (userIds == null || !userIds.Any())
@@ -69,6 +58,27 @@ namespace WRMC.Server.Hubs
                 await Clients.Users(userIds.Select(x => x.ToLowerInvariant())).TerminateSession(userIds);
         }
 
+
+
+        public override async Task OnConnectedAsync()
+        {
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(Context.UserIdentifier));
+            if(user != null)
+            {
+                user.IsOnline = true;
+            }
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+        }
+
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(Context.UserIdentifier));
+            if (user != null)
+            {
+                user.IsOnline = false;
+            }
+            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+        }
 
     }
 }

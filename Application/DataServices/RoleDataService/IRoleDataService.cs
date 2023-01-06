@@ -12,7 +12,7 @@ namespace WRMC.Core.Application.DataServices
         Task<IResult<List<RoleResponse>>> GetRolesAsync(string? query = null, string? userId = null);
         Task<IResult<List<RoleClaimResponse>>> GetRoleClaimsAsync(string roleId);
         Task<IResult<IPagedList<RoleResponse>>> GetRolesPagedAsync(int page = 0, int pageSize = 10, string query = null);
-        Task<IResult<List<BaseUserResponse>>> GetUserRolesAsync(string roleId);
+        Task<IResult<List<BaseUserResponse>>> GetRoleUsersAsync(string roleId);
         Task<IResult<bool>> UpdateUserRolesAsync(string roleId, List<string> users);
         Task<IResult<bool>> UpdateRoleAsync(string roleId, string roleName);
         Task<IResult<bool>> UpdateRoleClaimsAsync(string roleId, List<ClaimResponse> claims);

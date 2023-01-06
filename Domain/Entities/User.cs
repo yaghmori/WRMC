@@ -17,6 +17,8 @@ namespace WRMC.Infrastructure.Domain.Entities
         public DateTime? PasswordTokenExpires { get; set; }
         public DateTime? PasswordResetAt { get; set; }
         public bool IsActive { get; set; } = true;
+        public bool IsOnline { get; set; } = true;
+
         public virtual UserSetting UserSetting { get; set; }
         public virtual UserProfile UserProfile { get; set; }
         public virtual ICollection<UserAttachment> UserImages { get; set; } = new List<UserAttachment>();

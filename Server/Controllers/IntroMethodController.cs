@@ -12,14 +12,14 @@ using WRMC.Server.Extensions;
 
 namespace WRMC.Server.Controllers
 {
-    [Route("api/v1/server/IntroMethods")]
+    [Route("api/v1/tenants/intro-methods")]
     [ApiController]
     public class IntroMethodController : ControllerBase
     {
-        private readonly IUnitOfWork<ServerDbContext> _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public IntroMethodController(IUnitOfWork<ServerDbContext> unitOfWork, IMapper mapper)
+        public IntroMethodController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -34,18 +34,13 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public async Task<IActionResult> CreateNewIntroMethod(IntroMethodRequest request)
         {
-            try
-            {
+            
                 var introMethod = _mapper.Map<IntroMethod>(request);
                 var item = await _unitOfWork.IntroMethods.AddAsync(introMethod);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
                 return Ok(await Result<string>.SuccessAsync(data: item.Entity.Id.ToString(), message: "IntroMethod successfully created."));
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message);
-            }
+           
         }
 
 
@@ -57,8 +52,7 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<IntroMethodResponse>))]
         public async Task<IActionResult> GetIntroMethods()
         {
-            try
-            {
+           
                 var introMethods = await _unitOfWork.IntroMethods.GetAllAsync(
                     predicate: x => x.ParentId.Equals(null),
                     include: i => i.Include(x => x.IntroMethods).ThenInclude(x=>x.IntroMethods).ThenInclude(x=>x.IntroMethods)
@@ -68,30 +62,25 @@ namespace WRMC.Server.Controllers
                 var response = _mapper.Map<List<IntroMethodResponse>>(introMethods);
 
                 return Ok(await Result<List<IntroMethodResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+           
         }
 
 
         /// <summary>
         /// Get IntroMethod by Id
         /// </summary>
+        /// <param name="id"></param>
         /// <returns>IntroMethodResponse</returns>
-        [HttpGet("{introMethodId}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IntroMethodResponse))]
-        public async Task<IActionResult> GetIntroMethodById(string introMethodId)
+        public async Task<IActionResult> GetIntroMethodById(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(introMethodId))
+           
+                if (string.IsNullOrWhiteSpace(id))
                     return BadRequest(await Result.FailAsync("Invalid request id."));
 
                 var introMethod = await _unitOfWork.IntroMethods.GetFirstOrDefaultAsync(
-                    predicate: x => x.Id.ToString().Equals(introMethodId),
+                    predicate: x => x.Id.ToString().Equals(id),
                     include: i => i.Include(x => x.IntroMethods).ThenInclude(x => x.IntroMethods).ThenInclude(x => x.IntroMethods)
                     .Include(x => x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent),
                     orderBy: o => o.OrderBy(x => x.Order));
@@ -99,43 +88,33 @@ namespace WRMC.Server.Controllers
                 var response = _mapper.Map<IntroMethodResponse>(introMethod);
                 
                 return Ok(await Result<IntroMethodResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+           
         }
 
 
         /// <summary>
         /// Get Parent
         /// </summary>
-        /// <param name="introMethodId"></param>
+        /// <param name="id"></param>
         /// <returns>IntroMethodResponse</returns>
-        [HttpGet("{introMethodId}/parent")]
+        [HttpGet("{id}/parent")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IntroMethodResponse))]
-        public async Task<IActionResult> GetParent(string introMethodId)
+        public async Task<IActionResult> GetParent(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(introMethodId))
+           
+                if (string.IsNullOrWhiteSpace(id))
                     return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var introMethod = await _unitOfWork.IntroMethods.FindAsync(Guid.Parse(introMethodId));
-                if (introMethod == null)
-                    return NotFound(await Result.FailAsync("IntroMethod Not Found."));
+            var introMethod = await _unitOfWork.IntroMethods.FindAsync(Guid.Parse(id));
+            if (introMethod == null)
+                return NotFound(await Result.FailAsync("IntroMethod Not Found."));
 
-                var parent = await _unitOfWork.IntroMethods.GetFirstOrDefaultAsync(
+            var parent = await _unitOfWork.IntroMethods.GetFirstOrDefaultAsync(
                     predicate: x => x.Id == introMethod.ParentId);
                 var response = _mapper.Map<IntroMethodResponse>(parent);
 
                 return Ok(await Result<IntroMethodResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+           
 
         }
 
@@ -143,19 +122,17 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Update IntroMethod
         /// </summary>
-        /// <param name="introMethodId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>bool</returns>
-        [HttpPatch("{introMethodId}")]
+        [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateIntroMethod(string introMethodId, [FromBody] JsonPatchDocument<IntroMethodRequest> request)
+        public async Task<IActionResult> UpdateIntroMethod(string id, [FromBody] JsonPatchDocument<IntroMethodRequest> request)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(introMethodId))
+              if (string.IsNullOrWhiteSpace(id))
                     return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var introMethod = await _unitOfWork.IntroMethods.FindAsync(Guid.Parse(introMethodId));
+                var introMethod = await _unitOfWork.IntroMethods.FindAsync(Guid.Parse(id));
                 if (introMethod is null)
                     return NotFound(await Result.FailAsync("IntroMethod not found."));
 
@@ -164,13 +141,9 @@ namespace WRMC.Server.Controllers
                 _mapper.Map(requestToPatch, introMethod);
 
                  _unitOfWork.IntroMethods.Update(introMethod);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.TenantDbContext.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true, "IntroMethod successfully updated."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+           
 
         }
 
@@ -178,30 +151,25 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Delete IntroMethod
         /// </summary>
-        /// <param name="introMethodId"></param>
+        /// <param name="id"></param>
         /// <returns>bool</returns>
-        [HttpDelete("{introMethodId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteIntroMethod(string introMethodId)
+        public async Task<IActionResult> DeleteIntroMethod(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(introMethodId))
+           
+                if (string.IsNullOrWhiteSpace(id))
                     return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var introMethod = await _unitOfWork.IntroMethods.FindAsync(Guid.Parse(introMethodId));
+                var introMethod = await _unitOfWork.IntroMethods.FindAsync(Guid.Parse(id));
                 if (introMethod is null)
                     return NotFound(await Result.FailAsync("IntroMethod not found."));
 
                 _unitOfWork.IntroMethods.Remove(introMethod);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.TenantDbContext.SaveChangesAsync();
 
                 return Ok(await Result<bool>.SuccessAsync(true, "IntroMethod successfully deleted."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+           
         }
 
 
@@ -213,16 +181,11 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         public async Task<IActionResult> DeleteAll()
         {
-            try
-            {
+            
                 _unitOfWork.IntroMethods.RemoveAll();
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.TenantDbContext.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true, "All IntroMethods successfully have been deleted."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            
         }
 
 

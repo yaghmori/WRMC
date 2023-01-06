@@ -5,7 +5,6 @@
         void OnRegenerateToken(Action action);
         void OnUpdateAuthState(Action<List<string>> action);
         void OnUpdateUser(Action<List<string>> action);
-        void OnRegenerateToken(Action<List<string>> action);
         void OnUpdateCulture(Action<List<string>> action);
         void OnTerminateSession(Action<List<string>> action);
     }

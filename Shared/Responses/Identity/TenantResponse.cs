@@ -11,7 +11,7 @@ namespace WRMC.Core.Shared.Responses
         public string? Description { get; set; }
         public bool IsActive { get; set; }
         public virtual DbProviderKeyEnum? DBProvider { get; set; }
-        public string? ConnectionString { get; set; }=string.Empty;
+        public string? ConnectionString { get; set; } = string.Empty;
         public DateTime? ExpireDate { get; set; }
         public List<UserResponse> Users { get; set; } = new();
         public int UsersCount => Users.Count;

@@ -63,7 +63,6 @@ namespace WRMC.Infrastructure.Domain.Entities
         [Column(Order = 28)]
         public bool IsComplete { get; set; } = false;
 
-        public virtual Region? Region { get; set; } 
         public virtual Visit? Visit { get; set; }
         public virtual Tasks? Task { get; set; }
 

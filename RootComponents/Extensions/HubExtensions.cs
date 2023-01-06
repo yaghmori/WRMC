@@ -10,7 +10,7 @@ namespace WRMC.RootComponents.Extensions
             if (hubConnection == null)
             {
                 hubConnection = new HubConnectionBuilder()
-                                  .WithUrl(ApplicationConstants.ServerBaseAddress + EndPoints.Hub.MainHubPath, options =>
+                                  .WithUrl(ApplicationConstants.ServerBaseAddress + EndPoints.MainHub, options =>
                                   {
                                       options.AccessTokenProvider = async () => await Task.FromResult(accessToken);
 

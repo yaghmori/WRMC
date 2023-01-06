@@ -18,6 +18,7 @@ namespace WRMC.RootComponents.Components
         [Parameter] public string Style { get; set; }
         [Parameter] public bool Liner { get; set; } = false;
         public WizardStep ActiveStep { get; set; }
+        [Parameter] public bool IsNextSubmit { get; set; } = false;
         [Parameter] public bool AllowSubmit { get; set; } = false;
         public bool IsValid { get; set; }
         public bool IsModified { get; set; }
@@ -35,6 +36,10 @@ namespace WRMC.RootComponents.Components
         {
 
             ActiveStep = step;
+            if (IsNextSubmit)
+            {
+                OnValidSubmit.InvokeAsync();
+            }
             await OnStepChanged.InvokeAsync(step);
         }
         public virtual async void OnValidationChanged(bool isValid)

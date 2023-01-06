@@ -14,14 +14,14 @@ using WRMC.Server.Extensions;
 
 namespace WRMC.Server.Controllers
 {
-    [Route("api/v1/server/Regions")]
+    [Route("api/v1/tenants/regions")]
     [ApiController]
     public class RegionController : ControllerBase
     {
-        private readonly IUnitOfWork<ServerDbContext> _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public RegionController(IUnitOfWork<ServerDbContext> unitOfWork, IMapper mapper)
+        public RegionController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -36,18 +36,12 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public async Task<IActionResult> AddNewRegion(RegionRequest request)
         {
-            try
-            {
-                var region = _mapper.Map<Region>(request);
-                var item = await _unitOfWork.Regions.AddAsync(region);
-                await _unitOfWork.SaveChangesAsync();
+            var region = _mapper.Map<Region>(request);
+            var item = await _unitOfWork.Regions.AddAsync(region);
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
 
-                return Ok(await Result<string>.SuccessAsync(data: item.Entity.Id.ToString(), message: "Region successfully added."));
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message);
-            }
+            return Ok(await Result<string>.SuccessAsync(data: item.Entity.Id.ToString(), message: "Region successfully added."));
+
         }
 
 
@@ -57,23 +51,17 @@ namespace WRMC.Server.Controllers
         /// <returns>List of RegionResponse</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<RegionResponse>))]
-        public async Task<IActionResult> GetRegions(string? parentId =null,string? query =null)
+        public async Task<IActionResult> GetRegions(string? parentId = null, string? query = null)
         {
-            try
-            {
-                var sections = await _unitOfWork.Regions.GetAllAsync(
-                    predicate: x => x.ParentId.ToString().Equals(parentId) && ( string.IsNullOrWhiteSpace(query) || x.Name.ToLower().Contains(query)),
-                    include:i=>i.Include(x=>x.Parent));
 
-                var response = _mapper.Map<List<RegionResponse>>(sections);
+            var sections = await _unitOfWork.Regions.GetAllAsync(
+                predicate: x => x.ParentId.ToString().Equals(parentId) && (string.IsNullOrWhiteSpace(query) || x.Name.ToLower().Contains(query)),
+                include: i => i.Include(x => x.Parent));
 
-                return Ok(await Result<List<RegionResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            var response = _mapper.Map<List<RegionResponse>>(sections);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<List<RegionResponse>>.SuccessAsync(response));
+
         }
 
 
@@ -81,55 +69,49 @@ namespace WRMC.Server.Controllers
         /// Search Regions
         /// </summary>
         /// <returns>List of RegionResponse</returns>
-        [HttpGet("Search")]
+        [HttpGet("search")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<RegionResponse>))]
         public async Task<IActionResult> SearchRegions(string query = null)
         {
-            try
-            {
 
-                var regions =await _unitOfWork.DbContext.Regions
-                    .Where(x => x.RegionType == RegionTypeEnum.City && x.Name.ToLower().Contains(query))
-                    .Select(x => x.Parent).Distinct()
-                    .GroupBy(d => d.Parent).Select(group => new RegionResponse
+
+            var regions = await _unitOfWork.ServerDbContext.Regions
+                .Where(x => x.RegionType == RegionTypeEnum.City && x.Name.ToLower().Contains(query))
+                .Select(x => x.Parent).Distinct()
+                .GroupBy(d => d.Parent).Select(group => new RegionResponse
+                {
+                    Id = group.Key.Id.ToString(),
+                    ParentId = group.Key.Id.ToString(),
+                    RegionType = group.Key.RegionType,
+                    Name = group.Key.Name,
+                    OfficialName = group.Key.OfficialName,
+                    Iso3 = group.Key.Iso3,
+                    Iso2 = group.Key.Iso2,
+                    Regions = group.Select(s => new RegionResponse
                     {
-                        Id = group.Key.Id.ToString(),
-                        ParentId = group.Key.Id.ToString(),
-                        RegionType = group.Key.RegionType,
-                        Name = group.Key.Name,
-                        OfficialName = group.Key.OfficialName,
-                        Iso3 = group.Key.Iso3,
-                        Iso2 =group.Key.Iso2,
-                        Regions = group.Select(s => new RegionResponse
+                        Id = s.Id.ToString(),
+                        ParentId = s.ParentId.ToString(),
+                        RegionType = s.RegionType,
+                        Name = s.Name,
+                        OfficialName = s.OfficialName,
+                        Iso3 = s.Iso3,
+                        Iso2 = s.Iso2,
+                        Regions = s.Regions.Where(x => x.RegionType == RegionTypeEnum.City && x.Name.ToLower().Contains(query)).Select(c => new RegionResponse
                         {
-                            Id = s.Id.ToString(),
-                            ParentId = s.ParentId.ToString(),
-                            RegionType = s.RegionType,
-                            Name = s.Name,
-                            OfficialName = s.OfficialName,
-                            Iso3 = s.Iso3,
-                            Iso2 = s.Iso2,
-                            Regions = s.Regions.Where(x => x.RegionType == RegionTypeEnum.City && x.Name.ToLower().Contains(query)).Select(c => new RegionResponse
-                            {
-                                Id = c.Id.ToString(),
-                                ParentId = c.ParentId.ToString(),
-                                RegionType = c.RegionType,
-                                Name = c.Name,
-                                OfficialName = c.OfficialName,
-                                Iso3 = c.Iso3,
-                                Iso2 = c.Iso2,
-                            }).ToList()
+                            Id = c.Id.ToString(),
+                            ParentId = c.ParentId.ToString(),
+                            RegionType = c.RegionType,
+                            Name = c.Name,
+                            OfficialName = c.OfficialName,
+                            Iso3 = c.Iso3,
+                            Iso2 = c.Iso2,
                         }).ToList()
-                    }).ToListAsync();
-                //var response = _mapper.Map<List<RegionResponse>>(regions);
+                    }).ToList()
+                }).ToListAsync();
+            //var response = _mapper.Map<List<RegionResponse>>(regions);
 
-                return Ok(await Result<List<RegionResponse>>.SuccessAsync(regions));
-            }
-            catch (Exception ex)
-            {
+            return Ok(await Result<List<RegionResponse>>.SuccessAsync(regions));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
@@ -138,59 +120,48 @@ namespace WRMC.Server.Controllers
         /// Get Region by Id
         /// </summary>
         /// <returns>RegionResponse</returns>
-        [HttpGet("{regionId}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RegionResponse))]
-        public async Task<IActionResult> GetRegionById(string regionId)
+        public async Task<IActionResult> GetRegionById(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(regionId))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var section = await _unitOfWork.Regions.GetFirstOrDefaultAsync(
-                    predicate: x => x.Id.ToString().Equals(regionId),
-                    include: i => i.Include(x => x.Regions).ThenInclude(x => x.Regions));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var response = _mapper.Map<RegionResponse>(section);
+            var section = await _unitOfWork.Regions.GetFirstOrDefaultAsync(
+                predicate: x => x.Id.ToString().Equals(id),
+                include: i => i.Include(x => x.Regions).ThenInclude(x => x.Regions));
 
-                return Ok(await Result<RegionResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            var response = _mapper.Map<RegionResponse>(section);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<RegionResponse>.SuccessAsync(response));
+
         }
 
 
         /// <summary>
         /// Get Parent Region
         /// </summary>
-        /// <param name="regionId"></param>
+        /// <param name="id"></param>
         /// <returns>RegionResponse</returns>
-        [HttpGet("{regionId}/parent")]
+        [HttpGet("{id}/parent")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RegionResponse))]
-        public async Task<IActionResult> GetParentRegion(string regionId)
+        public async Task<IActionResult> GetParentRegion(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(regionId))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var section = await _unitOfWork.Regions.FindAsync(Guid.Parse(regionId));
-                if (section == null)
-                    return NotFound(await Result.FailAsync("Region not found."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var parent = await _unitOfWork.Regions.GetFirstOrDefaultAsync(
-                    predicate: x => x.Id == section.ParentId);
-                var response = _mapper.Map<RegionResponse>(parent);
+            var section = await _unitOfWork.Regions.FindAsync(Guid.Parse(id));
+            if (section == null)
+                return NotFound(await Result.FailAsync("Region not found."));
 
-                return Ok(await Result<RegionResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var parent = await _unitOfWork.Regions.GetFirstOrDefaultAsync(
+                predicate: x => x.Id == section.ParentId);
+            var response = _mapper.Map<RegionResponse>(parent);
+
+            return Ok(await Result<RegionResponse>.SuccessAsync(response));
+
 
         }
 
@@ -198,34 +169,28 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Update Region
         /// </summary>
-        /// <param name="regionId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>bool</returns>
-        [HttpPatch("{regionId}")]
+        [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateRegion(string regionId, [FromBody] JsonPatchDocument<RegionRequest> request)
+        public async Task<IActionResult> UpdateRegion(string id, [FromBody] JsonPatchDocument<RegionRequest> request)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(regionId))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var region = await _unitOfWork.Regions.FindAsync(Guid.Parse(regionId));
-                if (region is null)
-                    return NotFound(await Result.FailAsync("Region not found."));
+            var region = await _unitOfWork.Regions.FindAsync(Guid.Parse(id));
+            if (region is null)
+                return NotFound(await Result.FailAsync("Region not found."));
 
-                var requestToPatch = _mapper.Map<RegionRequest>(region);
-                request.ApplyTo(requestToPatch);
-                _mapper.Map(requestToPatch, region);
+            var requestToPatch = _mapper.Map<RegionRequest>(region);
+            request.ApplyTo(requestToPatch);
+            _mapper.Map(requestToPatch, region);
 
-                _unitOfWork.Regions.Update(region);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "Region successfully updated."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            _unitOfWork.Regions.Update(region);
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            return Ok(await Result<bool>.SuccessAsync(true, "Region successfully updated."));
+
 
         }
 
@@ -233,30 +198,24 @@ namespace WRMC.Server.Controllers
         /// <summary>
         /// Delete Region
         /// </summary>
-        /// <param name="regionId"></param>
+        /// <param name="id"></param>
         /// <returns>bool</returns>
-        [HttpDelete("{regionId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteRegion(string regionId)
+        public async Task<IActionResult> DeleteRegion(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(regionId))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var region = await _unitOfWork.Regions.FindAsync(Guid.Parse(regionId));
-                if (region is null)
-                    return NotFound(await Result.FailAsync("Region not found."));
+            var region = await _unitOfWork.Regions.FindAsync(Guid.Parse(id));
+            if (region is null)
+                return NotFound(await Result.FailAsync("Region not found."));
 
-                _unitOfWork.Regions.Remove(region);
-                await _unitOfWork.SaveChangesAsync();
+            _unitOfWork.Regions.Remove(region);
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
 
-                return Ok(await Result<bool>.SuccessAsync(true, "Region successfully deleted."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<bool>.SuccessAsync(true, "Region successfully deleted."));
+
         }
 
 
@@ -266,20 +225,15 @@ namespace WRMC.Server.Controllers
         /// Delete All Regions
         /// </summary>
         /// <returns>bool</returns>
-        [HttpDelete("Reset")]
+        [HttpDelete("reset")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         public async Task<IActionResult> DeleteAllRegions()
         {
-            try
-            {
-                _unitOfWork.Regions.RemoveAll();
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "All regions successfully have been deleted."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+
+            _unitOfWork.Regions.RemoveAll();
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            return Ok(await Result<bool>.SuccessAsync(true, "All regions successfully have been deleted."));
+
         }
 
 

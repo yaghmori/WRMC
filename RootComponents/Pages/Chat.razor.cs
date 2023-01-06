@@ -15,12 +15,10 @@ namespace WRMC.RootComponents.Pages
         [Parameter]
         public string RoleId { get; set; } = string.Empty;
         [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-        [CascadingParameter] private HubConnection? _hubConnection { get; set; }
         [CascadingParameter] private UserResponse? User { get; set; }
 
         private IEnumerable<string> SelectedUsers { get; set; } = new List<string>();
         public List<UserResponse> UserCollection { get; set; } = new();
-        //private bool CanAddUser { get => User != null && !Users.Any(x => x.Id == User.Id); }
 
 
         private string GetMultiSelectionText(List<string> selectedValues)
@@ -41,36 +39,28 @@ namespace WRMC.RootComponents.Pages
             {
                 UserCollection = userCollectionResult.Data;
             }
-            var selectedUsersResult = await _roleDataService.GetUserRolesAsync(RoleId);
+            var selectedUsersResult = await _roleDataService.GetRoleUsersAsync(RoleId);
             if (selectedUsersResult.Succeeded)
             {
-                SelectedUsers = selectedUsersResult.Data.Select(x => x.Id).ToList();
+                SelectedUsers = selectedUsersResult.Data.Select(x => x.Id.ToLowerInvariant()).ToList();
             }
 
-            if (_hubConnection != null)
+            _chatSignalRClinet.OnMessageReceived(async (string sender,string message,List<string> recivers) =>
             {
-                _hubConnection.On<string, string>(EndPoints.Hub.ReceiveMessage, (sender, message) =>
-                {
-                    var encodedMsg = $"{sender} : {message}";
-                    Messages.Add(encodedMsg);
-                    StateHasChanged();
-                });
+                var encodedMsg = $"{sender} : {message}";
+                Messages.Add(encodedMsg);
+                StateHasChanged();
+            });
 
-                if (_hubConnection.State == HubConnectionState.Disconnected)
-                {
-                    await _hubConnection.StartAsync();
-                }
-            }
+            await _chatSignalRClinet.Start();
         }
 
         private async Task Send()
         {
-            if (_hubConnection is not null)
-            {
-                await _hubConnection.SendAsync(EndPoints.Hub.SendMessage,User?.Email,messageInput, SelectedUsers);
-            }
+            var users = SelectedUsers.ToList();
+          await  _chatSignalRClinet.SendMessage(User?.Email, messageInput, users);
         }
 
-        public bool CanSendMessage => _hubConnection?.State == HubConnectionState.Connected && !string.IsNullOrWhiteSpace(messageInput);
+        public bool CanSendMessage => _chatSignalRClinet.State == HubConnectionState.Connected && !string.IsNullOrWhiteSpace(messageInput);
     }
 }

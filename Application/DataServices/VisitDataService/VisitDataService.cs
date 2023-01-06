@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System.Text;
 using WRMC.Core.Application.Extensions;
 using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.PagedCollections;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
 using WRMC.Core.Shared.ResultWrapper;
@@ -11,7 +12,7 @@ using WRMC.Infrastructure.Domain.Enums;
 
 namespace WRMC.Core.Application.DataServices
 {
-
+ 
 
     public class VisitDataService : DataServiceBase, IVisitDataService
     {
@@ -28,17 +29,30 @@ namespace WRMC.Core.Application.DataServices
             var response = await _httpClient.PostAsync(uri, content);
             return await response.ToResult<string>();
         }
-
         public async Task<IResult<List<VisitResponse>>> GetVisitsAsync(string? query = null)
         {
             var uri = EndPoints.VisitController.GetVisits;
+            uri = QueryHelpers.AddQueryString(uri, "paged", "false");
             if (!string.IsNullOrWhiteSpace(query))
                 uri = QueryHelpers.AddQueryString(uri, nameof(query), query);
 
             var response = await _httpClient.GetAsync(uri);
             return await response.ToResult<List<VisitResponse>>();
         }
+        public async Task<IResult<IPagedList<VisitResponse>>> GetVisitsPagedAsync(int page = 0, int pageSize = 10, string query = null)
+        {
+            var uri = EndPoints.VisitController.GetVisits;
 
+            uri = QueryHelpers.AddQueryString(uri, "page", page.ToString());
+            uri = QueryHelpers.AddQueryString(uri, "pageSize", pageSize.ToString());
+            if (!string.IsNullOrWhiteSpace(query))
+                uri = QueryHelpers.AddQueryString(uri, nameof(query), query);
+
+
+            var response = await _httpClient.GetAsync(uri);
+
+            return await response.ToResult<PagedList<VisitResponse>>();
+        }
         public async Task<IResult<VisitResponse>> GetVisitByIdAsync(string visitId)
         {
             if (string.IsNullOrWhiteSpace(visitId))
@@ -61,7 +75,6 @@ namespace WRMC.Core.Application.DataServices
             var response = await _httpClient.GetAsync(uri);
             return await response.ToResult<UserResponse>();
         }
-
         public async Task<IResult<VisitResponse>> GetVisitByTaskIdAsync(string visitSectionId)
         {
             if (string.IsNullOrWhiteSpace(visitSectionId))
@@ -84,9 +97,6 @@ namespace WRMC.Core.Application.DataServices
             var response = await _httpClient.GetAsync(uri);
             return await response.ToResult<UserResponse>();
         }
-
-
-
         public async Task<IResult<bool>> UpdateVisitByIdAsync(string visitId, JsonPatchDocument<VisitRequest> request)
         {
 
@@ -99,7 +109,6 @@ namespace WRMC.Core.Application.DataServices
             var response = await _httpClient.PatchAsync(uri, content);
             return await response.ToResult<bool>();
         }
-
         public async Task<IResult<bool>> DeleteVisitByIdAsync(string visitId)
         {
             if (string.IsNullOrWhiteSpace(visitId))
@@ -124,7 +133,6 @@ namespace WRMC.Core.Application.DataServices
             var response = await _httpClient.PostAsync(uri, null);
             return await response.ToResult<string>();
         }
-
         public async Task<IResult<bool>> DeleteTasksAsync(string taskId)
         {
             if (string.IsNullOrWhiteSpace(taskId))
@@ -134,7 +142,6 @@ namespace WRMC.Core.Application.DataServices
             var response = await _httpClient.DeleteAsync(uri);
             return await response.ToResult<bool>();
         }
-
         public async Task<IResult<List<TaskResponse>>> GetTasksAsync(string visitId)
         {
             if (string.IsNullOrWhiteSpace(visitId))
@@ -144,7 +151,6 @@ namespace WRMC.Core.Application.DataServices
             var response = await _httpClient.GetAsync(uri);
             return await response.ToResult<List<TaskResponse>>();
         }
-
         public async Task<IResult<TaskResponse>> GetTaskByIdAsync(string taskId)
         {
             if (string.IsNullOrWhiteSpace(taskId))
@@ -154,7 +160,6 @@ namespace WRMC.Core.Application.DataServices
             var response = await _httpClient.GetAsync(uri);
             return await response.ToResult<TaskResponse>();
         }
-
         public async Task<IResult<bool>> UpdateTaskAsync(string taskId, JsonPatchDocument<TaskRequest> request)
         {
             if (string.IsNullOrWhiteSpace(taskId))
@@ -169,76 +174,5 @@ namespace WRMC.Core.Application.DataServices
 
         #endregion
 
-        #region MedicalInformation
-        public async Task<IResult<string>> AddMedicalInfoAsync(string visitId, MedicalIntakeRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(visitId))
-                return await Result<string>.FailAsync("VisitId is null or empty.");
-
-            var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-
-            var uri = string.Format(EndPoints.VisitController.AddMedicalIntake, visitId);
-            var response = await _httpClient.PostAsync(uri, content);
-            return await response.ToResult<string>();
-        }
-
-
-        public async Task<IResult<List<MedicalIntakeResponse>>> GetMedicalInfoAsync(string visitId)
-        {
-            if (string.IsNullOrWhiteSpace(visitId))
-                return await Result<List<MedicalIntakeResponse>>.FailAsync("VisitId is null or empty.");
-
-            var uri = string.Format(EndPoints.VisitController.GetMedicalIntakes, visitId);
-            var response = await _httpClient.GetAsync(uri);
-            return await response.ToResult<List<MedicalIntakeResponse>>();
-        }
-
-        public async Task<IResult<bool>> DeleteMedicalInfoAsync(string visitId)
-        {
-            if (string.IsNullOrWhiteSpace(visitId))
-                return await Result<bool>.FailAsync("VisitId is null or empty.");
-
-            var uri = string.Format(EndPoints.VisitController.DeleteMedicalIntake, visitId);
-            var response = await _httpClient.DeleteAsync(uri);
-            return await response.ToResult<bool>();
-        }
-
-
-        #endregion
-
-        #region DemographicIntake
-        public async Task<IResult<string>> AddDemographicIntakeAsync(string visitId, DemographicIntakeRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(visitId))
-                return await Result<string>.FailAsync("VisitId is null or empty.");
-
-            var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-
-            var uri = string.Format(EndPoints.VisitController.AddDemographicIntake, visitId);
-            var response = await _httpClient.PostAsync(uri, content);
-            return await response.ToResult<string>();
-        }
-
-
-        public async Task<IResult<List<DemographicIntakeResponse>>> GetDemographicIntakeAsync(string visitId)
-        {
-            if (string.IsNullOrWhiteSpace(visitId))
-                return await Result<List<DemographicIntakeResponse>>.FailAsync("VisitId is null or empty.");
-
-            var uri = string.Format(EndPoints.VisitController.GetDemographicIntake, visitId);
-            var response = await _httpClient.GetAsync(uri);
-            return await response.ToResult<List<DemographicIntakeResponse>>();
-        }
-
-        public async Task<IResult<bool>> DeleteDemographicIntakeAsync(string visitId)
-        {
-            if (string.IsNullOrWhiteSpace(visitId))
-                return await Result<bool>.FailAsync("VisitId is null or empty.");
-
-            var uri = string.Format(EndPoints.VisitController.DeleteDemographicIntake, visitId);
-            var response = await _httpClient.DeleteAsync(uri);
-            return await response.ToResult<bool>();
-        }
-        #endregion
     }
 }

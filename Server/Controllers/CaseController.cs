@@ -22,9 +22,9 @@ namespace WRMC.Server.Controllers
     public class CaseController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly IUnitOfWork<ServerDbContext> _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CaseController(IMapper mapper, IUnitOfWork<ServerDbContext> unitOfWork)
+        public CaseController(IMapper mapper, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -43,18 +43,13 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public async Task<IActionResult> CreateNewCase(CaseRequest request)
         {
-            try
-            {
+            
                 var caseEntity = _mapper.Map<Case>(request);
                 await _unitOfWork.Cases.AddAsync(caseEntity);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<string>.SuccessAsync(data: caseEntity.Id.ToString(), "Case successfully Created."));
-            }
-            catch (Exception ex)
-            {
+                await _unitOfWork.TenantDbContext.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+                return Ok(await Result<string>.SuccessAsync(data: caseEntity.Id.ToString(), "Case successfully Created."));
+           
         }
 
 
@@ -68,8 +63,7 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         public async Task<IActionResult> UpdateCaseById(string caseId, [FromBody] JsonPatchDocument<CaseRequest> request)
         {
-            try
-            {
+           
                 if (string.IsNullOrWhiteSpace(caseId))
                     return BadRequest(await Result.FailAsync("Invalid RequestId."));
 
@@ -82,13 +76,9 @@ namespace WRMC.Server.Controllers
                 _mapper.Map(requestToPatch, _case);
 
                 _unitOfWork.Cases.Update(_case);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.TenantDbContext.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true, "Case successfully updated."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+           
         }
 
 
@@ -100,8 +90,7 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CaseResponse>))]
         public async Task<IActionResult> GetCases(string? query = null)
         {
-            try
-            {
+            
                 var cases = await _unitOfWork.Cases.GetAllAsync(
                     predicate: x => (string.IsNullOrWhiteSpace(query) || x.Description.Contains(query)),
                     include:i=>i.Include(x=>x.Visits).ThenInclude(x=>x.Tasks).ThenInclude(x=>x.Section));
@@ -109,12 +98,7 @@ namespace WRMC.Server.Controllers
 
                 var response = _mapper.Map<List<CaseResponse>>(cases);
                 return Ok(await Result<List<CaseResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            
         }
 
 
@@ -127,8 +111,7 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseResponse))]
         public async Task<IActionResult> GetCaseById(string caseId)
         {
-            try
-            {
+           
                 if (string.IsNullOrWhiteSpace(caseId))
                     return BadRequest(await Result.FailAsync("Invalid RequestId."));
 
@@ -142,12 +125,7 @@ namespace WRMC.Server.Controllers
                 var response = _mapper.Map<CaseResponse>(_case);
 
                 return Ok(await Result<CaseResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+        
         }
 
 
@@ -160,8 +138,6 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         public async Task<IActionResult> DeleteCaseById(string caseId)
         {
-            try
-            {
                 if (string.IsNullOrWhiteSpace(caseId))
                     return BadRequest(await Result.FailAsync("Invalid RequestId."));
 
@@ -170,14 +146,9 @@ namespace WRMC.Server.Controllers
                     return NotFound(await Result.FailAsync("Case not found."));
 
                 _unitOfWork.Cases.Remove(_case);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.TenantDbContext.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true, "Case successfully deleted."));
-            }
-            catch (Exception ex)
-            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
         #endregion

@@ -165,7 +165,7 @@
                 user.PasswordToken = null;
                 user.PasswordTokenExpires = null;
                 user.PasswordResetAt = DateTime.UtcNow;
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 return Ok(await Result.SuccessAsync("Password successfully set."));
 
             }
@@ -195,7 +195,7 @@
                     return NotFound(await Result.FailAsync("User not found."));
 
                 user.SecurityStamp = Guid.NewGuid().ToString();
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
                 return Ok(await Result.SuccessAsync("Security stamp updated successfully."));
             }
@@ -227,7 +227,7 @@
                     user.PasswordToken = _tokenServices.GenerateRandomCode();
                     user.PasswordTokenExpires = DateTime.UtcNow.AddHours(1);
                     await _messageSender.SendEmailAsync(user.Email, $"بازیابی کلمه عبور کاربر {user.UserName}", user.PasswordToken, true);
-                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 }
                 return Ok(await Result.SuccessAsync("Verification token sent."));
             }
@@ -261,7 +261,7 @@
                     user.PasswordToken = _tokenServices.GenerateRandomCode();
                     user.PasswordTokenExpires = DateTime.UtcNow.AddHours(1);
                     await _messageSender.SendEmailAsync(user.Email, $"بازیابی کلمه عبور شماره {user.PhoneNumber}", user.PasswordToken, true);
-                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.ServerDbContext.SaveChangesAsync();
                 }
                 return Ok(await Result.SuccessAsync("Verification token sent."));
             }

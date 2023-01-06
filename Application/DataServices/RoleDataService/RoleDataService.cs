@@ -56,13 +56,13 @@ namespace WRMC.Core.Application.DataServices
             return await response.ToResult<PagedList<RoleResponse>>();
         }
 
-        public async Task<IResult<List<BaseUserResponse>>> GetUserRolesAsync(string roleId)
+        public async Task<IResult<List<BaseUserResponse>>> GetRoleUsersAsync(string roleId)
         {
 
             if (string.IsNullOrWhiteSpace(roleId))
                 return await Result<List<BaseUserResponse>>.FailAsync("RoleId is null or empty.");
 
-            string uri = string.Format(EndPoints.RoleController.GetUsersByRoleId, roleId);
+            string uri = string.Format(EndPoints.RoleController.GetRoleUsers, roleId);
 
             var response = await _httpClient.GetAsync(uri);
             return await response.ToResult<List<BaseUserResponse>>();

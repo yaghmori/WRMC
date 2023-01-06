@@ -10,20 +10,13 @@ namespace WRMC.RootComponents.SignalRClient
     public class MainSignalRClient : SignalRClientBase, IMainHubClient
     {
         public MainSignalRClient(ISyncLocalStorageService localStorage, ISyncSessionStorageService sessionStorageService)
-            : base(localStorage, sessionStorageService, EndPoints.Hub.MainHubPath)
+            : base(localStorage, sessionStorageService, EndPoints.MainHub)
         {
         }
 
 
         //MainHubClient
         public void OnRegenerateToken(Action action)
-        {
-            if (!Started)
-            {
-                HubConnection.On(nameof(OnRegenerateToken), action);
-            }
-        }
-        public void OnRegenerateToken(Action<List<string>> action)
         {
             if (!Started)
             {

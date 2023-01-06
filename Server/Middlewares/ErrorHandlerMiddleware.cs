@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
@@ -27,6 +28,7 @@ namespace WRMC.Server.Middlewares
             {
                 var response = context.Response;
                 response.ContentType = "application/json";
+
                 var responseModel = await Result<string>.FailAsync(error.GetMessages().ToList());
 
                 switch (error)
@@ -39,22 +41,22 @@ namespace WRMC.Server.Middlewares
                     default:
                         // unhandled error
                         response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                                                break;
+                        break;
                 }
 
                 var result = JsonConvert.SerializeObject(responseModel);
                 await response.WriteAsync(result);
             }
-            finally
-            {
-                if (context.Response?.StatusCode == 400)
-                {
-                    //var response = context.Response;
-                    //response.ContentType = "application/json";
-                    //var responseModel = await Result<string>.FailAsync(context.Response.Body);
-                    //context.Request.Body.Position = 0;
-                }
-            }
+            //finally
+            //{
+            //    //if (context.Response?.StatusCode == 400)
+            //    //{
+            //    //    //var response = context.Response;
+            //    //    //response.ContentType = "application/json";
+            //    //    //var responseModel = await Result<string>.FailAsync(context.Response.Body);
+            //    //    //context.Request.Body.Position = 0;
+            //    //}
+            //}
 
         }
     }

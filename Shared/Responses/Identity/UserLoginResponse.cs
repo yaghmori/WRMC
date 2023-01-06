@@ -8,7 +8,7 @@
         public string AccessToken { get; set; } = default!;
         public string LoginProvider { get; set; } = default!;
         public string ProviderKey { get; set; } = default!;
-        
+
         public string RefreshToken { get; set; } = default!;
         public DateTime? RefreshTokenExpires { get; set; }
 

@@ -58,13 +58,6 @@ namespace WRMC.RootComponents.Components
                 var result = await _userDataService.TerminateSessionAsync(session.Id);
                 if (result.Succeeded)
                 {
-                    //SignalR
-
-                    var users = new List<string> { UserId };
-                    if (hubConnection is not null)
-                    {
-                        await hubConnection.SendAsync(EndPoints.Hub.SendTerminateSession, users);
-                    }
                     _snackbar.Add(_messageResources[MessageResources.SessionSuccessfullyTerminated], Severity.Success);
                     await LoadData();
                 }

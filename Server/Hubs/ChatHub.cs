@@ -17,10 +17,8 @@ namespace WRMC.Server.Hubs
         public async Task SendMessage(string sender ,string message ,List<string> userIds)
         {
             await Clients.All.SendMessage(sender, message, userIds);
-
             if (userIds == null || !userIds.Any())
                 await Clients.All.SendMessage(sender, message, userIds);
-
             else
                 await Clients.Users(userIds.Select(x => x.ToLowerInvariant())).SendMessage(sender, message, userIds);
         }

@@ -12,7 +12,6 @@ namespace WRMC.RootComponents.Pages.Tenants
 {
     public partial class Tenants
     {
-        [CascadingParameter] private HubConnection? _hubConnection { get; set; }
 
         public IPagedList<TenantResponse> TenantPagedCollection = new PagedList<TenantResponse>();
 
@@ -22,10 +21,6 @@ namespace WRMC.RootComponents.Pages.Tenants
         protected override async Task OnInitializedAsync()
         {
             _appState.SetAppTitle(_viewResources[ViewResources.Tenants]);
-            if (_hubConnection.State == HubConnectionState.Disconnected)
-            {
-                await _hubConnection.StartAsync();
-            }
         }
 
         public async Task AddRemoveUsers(TenantResponse tenant)
@@ -37,11 +32,6 @@ namespace WRMC.RootComponents.Pages.Tenants
             var result = await dialog.Result;
             if (!result.Cancelled)
             {
-                if (_hubConnection is not null)
-                {
-                    await _hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, null);
-                }
-
                 await _mudDataGrid?.ReloadServerData();
             }
         }
@@ -55,15 +45,6 @@ namespace WRMC.RootComponents.Pages.Tenants
             {
                 parameters.Add("TenantId", item.Id);
                 title = _viewResources[ViewResources.UpdateTenant];
-                var userResponse = await _TenantDataService.GetTenantUsersAsync(item.Id);
-                if (userResponse.Succeeded)
-                {
-                    List<string> users = userResponse.Data.Select(x => x.Id).ToList();
-                    if (_hubConnection is not null)
-                    {
-                        await _hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, users);
-                    }
-                }
             }
             else
             {
@@ -120,15 +101,6 @@ namespace WRMC.RootComponents.Pages.Tenants
                 var deleteResponse = await _TenantDataService.DeleteTenantByIdAsync(tenant.Id);
                 if (deleteResponse != null)
                 {
-                    //SignalR
-                    if (userResponse.Succeeded)
-                    {
-                        List<string> users = userResponse.Data.Select(x => x.Id).ToList();
-                        if (_hubConnection is not null)
-                        {
-                            await _hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, users);
-                        }
-                    }
                     _snackbar.Add(_messageResources[MessageResources.ClientSuccessfullyDeleted], Severity.Success);
                 }
                 else

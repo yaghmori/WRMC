@@ -20,7 +20,6 @@ using WRMC.Core.Shared.Helpers;
 using WRMC.Core.Shared.MappingProfile;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.ResultWrapper;
-using WRMC.Core.Shared.SignalR;
 using WRMC.Infrastructure.DataAccess.Context;
 using WRMC.Infrastructure.Domain.Entities;
 using WRMC.Infrastructure.UnitOfWork;
@@ -74,8 +73,8 @@ builder.Services.AddScoped<MainHub>();
 #region DbContext
 
 var connectionString = builder.Environment.IsDevelopment() ? builder.Configuration.GetConnectionString("Development_db") : builder.Configuration.GetConnectionString("Production_db");
-builder.Services.AddDbContext<ServerDbContext>(options => options.UseSqlServer(connectionString)
-    , ServiceLifetime.Scoped);
+builder.Services.AddDbContext<ServerDbContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
+builder.Services.AddDbContext<TenantDbContext>(options => options.UseSqlServer(), ServiceLifetime.Scoped);
 
 #endregion
 
@@ -102,7 +101,7 @@ builder.Services.AddIdentity<User, Role>(options =>
 
 #region UnitOfWork
 
-builder.Services.AddScoped<IUnitOfWork<ServerDbContext>, UnitOfWork<ServerDbContext>>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 #endregion
 
@@ -131,7 +130,7 @@ builder.Services.AddAuthentication(options =>
     {
         OnTokenValidated = async context =>
         {
-            var unitOfWork = context.HttpContext.RequestServices.GetRequiredService<IUnitOfWork<ServerDbContext>>();
+            var unitOfWork = context.HttpContext.RequestServices.GetRequiredService<IUnitOfWork>();
             var userId = context.Principal?.FindFirst(x => x.Type.Equals(ApplicationClaimTypes.UserId))?.Value!;
             var user = await unitOfWork.Users.FindAsync(Guid.Parse(userId));
             if (user == null)
@@ -274,6 +273,7 @@ else
 
 }
 
+app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
@@ -285,12 +285,11 @@ app.UseWhen(context => context.Request.Path.StartsWithSegments(EndPoints.TenantE
 });
 
 app.UseAuthorization();
-app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.MapControllers();
 
-app.MapHub<MainHub>(EndPoints.Hub.MainHubPath);
-app.MapHub<ChatHub>(EndPoints.Hub.ChatHubPath);
+app.MapHub<MainHub>(EndPoints.MainHub);
+app.MapHub<ChatHub>(EndPoints.ChatHub);
 
 app.Run();
 

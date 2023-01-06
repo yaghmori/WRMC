@@ -72,19 +72,6 @@ namespace WRMC.RootComponents.Dialogs
                 {
                     dgResult = true;
                     _snackbar.Add(_messageResources[MessageResources.RoleSuccessfullyUpdated], Severity.Success);
-                    //Get RoleUsers 
-                    var usersResponse = await _roleDataService.GetUserRolesAsync(RoleId);
-                    if (usersResponse.Succeeded)
-                    {
-                        //SignalR
-                        var users = usersResponse.Data.Select(x => x.Id).ToList();
-                        if (hubConnection is not null)
-                        {
-                            await hubConnection.SendAsync(EndPoints.Hub.SendUpdateAuthState, users);
-                        }
-                    }
-
-
                 }
                 else
                 {

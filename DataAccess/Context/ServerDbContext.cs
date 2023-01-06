@@ -11,7 +11,7 @@ using System.Reflection.Emit;
 
 namespace WRMC.Infrastructure.DataAccess.Context
 {
-    public partial class ServerDbContext : IdentityDbContext<
+    public class ServerDbContext : IdentityDbContext<
         User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -23,34 +23,22 @@ namespace WRMC.Infrastructure.DataAccess.Context
             _httpContextAccessor = httpContextAccessor;
             _passwordHasher = passwordHasher;
         }
-        public DbSet<Tenant> Tenant { get; set; }
-        public DbSet<UserTenant> UserTenants { get; set; }
+        public virtual DbSet<Tenant> Tenant { get; set; }
+        public virtual DbSet<UserTenant> UserTenants { get; set; }
         public virtual DbSet<AppSetting> AppSettings { get; set; }
         public virtual DbSet<UserSetting> UserSettings { get; set; }
         public virtual DbSet<Culture> Cultures { get; set; }
         public virtual DbSet<UserSession> UserSessions { get; set; }
-        //=============================================================
         public virtual DbSet<UserAttachment> UserAttachment { get; set; }
         public virtual DbSet<UserPhoneNumber> UserPhoneNumbers { get; set; }
         public virtual DbSet<UserAddress> UserAddresses { get; set; }
         public virtual DbSet<Region> Regions { get; set; }
         public virtual DbSet<UserProfile> UserProfile { get; set; }
-        public virtual DbSet<IntroMethod> IntroMethods { get; set; }
 
-        //=============================================================
-        public virtual DbSet<SectionClaim> SectionClaims { get; set; }
-        public virtual DbSet<Section> Sections { get; set; }
-        public virtual DbSet<Visit> Visits { get; set; }
-        public virtual DbSet<Case> Cases { get; set; }
-
-        public virtual DbSet<Tasks> Tasks { get; set; }
-        public virtual DbSet<MedicalIntake> MedicalIntakes { get; set; }
-        public virtual DbSet<DemographicIntake> DemographicIntakes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
             var user = new User
             {
                 Id = Guid.NewGuid(),
@@ -146,12 +134,6 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 b.HasData(userProfile);
                 b.HasQueryFilter(x => x.IsDeleted == false);
             });
-            builder.Entity<IntroMethod>(b =>
-            {
-                b.HasData(Seed.IntroMethods);
-
-                b.HasQueryFilter(x => x.IsDeleted == false);
-            });
             builder.Entity<AppSetting>(b =>
             {
                 b.HasData(new AppSetting
@@ -171,31 +153,6 @@ namespace WRMC.Infrastructure.DataAccess.Context
             {
                 b.HasData(Seed.Cultures);
                 b.HasQueryFilter(x => x.IsDeleted == false);
-            });
-            builder.Entity<Visit>(b =>
-            {
-                b.HasQueryFilter(x => x.IsDeleted == false);
-            });
-            builder.Entity<Case>(b =>
-            {
-                b.HasQueryFilter(x => x.IsDeleted == false);
-            });
-            builder.Entity<Tasks>(b =>
-            {
-                b.HasOne(e => e.Visit).WithMany(e => e.Tasks).HasForeignKey(e => e.VisitId);
-                b.HasOne(e => e.Section).WithMany(e => e.VisitSections).HasForeignKey(e => e.SectionId);
-
-                b.HasQueryFilter(x => x.IsDeleted == false);
-            });
-            builder.Entity<SectionClaim>(b =>
-            {
-                b.HasQueryFilter(x => x.IsDeleted == false);
-            });
-            builder.Entity<Section>(b =>
-            {
-                b.HasData(Seed.Sections);
-                b.HasQueryFilter(x => x.IsDeleted == false);
-                b.HasOne(x => x.Parent).WithMany(x => x.Sections).HasForeignKey(x => x.ParentId).IsRequired(false);
             });
             builder.Entity<UserClaim>(b =>
             {
@@ -330,23 +287,16 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 b.HasData(Seed.States);
                 //b.HasData(Seed.Cities);
                 b.HasQueryFilter(x => x.IsDeleted == false);
-                b.HasMany(e => e.DemographicIntakes).WithOne(e => e.Region).HasForeignKey(x => x.RegionId);
 
             });
-            builder.Entity<MedicalIntake>(b =>
-            {
-                b.HasQueryFilter(x => x.IsDeleted == false);
-            });
-            builder.Entity<DemographicIntake>(b =>
-            {
-                b.HasQueryFilter(x => x.IsDeleted == false);
-            });
+
+
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            var userId = _httpContextAccessor.HttpContext.User?.FindFirst(x => x.Type == ApplicationClaimTypes.UserId)?.Value;
-            var ip = _httpContextAccessor.HttpContext.Request?.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(x => x.Type == ApplicationClaimTypes.UserId)?.Value;
+            var ip = _httpContextAccessor.HttpContext?.Request?.HttpContext?.Connection?.RemoteIpAddress?.ToString();
 
             ChangeTracker.DetectChanges();
             var entities = ChangeTracker.Entries<IAuditEntity>();

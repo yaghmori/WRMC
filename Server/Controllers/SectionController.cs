@@ -14,14 +14,14 @@ using WRMC.Server.Extensions;
 
 namespace WRMC.Server.Controllers
 {
-    [Route("api/v1/server/sections")]
+    [Route("api/v1/tenants/sections")]
     [ApiController]
     public class SectionController : ControllerBase
     {
-        private readonly IUnitOfWork<ServerDbContext> _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public SectionController(IUnitOfWork<ServerDbContext> unitOfWork, IMapper mapper)
+        public SectionController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -36,18 +36,13 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public async Task<IActionResult> CreateNewSection(SectionRequest request)
         {
-            try
-            {
-                var section = _mapper.Map<Section>(request);
-                var item = await _unitOfWork.Sections.AddAsync(section);
-                await _unitOfWork.SaveChangesAsync();
 
-                return Ok(await Result<string>.SuccessAsync(data: item.Entity.Id.ToString(), message: "Section successfully created."));
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message);
-            }
+            var section = _mapper.Map<Section>(request);
+            var item = await _unitOfWork.Sections.AddAsync(section);
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+
+            return Ok(await Result<string>.SuccessAsync(data: item.Entity.Id.ToString(), message: "Section successfully created."));
+
         }
 
 
@@ -59,21 +54,15 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<SectionResponse>))]
         public async Task<IActionResult> GetSections()
         {
-            try
-            {
-                var sections = await _unitOfWork.Sections.GetAllAsync(
-                    predicate: x => x.ParentId == null,
-                    include: i => i.Include(x => x.Sections).ThenInclude(x=>x.Sections));
 
-                var response = _mapper.Map<List<SectionResponse>>(sections);
+            var sections = await _unitOfWork.Sections.GetAllAsync(
+                predicate: x => x.ParentId == null,
+                include: i => i.Include(x => x.Sections).ThenInclude(x => x.Sections));
 
-                return Ok(await Result<List<SectionResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            var response = _mapper.Map<List<SectionResponse>>(sections);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<List<SectionResponse>>.SuccessAsync(response));
+
         }
 
 
@@ -81,231 +70,184 @@ namespace WRMC.Server.Controllers
         /// Get Section by Id
         /// </summary>
         /// <returns>SectionResponse</returns>
-        [HttpGet("{sectionId}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SectionResponse))]
-        public async Task<IActionResult> GetSectionById(string sectionId)
+        public async Task<IActionResult> GetSectionById(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(sectionId))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var section = await _unitOfWork.Sections.GetFirstOrDefaultAsync(
-                    predicate: x => x.Id.ToString().Equals(sectionId),
-                    include: i => i.Include(x => x.Sections).ThenInclude(x => x.Sections));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var response = _mapper.Map<SectionResponse>(section);
+            var section = await _unitOfWork.Sections.GetFirstOrDefaultAsync(
+                predicate: x => x.Id.ToString().Equals(id),
+                include: i => i.Include(x => x.Sections).ThenInclude(x => x.Sections));
 
-                return Ok(await Result<SectionResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            var response = _mapper.Map<SectionResponse>(section);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<SectionResponse>.SuccessAsync(response));
+
         }
 
 
         /// <summary>
         /// Get Parent Section
         /// </summary>
-        /// <param name="sectionId"></param>
+        /// <param name="id"></param>
         /// <returns>SectionResponse</returns>
-        [HttpGet("{sectionId}/parent")]
+        [HttpGet("{id}/parent")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SectionResponse))]
-        public async Task<IActionResult> GetParentSection(string sectionId)
+        public async Task<IActionResult> GetParentSection(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(sectionId))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(sectionId));
-                if (section == null)
-                    return NotFound(await Result.FailAsync("Section Not Found."));
+            var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(id));
+            if (section == null)
+                return NotFound(await Result.FailAsync("Section Not Found."));
 
-                var parent = await _unitOfWork.Sections.GetFirstOrDefaultAsync(
-                    predicate: x => x.Id == section.ParentId);
-                var response = _mapper.Map<SectionResponse>(parent);
+            var parent = await _unitOfWork.Sections.GetFirstOrDefaultAsync(
+                predicate: x => x.Id == section.ParentId);
+            var response = _mapper.Map<SectionResponse>(parent);
 
-                return Ok(await Result<SectionResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
-
+            return Ok(await Result<SectionResponse>.SuccessAsync(response));
         }
 
 
         /// <summary>
         /// Update Section
         /// </summary>
-        /// <param name="sectionId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>bool</returns>
-        [HttpPatch("{sectionId}")]
+        [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateSection(string sectionId, [FromBody] JsonPatchDocument<SectionRequest> request)
+        public async Task<IActionResult> UpdateSection(string id, [FromBody] JsonPatchDocument<SectionRequest> request)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(sectionId))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(sectionId));
-                if (section is null)
-                    return NotFound(await Result.FailAsync("Section not found."));
+            var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(id));
+            if (section is null)
+                return NotFound(await Result.FailAsync("Section not found."));
 
-                var requestToPatch = _mapper.Map<SectionRequest>(section);
-                request.ApplyTo(requestToPatch);
-                _mapper.Map(requestToPatch, section);
+            var requestToPatch = _mapper.Map<SectionRequest>(section);
+            request.ApplyTo(requestToPatch);
+            _mapper.Map(requestToPatch, section);
 
-                _unitOfWork.Sections.Update(section);
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "Section successfully updated."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            _unitOfWork.Sections.Update(section);
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
 
+            return Ok(await Result<bool>.SuccessAsync(true, "Section successfully updated."));
         }
 
 
         /// <summary>
         /// Delete Section
         /// </summary>
-        /// <param name="sectionId"></param>
+        /// <param name="id"></param>
         /// <returns>bool</returns>
-        [HttpDelete("{sectionId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteSection(string sectionId)
+        public async Task<IActionResult> DeleteSection(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(sectionId))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(sectionId));
-                if (section is null)
-                    return NotFound(await Result.FailAsync("Section not found."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                _unitOfWork.Sections.Remove(section);
-                await _unitOfWork.SaveChangesAsync();
+            var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(id));
+            if (section is null)
+                return NotFound(await Result.FailAsync("Section not found."));
 
-                return Ok(await Result<bool>.SuccessAsync(true, "Section successfully deleted."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            _unitOfWork.Sections.Remove(section);
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+
+            return Ok(await Result<bool>.SuccessAsync(true, "Section successfully deleted."));
+
         }
 
 
         /// <summary>
         /// Get Section Claims
         /// </summary>
-        /// <param name="sectionId"></param>
+        /// <param name="id"></param>
         /// <returns>List of SectionClaimResponse</returns>
-        [HttpGet("{sectionId}/claims")]
+        [HttpGet("{id}/claims")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<SectionClaimResponse>))]
-        public async Task<IActionResult> GetSectionClaims(string sectionId)
+        public async Task<IActionResult> GetSectionClaims(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(sectionId))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
-                var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(sectionId));
-                if (section is null)
-                    return NotFound(await Result.FailAsync("Section Not Found."));
+            var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(id));
+            if (section is null)
+                return NotFound(await Result.FailAsync("Section Not Found."));
 
 
-                var claims = await _unitOfWork.SectionClaims.GetAllAsync(
-                    predicate: x => x.SectionId == section.Id);
-                var response = _mapper.Map<List<SectionClaimResponse>>(claims);
-                return Ok(await Result<IList<SectionClaimResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
+            var claims = await _unitOfWork.SectionClaims.GetAllAsync(
+                predicate: x => x.SectionId == section.Id);
+            var response = _mapper.Map<List<SectionClaimResponse>>(claims);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<IList<SectionClaimResponse>>.SuccessAsync(response));
+
         }
 
 
         /// <summary>
         /// Add Section Claim
         /// </summary>
-        /// <param name="sectionId"></param>
+        /// <param name="id"></param>
         /// <returns>string</returns>
-        [HttpPost("{sectionId}/claims")]
+        [HttpPost("{id}/claims")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> AddSectionClaim(string sectionId, SectionClaimRequest request)
+        public async Task<IActionResult> AddSectionClaim(string id, SectionClaimRequest request)
         {
-            try
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
+
+            var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(id));
+            if (section is null)
+                return NotFound(await Result.FailAsync("Section Not Found."));
+
+            var sectionClaim = new SectionClaim
             {
-                if (string.IsNullOrWhiteSpace(sectionId))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
+                SectionId = section.Id,
+                ClaimType = request.ClaimType,
+                ClaimValue = request.ClaimValue,
+            };
 
-                var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(sectionId));
-                if (section is null)
-                    return NotFound(await Result.FailAsync("Section Not Found."));
+            await _unitOfWork.SectionClaims.AddAsync(sectionClaim);
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
 
-                var sectionClaim = new SectionClaim
-                {
-                    SectionId = section.Id,
-                    ClaimType = request.ClaimType,
-                    ClaimValue = request.ClaimValue,
-                };
-
-                await _unitOfWork.SectionClaims.AddAsync(sectionClaim);
-                await _unitOfWork.SaveChangesAsync();
-
-                return Ok(await Result<string>.SuccessAsync(data: sectionClaim.Id.ToString(), message: "Claim successfully added to section."));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<string>.SuccessAsync(data: sectionClaim.Id.ToString(), message: "Claim successfully added to section."));
         }
 
 
         /// <summary>
         /// Update Section Claims
         /// </summary>
-        /// <param name="sectionId"></param>
+        /// <param name="id"></param>
         /// <returns>bool</returns>
-        [HttpPut("{sectionId}/claims")]
+        [HttpPut("{id}/claims")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateSectionClaims(string sectionId, List<SectionClaimRequest> request)
+        public async Task<IActionResult> UpdateSectionClaims(string id, List<SectionClaimRequest> request)
         {
-            try
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
+
+            var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(id));
+            if (section is null)
+                return NotFound(await Result.FailAsync("Section Not Found."));
+
+            _unitOfWork.SectionClaims.RemoveRange(predicate: x => x.SectionId.ToString().Equals(id));
+            foreach (var item in request)
             {
-                if (string.IsNullOrWhiteSpace(sectionId))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
-
-                var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(sectionId));
-                if (section is null)
-                    return NotFound(await Result.FailAsync("Section Not Found."));
-
-                _unitOfWork.SectionClaims.RemoveRange(predicate: x => x.SectionId.ToString().Equals(sectionId));
-                foreach (var item in request)
-                {
-                    if (item is not null)
-                        await _unitOfWork.SectionClaims.AddAsync(new SectionClaim { SectionId = section.Id, ClaimType = item.ClaimType,ClaimValue = item.ClaimType});
-                }
-
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "SectionClaims successfully updated."));
+                if (item is not null)
+                    await _unitOfWork.SectionClaims.AddAsync(new SectionClaim { SectionId = section.Id, ClaimType = item.ClaimType, ClaimValue = item.ClaimType });
             }
-            catch (Exception ex)
-            {
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            return Ok(await Result<bool>.SuccessAsync(true, "SectionClaims successfully updated."));
+
         }
 
 
@@ -317,16 +259,11 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         public async Task<IActionResult> DeleteAllSections()
         {
-            try
-            {
-                _unitOfWork.Sections.RemoveAll();
-                await _unitOfWork.SaveChangesAsync();
-                return Ok(await Result<bool>.SuccessAsync(true, "All sections successfully have been deleted."));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            _unitOfWork.Sections.RemoveAll();
+            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+
+            return Ok(await Result<bool>.SuccessAsync(true, "All sections successfully have been deleted."));
+
         }
 
 
