@@ -58,8 +58,6 @@ namespace WRMC.Server.Hubs
                 await Clients.Users(userIds.Select(x => x.ToLowerInvariant())).TerminateSession(userIds);
         }
 
-
-
         public override async Task OnConnectedAsync()
         {
             var id = Context.UserIdentifier;
