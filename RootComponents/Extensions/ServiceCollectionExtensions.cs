@@ -71,11 +71,12 @@ namespace WRMC.RootComponents.Extensions
 
             #region Validators
 
-            services.AddValidatorsFromAssemblyContaining<CaseRequestValidator>();
+            services.AddValidatorsFromAssemblyContaining<RegisterValidator>();//for ioc
 
             services.AddTransient<IUserValidator, UserRemoteValidator>();
             services.AddTransient<ITenantValidator, TenantRemoteValidator>();
             services.AddTransient<IRoleValidator, RoleRemoteValidator>();
+            
 
             #endregion
 

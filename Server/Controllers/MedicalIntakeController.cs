@@ -88,7 +88,7 @@ namespace WRMC.Server.Controllers
         /// <returns>string</returns>
         [HttpPost("new")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> CreateMedicalIntake([FromBody] IntakeRequest request)
+        public async Task<IActionResult> CreateMedicalIntake([FromBody] IntakeBaseRequest request)
         {
 
 

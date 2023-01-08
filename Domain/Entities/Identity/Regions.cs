@@ -29,16 +29,16 @@ namespace WRMC.Infrastructure.Domain.Entities
         {
             get
             {
-                if (Parent?.Parent?.Parent != null)
+                if (Parent?.Parent?.Parent != null) //village
                     return Parent?.Parent?.Parent?.Iso3 + ", " + Parent?.Parent?.Name + ", " + Parent?.Name + ", " + Name;
 
-                if (Parent?.Parent != null)
+                if (Parent?.Parent != null) //city
                     return Parent?.Parent?.Name + ", " + Parent?.Name + ", " + Name;
 
-                if (Parent != null)
+                if (Parent != null)// state
                     return Parent?.Name + ", " + Name;
 
-                return Name;
+                return Name;//country
             }
         }
         public virtual ICollection<Region> Regions { get; set; } = new List<Region>();

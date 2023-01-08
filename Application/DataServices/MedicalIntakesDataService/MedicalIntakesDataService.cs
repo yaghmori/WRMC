@@ -29,7 +29,7 @@ namespace WRMC.Core.Application.DataServices
             var response = await _httpClient.PostAsync(uri, content);
             return await response.ToResult<string>();
         }
-        public async Task<IResult<string>> CreateNewMedicalIntakeAsync(IntakeRequest request)
+        public async Task<IResult<string>> CreateNewMedicalIntakeAsync(IntakeBaseRequest request)
         {
 
             var uri = EndPoints.MedicalIntakesController.CreateMedicalIntake;

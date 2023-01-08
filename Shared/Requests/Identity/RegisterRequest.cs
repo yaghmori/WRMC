@@ -28,7 +28,7 @@ namespace WRMC.Core.Shared.Requests
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("This field is required")
                 .EmailAddress().WithMessage("Not valid email address")
-                .MustAsync(BeUniqueEmail).WithMessage("Email already exist");
+                .MustAsync(BeUniqueEmail).WithMessage("Email already exist");//Remote validation
         }
 
         private async Task<bool> BeUniqueEmail(string email, CancellationToken token)

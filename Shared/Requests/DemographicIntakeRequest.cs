@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.Security.AccessControl;
+using FluentValidation;
 using WRMC.Core.Shared.Responses;
 using WRMC.Infrastructure.Domain.Entities;
 using WRMC.Infrastructure.Domain.Enums;
@@ -53,6 +54,8 @@ namespace WRMC.Core.Shared.Requests
             }
         }
 
+
+    
         public MaritalEnum? MaritalStatus { get; set; }
         public LivingEnum? LivingArrangement { get; set; }
         public short? NumberOfHousehold { get; set; }

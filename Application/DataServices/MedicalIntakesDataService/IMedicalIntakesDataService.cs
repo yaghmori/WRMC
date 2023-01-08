@@ -8,7 +8,7 @@ namespace WRMC.Core.Application.DataServices
     public interface IMedicalIntakesDataService
     {
         Task<IResult<string>> AddNewMedicalIntakeAsync(MedicalIntakeRequest request);
-        Task<IResult<string>> CreateNewMedicalIntakeAsync(IntakeRequest request);
+        Task<IResult<string>> CreateNewMedicalIntakeAsync(IntakeBaseRequest request);
         Task<IResult<bool>> DeleteMedicalIntakeAsync(string medicalIntakeId);
         Task<IResult<MedicalIntakeResponse>> GetMedicalIntakeByIdAsync(string medicalIntakeId);
         Task<IResult<MedicalIntakeResponse>> GetMedicalIntakeByTaskIdAsync(string taskId);

@@ -6,7 +6,7 @@ using WRMC.Infrastructure.Localization;
 
 namespace WRMC.Core.Shared.Requests
 {
-    public class IntakeRequest
+    public class IntakeBaseRequest
     {
         public string? VisitId { get; set; }
         public string? TaskId { get; set; }
@@ -14,7 +14,16 @@ namespace WRMC.Core.Shared.Requests
 
     }
 
+    public class IntakeBaseValidator : AbstractValidator<IntakeBaseRequest>
+    {
+        public IntakeBaseValidator()
+        {            //Residential
+            RuleFor(x => x.VisitId).NotEmpty().WithMessage("Please specify visit id"); //TODO : Localization
+            RuleFor(x => x.TaskId).NotEmpty().WithMessage("Please specify task id");
+          
 
+        }
+    }
 
 
 

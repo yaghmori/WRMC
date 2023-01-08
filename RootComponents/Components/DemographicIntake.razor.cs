@@ -38,7 +38,7 @@ namespace WRMC.RootComponents.Components
                     var visitResponse = await _visitDataService.GetVisitByTaskIdAsync(TaskId);
                     if (visitResponse?.Succeeded == true)
                     {
-                        var request = new IntakeRequest
+                        var request = new IntakeBaseRequest
                         {
                             TaskId = TaskId,
                             VisitId = visitResponse.Data.Id,

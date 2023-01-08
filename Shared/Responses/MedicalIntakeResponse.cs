@@ -66,5 +66,7 @@ namespace WRMC.Core.Shared.Responses
         public virtual IntentionsEnum? Intentions { get; set; } 
         public bool? AdoptionOption { get; set; } 
         public AbortionRiskEnum? AbortionRisk { get; set; }
+        public bool IsComplete { get; set; }= false;
+
     }
 }

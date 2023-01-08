@@ -42,7 +42,7 @@
                              @bind-Value="@Model.Region"
                              For="()=>Model.Region"
                              Label="@_viewResources[ViewResources.Country]"
-                             ToStringFunc="@(e=> e==null?null : e.Name)"
+                             ToStringFunc="@(e=> e==null?null : e.Path)"
                              Variant="Variant.Outlined"
                              MaxItems="null"
                              Immediate=true
