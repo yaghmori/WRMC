@@ -19,7 +19,7 @@ namespace WRMC.Core.Application.DataServices
         Task<IResult<bool>> DeleteTenantUserAsync(string tenantId);
         Task<IResult<bool>> UpdateTenantUsersAsync(string tenantId, List<string> users);
         Task<IResult<bool>> UpdateTenantByIdAsync(string tenantId, JsonPatchDocument<TenantRequest> request);
-        Task<IResult<bool>> CreateDatabaseAsync(string tenantId);
+        Task<IResult> CreateDatabaseAsync(string tenantId);
         Task<IResult<bool>> DeleteDatabaseAsync(string tenantId);
         Task<IResult<bool>> MigrateDatabaseAsync(string tenantId);
         Task<IResult<bool>> CheckIfNameExist(string name);
