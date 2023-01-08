@@ -7,6 +7,7 @@
         public const string Email = "email";
         public const string Role = "role";
         public const string Tenant = "tenant";
+        public const string TenantId = "tid";
         public const string Expiration = "exp";
 
 

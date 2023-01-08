@@ -6,9 +6,10 @@
 
 
         <EditForm Model="UserPhoneNumber" OnValidSubmit="SaveChangesSubmit">
+            <FluentValidator />
+
             @if (!IsLoading)
             {
-                <DataAnnotationsValidator />
                 <MudSelect @bind-Value="UserPhoneNumber.PhoneNumberType"
                        Immediate=true
                        For="@(()=>UserPhoneNumber.PhoneNumberType)"

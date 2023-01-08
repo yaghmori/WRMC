@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Net;
+using System.Net.Http;
 using WRMC.Core.Shared.ResultWrapper;
 using WRMC.Server.Extensions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -20,6 +22,7 @@ namespace WRMC.Server.Middlewares
 
         public async Task Invoke(HttpContext context)
         {
+
             try
             {
                 await _next(context);
@@ -47,16 +50,6 @@ namespace WRMC.Server.Middlewares
                 var result = JsonConvert.SerializeObject(responseModel);
                 await response.WriteAsync(result);
             }
-            //finally
-            //{
-            //    //if (context.Response?.StatusCode == 400)
-            //    //{
-            //    //    //var response = context.Response;
-            //    //    //response.ContentType = "application/json";
-            //    //    //var responseModel = await Result<string>.FailAsync(context.Response.Body);
-            //    //    //context.Request.Body.Position = 0;
-            //    //}
-            //}
 
         }
     }

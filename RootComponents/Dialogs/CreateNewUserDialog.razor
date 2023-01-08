@@ -2,7 +2,7 @@
 <MudDialog>
     <DialogContent>
         <EditForm Model="@NewUserRequest" OnValidSubmit="SaveChangesSubmit">
-            <DataAnnotationsValidator />
+            <FluentValidator />
             <div class="d-flex flex-column gap-2">
 
                 <MudTextField @bind-Value="@NewUserRequest.Email"

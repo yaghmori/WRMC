@@ -15,6 +15,7 @@ namespace WRMC.Core.Application.DataServices
         Task<IResult<string>> AddUserSettingAsync(string userId, UserSettingRequest request);
         Task<IResult<bool>> ChangePasswordAsync(string userId, ChangePasswordRequest request);
         Task<IResult<string>> CreateNewUserAsync(NewUserRequest request);
+        Task<IResult<bool>> CheckIfEmailExist(string email);
         Task<IResult<bool>> DeleteUserAddressAsync(string userId, string addressId);
         Task<IResult<bool>> DeleteUserAsync(string userId);
         Task<IResult<bool>> DeleteUserAttachmentAsync(string userId, string attachmentId);

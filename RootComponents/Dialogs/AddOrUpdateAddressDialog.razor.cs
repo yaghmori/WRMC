@@ -15,7 +15,6 @@ namespace WRMC.RootComponents.Dialogs
     public partial class AddOrUpdateAddressDialog
     {
         [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-        [CascadingParameter] public HubConnection hubConnection { get; set; }
         [Parameter] public string UserAddressId { get; set; } = string.Empty;
         [Parameter] public string UserId { get; set; } = string.Empty;
         public UserAddressRequest AddressRequest { get; set; } = new();
@@ -56,11 +55,6 @@ namespace WRMC.RootComponents.Dialogs
                         _snackbar.Add(message, Severity.Error);
                     }
                 }
-            }
-
-            if (hubConnection.State == HubConnectionState.Disconnected)
-            {
-                await hubConnection.StartAsync();
             }
             IsLoading = false;
             StateHasChanged();

@@ -95,6 +95,29 @@ namespace WRMC.Server.Controllers
 
         }
 
+
+        /// <summary>
+        /// Check If Tenant Name Exist
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>bool</returns>
+        [HttpGet("names")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        public async Task<IActionResult> CheckIfTenantNameExist(string name)
+        {
+
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest(await Result.FailAsync("Invalid request."));
+
+            var exist = await _unitOfWork.Tenants.AnyAsync(x => x.Name.Equals(name));
+
+            
+            return Ok(await Result<bool>.SuccessAsync(exist));
+
+        }
+
+
+
         /// <summary>
         /// Get list of users by tenantId
         /// </summary>

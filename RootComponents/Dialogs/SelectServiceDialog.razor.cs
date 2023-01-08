@@ -12,7 +12,6 @@ namespace WRMC.RootComponents.Dialogs
     public partial class SelectServiceDialog
     {
         [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-        [CascadingParameter] public HubConnection hubConnection { get; set; }
         [Parameter] public string UserId { get; set; } = string.Empty;
         public List<SectionResponse> AvailableSections { get; set; } = new();
         [Required]
@@ -22,11 +21,6 @@ namespace WRMC.RootComponents.Dialogs
         {
             await LoadAvailableServicesAsync();
 
-            //SignalR
-            if (hubConnection.State == HubConnectionState.Disconnected)
-            {
-                await hubConnection.StartAsync();
-            }
         }
 
         private async Task LoadAvailableServicesAsync()

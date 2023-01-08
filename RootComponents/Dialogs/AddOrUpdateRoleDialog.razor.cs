@@ -11,7 +11,6 @@ namespace WRMC.RootComponents.Dialogs
     public partial class AddOrUpdateRoleDialog
     {
         [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-        [CascadingParameter] public HubConnection hubConnection { get; set; }
         [Parameter] public string RoleId { get; set; } = string.Empty;
         public RoleRequest Role { get; set; } = new();
 
@@ -32,10 +31,6 @@ namespace WRMC.RootComponents.Dialogs
                         _snackbar.Add(message, Severity.Error);
                     }
                 }
-            }
-            if (hubConnection.State == HubConnectionState.Disconnected)
-            {
-                await hubConnection.StartAsync();
             }
             IsLoading = false;
             StateHasChanged();

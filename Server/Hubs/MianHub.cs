@@ -62,11 +62,13 @@ namespace WRMC.Server.Hubs
 
         public override async Task OnConnectedAsync()
         {
+            var id = Context.UserIdentifier;
             var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(Context.UserIdentifier));
             if(user != null)
             {
                 user.IsOnline = true;
             }
+            _unitOfWork.Users.Update(user);
             await _unitOfWork.ServerDbContext.SaveChangesAsync();
         }
 
@@ -77,6 +79,7 @@ namespace WRMC.Server.Hubs
             {
                 user.IsOnline = false;
             }
+            _unitOfWork.Users.Update(user);
             await _unitOfWork.ServerDbContext.SaveChangesAsync();
         }
 

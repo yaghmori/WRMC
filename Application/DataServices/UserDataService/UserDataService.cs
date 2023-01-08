@@ -109,6 +109,19 @@ namespace WRMC.Core.Application.DataServices
             var response = await _httpClient.PatchAsync(uri, content);
             return await response.ToResult<bool>();
         }
+        public async Task<IResult<bool>> CheckIfEmailExist(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return await Result<bool>.FailAsync("Invalid request.");
+
+            var uri = EndPoints.UserController.CheckIfEmailExist;
+            uri = QueryHelpers.AddQueryString(uri, nameof(email), email);
+
+            var response = await _httpClient.GetAsync(uri);
+
+            return await response.ToResult<bool>();
+        }
+
         #endregion
 
         #region userRoles

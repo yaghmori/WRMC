@@ -1,12 +1,6 @@
 ﻿using FluentValidation;
-using Newtonsoft.Json;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using WRMC.Core.Shared.Responses;
-using WRMC.Core.Shared.ValidationAttributes;
-using WRMC.Infrastructure.Domain.Entities;
 using WRMC.Infrastructure.Domain.Enums;
-using WRMC.Infrastructure.Localization;
 
 namespace WRMC.Core.Shared.Requests
 {

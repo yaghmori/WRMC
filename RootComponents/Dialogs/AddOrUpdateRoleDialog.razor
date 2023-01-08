@@ -6,9 +6,10 @@
 
 
         <EditForm Model="Role" OnValidSubmit="SaveChangesSubmit">
+            <FluentValidator />
+
             @if (!IsLoading)
             {
-                <DataAnnotationsValidator />
                 <MudTextField @bind-Value="@Role.Name" For="() => Role.Name" Label="@_displayResources[DisplayResources.RoleName]" Variant="Variant.Outlined" Immediate="true" />
                 <div class="d-flex flex-row justify-content-end mt-4 mb-2 gap-2">
                     <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>

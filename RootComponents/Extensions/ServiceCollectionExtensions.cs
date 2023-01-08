@@ -8,12 +8,16 @@ using MudBlazor;
 using MudBlazor.Services;
 using System.Reflection;
 using WRMC.Core.Application.Authorization;
+using WRMC.Core.Application.DataServices;
 using WRMC.Core.Application.Extensions;
+using WRMC.Core.Application.Handler;
 using WRMC.Core.Shared.Constant;
 using WRMC.Core.Shared.MappingProfile;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.SignalR;
+using WRMC.Core.Shared.Validators;
 using WRMC.RootComponents.SignalRClient;
+using WRMC.RootComponents.Validators;
 
 namespace WRMC.RootComponents.Extensions
 {
@@ -22,18 +26,65 @@ namespace WRMC.RootComponents.Extensions
         public static IServiceCollection AddRootComponentService(this IServiceCollection services)
         {
 
+            #region AutoMapper
+
             services.AddAutoMapper(typeof(MappingProfile));
+
+            #endregion
+
+            #region LocalStorage
+
             services.AddBlazoredLocalStorage();
             services.AddBlazoredSessionStorage();
 
-            services.AddSingleton<AppStateHandler>();
+            #endregion
+
+            #region HttpClient
+
+            services.AddTransient<HttpAuthorizationHandler>();
+            services.AddHttpClient(ApplicationConstants.ServerHttpClientName, httpClient =>
+            {
+                httpClient.BaseAddress = new Uri(ApplicationConstants.ServerBaseAddress); ;
+            }).AddHttpMessageHandler<HttpAuthorizationHandler>();
+
+
+
+
+            #endregion
+
+            #region DataServices
+            services.AddScoped<IAuthDataService, AuthDataService>();
+            services.AddScoped<ICultureDataService, CultureDataService>();
+            services.AddScoped<IUserDataService, UserDataService>();
+            services.AddScoped<IRoleDataService, RoleDataService>();
+            services.AddScoped<ITenantDataService, TenantDataService>();
+            services.AddScoped<IAppSettingDataService, AppSettingDataService>();
+            services.AddScoped<IUserSettingDataService, UserSettingDataService>();
+            services.AddScoped<ICaseDataService, CaseDataService>();
+            services.AddScoped<IVisitDataService, VisitDataService>();
+            services.AddScoped<ISectionDataService, SectionDataService>();
+            services.AddScoped<IIntroMethodDataService, IntroMethodDataService>();
+            services.AddScoped<IRegionDataService, RegionDataService>();
+            services.AddScoped<IDemographicIntakesDataService, DemographicIntakesDataService>();
+            services.AddScoped<IMedicalIntakesDataService, MedicalIntakesDataService>();
+            #endregion
+
+            #region Validators
+
+            services.AddValidatorsFromAssemblyContaining<CaseRequestValidator>();
+
+            services.AddTransient<IUserValidator, UserRemoteValidator>();
+            services.AddTransient<ITenantValidator, TenantRemoteValidator>();
+            services.AddTransient<IRoleValidator, RoleRemoteValidator>();
+
+            #endregion
+
+            #region Authorization 
             services.AddScoped<AuthStateProvider>();
             services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
-            //services.AddTransient<IValidator<DemographicIntakeRequest>, DemographicIntakeRequestValidator>();
 
             services.AddScoped<IAuthorizationHandler, PermissionRequirementHandler>();
             services.AddScoped<IAuthorizationHandler, TenantMemberRequirementHandler>();
-            services.AddValidatorsFromAssemblyContaining<DemographicIntakeValidator>();
 
             services.AddAuthorizationCore(options =>
             {
@@ -56,7 +107,18 @@ namespace WRMC.RootComponents.Extensions
 
             });
             services.AddAuthentication();
-            services.AddApplicationService();
+
+            #endregion
+
+            #region SignalR
+
+            services.AddScoped<IMainHubClient, MainSignalRClient>();
+            services.AddScoped<IChatHubClient, ChatSignalRClient>();
+
+            #endregion
+
+            #region MudBlazor
+
             services.AddMudServices(config =>
             {
                 config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
@@ -65,15 +127,19 @@ namespace WRMC.RootComponents.Extensions
                 config.SnackbarConfiguration.ClearAfterNavigation = false;
                 config.SnackbarConfiguration.NewestOnTop = false;
                 config.SnackbarConfiguration.ShowCloseIcon = true;
-                config.SnackbarConfiguration.VisibleStateDuration = 7000; 
+                config.SnackbarConfiguration.VisibleStateDuration = 7000;
                 config.SnackbarConfiguration.HideTransitionDuration = 300;
                 config.SnackbarConfiguration.ShowTransitionDuration = 300;
                 config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
             });
 
-            // SignalR Clients
-            services.AddScoped<IMainHubClient, MainSignalRClient>();
-            services.AddScoped<IChatHubClient, ChatSignalRClient>();
+            #endregion
+
+            #region AppState
+
+            services.AddSingleton<AppStateHandler>();
+
+            #endregion
 
             return services;
 

@@ -183,7 +183,7 @@ namespace WRMC.Server.Controllers
         /// </summary>
         /// <param name="roleName"></param>
         /// <returns>RoleResponse</returns>
-        [HttpGet("Name/{roleName}")]
+        [HttpGet("name/{roleName}")]
         public async Task<IActionResult> GetRoleByName(string roleName)
         {
             if (string.IsNullOrWhiteSpace(roleName))
@@ -197,6 +197,27 @@ namespace WRMC.Server.Controllers
             return Ok(await Result<RoleResponse>.SuccessAsync(response));
 
         }
+
+        /// <summary>
+        /// Check If Role Name Exist
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns>bool</returns>
+        [HttpGet("names")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        public async Task<IActionResult> CheckIfNameExist(string name)
+        {
+
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest(await Result.FailAsync("Invalid request."));
+
+            var exist = await _unitOfWork.Roles.AnyAsync(x => x.Name.Equals(name));
+
+            return Ok(await Result<bool>.SuccessAsync(exist));
+
+        }
+
+
 
         /// <summary>
         /// Get UserRoles by RoleName

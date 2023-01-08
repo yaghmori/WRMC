@@ -95,6 +95,7 @@ namespace WRMC.Core.Application.Authorization
 
             //TODO : Validate JWT
             //TODO : Make all requests in one request
+            //TODO : Check user Session
 
             //GetJWTClaims
             var jwtClaims = JwtParser.GetClaimsFromJwt(savedToken).ToList();
@@ -142,7 +143,7 @@ namespace WRMC.Core.Application.Authorization
                 .Union(userClaims, new ClaimComparer())
                 .Union(tenantClaims, new ClaimComparer());
 
-
+            
 
             var claimIdentity = new ClaimsIdentity(claims, "jwt");
             var state = new AuthenticationState(new ClaimsPrincipal(claimIdentity));

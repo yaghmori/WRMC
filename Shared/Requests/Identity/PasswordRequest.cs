@@ -1,21 +1,28 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 
 namespace WRMC.Core.Shared.Requests
 {
     public class PasswordRequest
+    {
+        public string Password { get; set; } = default!;
+        public string PasswordConfirmation { get; set; } = default!;
+    }
 
+    public class PasswordValidator : AbstractValidator<PasswordRequest>
     {
 
-        [Required]
-        [DataType(DataType.Password)]
-        [StringLength(30, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 8)]
-        public string Password { get; set; } = default!;
+        public PasswordValidator()
+        {
 
-        [Required]
-        [Compare(nameof(Password))]
-        [DataType(DataType.Password)]
-        [StringLength(30, ErrorMessage = "Password Confirmation must be at least 8 characters long.", MinimumLength = 8)]
-        public string PasswordConfirmation { get; set; } = default!;
+            RuleFor(x => x.Password)
+                .NotEmpty().WithMessage("This field is required")
+                .Length(8, 24).WithMessage("Password must be at least 8 and maximum 24 characters long");
+            RuleFor(x => x.PasswordConfirmation)
+                .NotEmpty().WithMessage("Please confirm your password")
+                .Length(8, 24).WithMessage("Password must be at least 8 and maximum 24 characters long")
+                .Equal(x => x.Password).WithMessage("Passwords do not match");
+        }
 
     }
 }

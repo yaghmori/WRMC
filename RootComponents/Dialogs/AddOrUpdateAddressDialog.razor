@@ -6,9 +6,10 @@
 
 
         <EditForm Model="AddressRequest" OnValidSubmit="OnSubmitAsync">
+            <FluentValidator />
+
             @if (!IsLoading)
             {
-                <DataAnnotationsValidator />
                 <MudSelect @bind-Value="AddressRequest.AddressType"
                        Required=true
                        Immediate=true

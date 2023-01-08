@@ -140,6 +140,7 @@ namespace WRMC.Server.Controllers
                  predicate: x => x.Id.ToString().Equals(id),
                 include: i => i.Include(x => x.Tasks).ThenInclude(x => x.Section).ThenInclude(x => x.Sections).Include(x => x.Case));
 
+            
             var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(visit.Case.UserId),
                 include: i => i.Include(x => x.UserProfile));
 
@@ -192,7 +193,7 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         public async Task<IActionResult> DeleteVisitById(string id)
         {
-
+            
             if (string.IsNullOrWhiteSpace(id))
                 return BadRequest(await Result.FailAsync("VisitId is null or empty."));
 

@@ -43,9 +43,11 @@
             public const string UpdateUserById = ServerEndPoint + "/users/{0}";
             public const string ChangePassword = ServerEndPoint + "/users/{0}/change-password";
             public const string DeleteUserById = ServerEndPoint + "/users/{0}";
+            public const string CheckIfEmailExist = ServerEndPoint + "/users/emails";
+
             //===============================UserClaims==================================
-            public const string GetUserClaims = ServerEndPoint + "/users/{0}/Claims";
-            public const string UpdateUserClaims = ServerEndPoint + "/users/{0}/Claims";
+            public const string GetUserClaims = ServerEndPoint + "/users/{0}/claims";
+            public const string UpdateUserClaims = ServerEndPoint + "/users/{0}/claims";
             //===============================UserTenants==================================
             public const string GetUserTenants = ServerEndPoint + "/users/{0}/Tenants";
             public const string UpdateUserTenants = ServerEndPoint + "/users/{0}/Tenants";
@@ -101,6 +103,7 @@
         public static class RoleController
         {
             public const string GetRoles = ServerEndPoint + "/roles";
+            public const string CheckIfNameExist = ServerEndPoint + "/roles/names";
             public const string GetRoleClaims = ServerEndPoint + "/roles/{0}/claims";
             public const string GetRoleById = ServerEndPoint + "/roles/{0}";
             public const string GetRoleByName = ServerEndPoint + "/roles/{0}";
@@ -135,6 +138,7 @@
 
             public const string GetTenants = ServerEndPoint + "/tenants";
             public const string GetTenantById = ServerEndPoint + "/tenants/{0}";
+            public const string CheckIfNameExist = ServerEndPoint + "/tenants/names";
             public const string GetUsersByTenantId = ServerEndPoint + "/tenants/{0}/users";
             public const string AddTenant = ServerEndPoint + "/tenants";
             public const string AddUserToTenant = ServerEndPoint + "/tenants/{0}/users/{1}";

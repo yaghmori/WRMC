@@ -95,6 +95,25 @@ namespace WRMC.Server.Controllers
 
 
         /// <summary>
+        /// Check If Email Exist
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns>bool</returns>
+        [HttpGet("emails")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        public async Task<IActionResult> CheckIfEmailExist(string email)
+        {
+
+            if (string.IsNullOrWhiteSpace(email))
+                return BadRequest(await Result.FailAsync("Invalid request."));
+
+            var exist = await _unitOfWork.Users.AnyAsync(x => x.Email.Equals(email));
+
+            return Ok(await Result<bool>.SuccessAsync(exist));
+
+        }
+
+        /// <summary>
         /// Get List Of Users
         /// </summary>
         /// <param name="query"></param>
@@ -169,7 +188,7 @@ namespace WRMC.Server.Controllers
 
             //TODO : Resolve Code Redundancy
             //MultiTenancy
-            if (user?.UserProfile != null)
+            if (user?.UserProfile.IntroMethodId != null)
             {
                 var introMethod = await _unitOfWork.IntroMethods.GetFirstOrDefaultAsync(predicate: x => x.Id.Equals(user.UserProfile.IntroMethodId),
                     include: i => i.Include(x => x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent));
@@ -234,7 +253,7 @@ namespace WRMC.Server.Controllers
 
             if (result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded)
             {
-                user.PasswordHash = _passwordHasher.HashPassword(user, request.NewPassword);
+                user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
                 user.SecurityStamp = Guid.NewGuid().ToString();
                 user.PasswordToken = null;
                 user.PasswordTokenExpires = null;
@@ -389,7 +408,7 @@ namespace WRMC.Server.Controllers
         /// <returns>List of UserClaimResponse</returns>
         [HttpGet("{id}/claims")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserClaimResponse>))]
-        public async Task<IActionResult> GetClaimsByUserId(string id)
+        public async Task<IActionResult> GetUserClaims(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
                 return BadRequest(await Result.FailAsync("Invalid Request id."));

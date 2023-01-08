@@ -99,6 +99,7 @@ namespace Server.Services.TokenService
             if (user != null)
             {
                 claims.Add(new Claim(ApplicationClaimTypes.UserId, user.Id.ToString()));
+                claims.Add(new Claim(ApplicationClaimTypes.TenantId, user.DefaultTenantId.ToString()));
             }
             return claims;
         }

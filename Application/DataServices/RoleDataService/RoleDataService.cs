@@ -79,6 +79,21 @@ namespace WRMC.Core.Application.DataServices
             return await response.ToResult<RoleResponse>();
         }
 
+
+        public async Task<IResult<bool>> CheckIfNameExist(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return await Result<bool>.FailAsync("Invalid request.");
+
+            var uri = EndPoints.RoleController.CheckIfNameExist;
+            uri = QueryHelpers.AddQueryString(uri, nameof(name), name);
+
+            var response = await _httpClient.GetAsync(uri);
+
+            return await response.ToResult<bool>();
+        }
+
+
         public async Task<IResult<string>> AddRoleAsync(string roleName)
         {
             if (string.IsNullOrWhiteSpace(roleName))

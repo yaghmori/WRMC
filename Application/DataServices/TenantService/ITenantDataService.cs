@@ -22,7 +22,7 @@ namespace WRMC.Core.Application.DataServices
         Task<IResult<bool>> CreateDatabaseAsync(string tenantId);
         Task<IResult<bool>> DeleteDatabaseAsync(string tenantId);
         Task<IResult<bool>> MigrateDatabaseAsync(string tenantId);
-
+        Task<IResult<bool>> CheckIfNameExist(string name);
 
 
     }

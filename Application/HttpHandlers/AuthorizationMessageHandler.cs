@@ -14,7 +14,7 @@ using WRMC.Core.Shared.Responses;
 namespace WRMC.Core.Application.Handler
 {
 
-    public class AuthorizationMessageHandler : DelegatingHandler
+    public class HttpAuthorizationHandler : DelegatingHandler
     {
         //private readonly IRefreshTokenService _refreshTokenService;
         private readonly ILocalStorageService _localStorage;
@@ -22,7 +22,7 @@ namespace WRMC.Core.Application.Handler
         private readonly NavigationManager _navigation;
         private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-        public AuthorizationMessageHandler(ILocalStorageService localStorageService, ISessionStorageService sessionStorage, NavigationManager navigation)
+        public HttpAuthorizationHandler(ILocalStorageService localStorageService, ISessionStorageService sessionStorage, NavigationManager navigation)
         {
             _localStorage = localStorageService;
             _sessionStorage = sessionStorage;
@@ -54,7 +54,7 @@ namespace WRMC.Core.Application.Handler
             #region TenantHandler
 
             var absPath = request?.RequestUri?.AbsolutePath;
-            if (absPath.Contains("api/v1/tenant", StringComparison.InvariantCultureIgnoreCase))
+            if (tenantId != null && absPath.Contains(EndPoints.TenantEndPoint, StringComparison.InvariantCultureIgnoreCase))
             {
                 request.Headers.Add(ApplicationConstants.TenantId, tenantId);
             }

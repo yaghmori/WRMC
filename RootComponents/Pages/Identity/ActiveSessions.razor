@@ -6,7 +6,16 @@
         <MudText Typo="Typo.h5" Color="Color.Primary">@_viewResources[ViewResources.UserSessions]</MudText>
     </MudHidden>
 </div>
+@if (string.IsNullOrWhiteSpace(UserId))
+{
+    <h5>
+        User id is not provided.
+    </h5>
+}
+else
+{
+    <UserSessions UserId="@UserId" />
+}
 
-<UserSessions UserId="@UserId"/>
 
 

@@ -5,7 +5,7 @@ using WRMC.Core.Shared.Constant;
 namespace WRMC.Server.Hubs
 {
     /// <inheritdoc />
-    public class HubUserIdProvider : IUserIdProvider
+    public class UserIdProvider : IUserIdProvider
     {
         /// <summary>
         /// Get Current User from HttpContextAccessor

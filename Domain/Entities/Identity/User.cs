@@ -9,6 +9,8 @@ namespace WRMC.Infrastructure.Domain.Entities
         {
 
         }
+        public Guid? DefaultTenantId { get; set; }
+
         public string? EmailToken { get; set; }
         public DateTime? EmailTokenExpires { get; set; }
         public string? PhoneNumberToken { get; set; }
@@ -21,6 +23,8 @@ namespace WRMC.Infrastructure.Domain.Entities
 
         public virtual UserSetting UserSetting { get; set; }
         public virtual UserProfile UserProfile { get; set; }
+        public virtual Tenant? DefaultTenant { get; set; }
+
         public virtual ICollection<UserAttachment> UserImages { get; set; } = new List<UserAttachment>();
         public virtual ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
         public virtual ICollection<UserPhoneNumber> UserPhoneNumbers { get; set; } = new List<UserPhoneNumber>();

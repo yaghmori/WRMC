@@ -64,13 +64,11 @@ namespace WRMC.RootComponents.Pages.Tenants
 
         public async Task DeleteTenant(TenantResponse tenant)
         {
-            var ContentText = _messageResources[MessageResources.DoYouReallyWantToDeleteClient];
-            var ButtonText = _viewResources[ViewResources.Delete];
             var parameters = new DialogParameters
             {
                 { "Title", tenant.Name },
-                { "ButtonText", ButtonText },
-                { "ContentText", ContentText },
+                { "ButtonText", _viewResources[ViewResources.Delete].Value },
+                { "ContentText", _messageResources[MessageResources.DoYouReallyWantToDeleteClient].Value },
                 { "ButtonColor", Color.Error },
                 { "ButtonIcon", Icons.Rounded.Delete },
                 { "TitleIcon", Icons.Rounded.Delete },
@@ -101,11 +99,11 @@ namespace WRMC.RootComponents.Pages.Tenants
                 var deleteResponse = await _TenantDataService.DeleteTenantByIdAsync(tenant.Id);
                 if (deleteResponse != null)
                 {
-                    _snackbar.Add(_messageResources[MessageResources.ClientSuccessfullyDeleted], Severity.Success);
+                    _snackbar.Add(_messageResources[MessageResources.ClientSuccessfullyDeleted].Value, Severity.Success);
                 }
                 else
                 {
-                    _snackbar.Add(_messageResources[MessageResources.DeletingClientFailed], Severity.Error);
+                    //_snackbar.Add(_messageResources[MessageResources.DeletingClientFailed].Value, Severity.Error);
                     foreach (var message in deleteResponse.Messages)
                     {
                         _snackbar.Add(message, Severity.Error);

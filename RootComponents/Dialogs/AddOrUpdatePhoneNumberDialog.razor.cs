@@ -11,7 +11,6 @@ namespace WRMC.RootComponents.Dialogs
     public partial class AddOrUpdatePhoneNumberDialog
     {
         [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-        [CascadingParameter] public HubConnection hubConnection { get; set; }
         [Parameter] public string UserPhoneNumberId { get; set; } = string.Empty;
         [Parameter] public string UserId { get; set; } = string.Empty;
         public UserPhoneNumberRequest UserPhoneNumber { get; set; } = new();
@@ -33,10 +32,6 @@ namespace WRMC.RootComponents.Dialogs
                         _snackbar.Add(message, Severity.Error);
                     }
                 }
-            }
-            if (hubConnection.State == HubConnectionState.Disconnected)
-            {
-                await hubConnection.StartAsync();
             }
             IsLoading = false;
             StateHasChanged();

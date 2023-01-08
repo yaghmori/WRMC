@@ -12,7 +12,6 @@ namespace WRMC.RootComponents.Components
     public partial class CultureSelector
     {
         [CascadingParameter] private UserResponse User { get; set; }
-        [CascadingParameter] public HubConnection hubConnection { get; set; }
 
         [Parameter] public string Class { get; set; } = string.Empty;
 

@@ -26,7 +26,6 @@ namespace WRMC.RootComponents.SignalR
                })
                .WithAutomaticReconnect()
                .Build();
-
         }
 
 
@@ -34,7 +33,6 @@ namespace WRMC.RootComponents.SignalR
         public HubConnectionState State => HubConnection.State;
 
         public HubConnection HubConnection { get; private set; }
-
 
         public async ValueTask DisposeAsync()
         {

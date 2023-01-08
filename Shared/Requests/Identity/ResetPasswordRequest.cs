@@ -1,26 +1,27 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
+using WRMC.Core.Shared.Validators;
 
 namespace WRMC.Core.Shared.Requests
 {
-    public class ResetPasswordRequest
+    public class ResetPasswordRequest : PasswordRequest
 
     {
-        [Required]
-        [DataType(DataType.Password)]
-        [StringLength(30, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 8)]
-
-        public string Password { get; set; } = default!;
-
-        [Required]
-        [Compare(nameof(Password))]
-        [DataType(DataType.Password)]
-        [StringLength(30, ErrorMessage = "Confirmation Password must be at least 8 characters long.", MinimumLength = 8)]
-
-        public string ConfirmationPassword { get; set; } = default!;
-
-        [Required]
         public string Token { get; set; } = default!;
 
 
     }
+
+    public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordRequest>
+    {
+
+        public ResetPasswordRequestValidator()
+        {
+            Include(new PasswordValidator());
+            RuleFor(x => x.Token).NotEmpty().WithMessage("Token is not provided");
+        }
+
+    }
+
 }

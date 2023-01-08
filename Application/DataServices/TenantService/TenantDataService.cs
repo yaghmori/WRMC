@@ -8,6 +8,7 @@ using WRMC.Core.Shared.PagedCollections;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
 using WRMC.Core.Shared.ResultWrapper;
+using WRMC.Infrastructure.Domain.Entities;
 
 namespace WRMC.Core.Application.DataServices
 {
@@ -38,11 +39,26 @@ namespace WRMC.Core.Application.DataServices
             if (!string.IsNullOrWhiteSpace(query))
                 uri = QueryHelpers.AddQueryString(uri, nameof(query), query);
 
-            List<TenantResponse> result = new List<TenantResponse>();
             var response = await _httpClient.GetAsync(uri);
 
             return await response.ToResult<List<TenantResponse>>();
         }
+
+
+        public async Task<IResult<bool>> CheckIfNameExist(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return await Result<bool>.FailAsync("Invalid request.");
+
+            var uri = EndPoints.TenantController.CheckIfNameExist;
+            uri = QueryHelpers.AddQueryString(uri, nameof(name), name);
+
+            var response = await _httpClient.GetAsync(uri);
+
+            return await response.ToResult<bool>();
+        }
+
+
 
         public async Task<IResult<IPagedList<TenantResponse>>> GetTenantsPagedAsync(int page = 0, int pageSize = 10, string query = null)
         {
@@ -168,6 +184,9 @@ namespace WRMC.Core.Application.DataServices
 
         public async Task<IResult<bool>> CreateDatabaseAsync(string tenantId)
         {
+            if (string.IsNullOrWhiteSpace(tenantId))
+                return await Result<bool>.FailAsync("TenantId is null or empty.");
+
             var uri = string.Format(EndPoints.TenantController.CreateDataBase, tenantId);
 
 

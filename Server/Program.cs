@@ -20,11 +20,13 @@ using WRMC.Core.Shared.Helpers;
 using WRMC.Core.Shared.MappingProfile;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.ResultWrapper;
+using WRMC.Core.Shared.Validators;
 using WRMC.Infrastructure.DataAccess.Context;
 using WRMC.Infrastructure.Domain.Entities;
 using WRMC.Infrastructure.UnitOfWork;
 using WRMC.Server.Hubs;
 using WRMC.Server.Middlewares;
+using WRMC.Server.Validators;
 using WRMC.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,16 +51,26 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 
 #endregion
 
-#region FluentValidation
+
+#region Validators
+
 builder.Services.AddControllersWithViews()
-        .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CaseRequestValidator>());
+        .AddFluentValidation(fv =>
+        {
+            fv.RegisterValidatorsFromAssemblyContaining<CaseRequestValidator>(); 
+            fv.ImplicitlyValidateChildProperties = true;
+        });
+
+builder.Services.AddScoped<IUserValidator, UserRemoteValidator>();
+builder.Services.AddScoped<ITenantValidator, TenantRemoteValidator>();
+builder.Services.AddScoped<IRoleValidator, RoleRemoteValidator>();
 
 #endregion
 
 #region SignalR
 
 builder.Services.AddSignalR();
-builder.Services.AddSingleton<IUserIdProvider, HubUserIdProvider>();
+builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
 builder.Services.AddResponseCompression(opts =>
 {
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
@@ -251,6 +263,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 app.UseResponseCompression();
+app.UseExceptionHandler("/Error");
 
 if (app.Environment.IsDevelopment())
 {
@@ -262,12 +275,11 @@ if (app.Environment.IsDevelopment())
     {
         options.DisplayRequestDuration();
     });
-    
+
 }
 else
 {
     app.UseCors("Origins");
-    app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 

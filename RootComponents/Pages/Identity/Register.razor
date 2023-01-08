@@ -4,7 +4,7 @@
 
 
 <EditForm Model="@model" OnValidSubmit="OnSubmitAsync">
-    <DataAnnotationsValidator />
+    <FluentValidator />
     <MudText Typo="Typo.h4" GutterBottom="true">@_viewResources[ViewResources.SignUp]</MudText>
     <MudText>@_viewResources[ViewResources.AlreadyHaveAnAccount] <MudLink Href="@ApplicationURL.login">@_viewResources[ViewResources.SignIn]</MudLink></MudText>
 

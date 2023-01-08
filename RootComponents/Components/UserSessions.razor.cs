@@ -11,7 +11,6 @@ namespace WRMC.RootComponents.Components
     public partial class UserSessions
     {
         [Parameter] public string UserId { get; set; } = string.Empty;
-        [CascadingParameter] private HubConnection hubConnection { get; set; }
 
         private List<UserSessionResponse> SessionCollection = new List<UserSessionResponse>();
 
@@ -75,10 +74,6 @@ namespace WRMC.RootComponents.Components
         protected override async Task OnParametersSetAsync()
         {
             _appState.AppTitle = _viewResources[ViewResources.UserSessions];
-            if (hubConnection.State == HubConnectionState.Disconnected)
-            {
-                await hubConnection.StartAsync();
-            }
             await LoadData();
         }
     }

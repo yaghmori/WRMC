@@ -1,27 +1,40 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FluentValidation;
+using System.ComponentModel.DataAnnotations;
+using WRMC.Core.Shared.Validators;
 
 namespace WRMC.Core.Shared.Requests
 {
-    public class RegisterRequest
+    public class RegisterRequest : PasswordRequest
     {
-        [Required]
-        [EmailAddress]
         public string Email { get; set; } = string.Empty;
-        [Required]
-        [StringLength(30, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 8)]
-        public string Password { get; set; } = string.Empty;
-        [Required]
-        [StringLength(30, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 8)]
-        [Compare(nameof(Password))]
-        public string PasswordConfirmation { get; set; } = string.Empty;
-
-
+        
+        //==========computed
         public string NormalizedEmail => Email.Normalize().ToUpper();
         public string UserName => Email;
         public string NormalizedUserName => UserName.Normalize().ToUpper();
         public string SecurityStamp => Guid.NewGuid().ToString();
         public string ConcurrencyStamp => Guid.NewGuid().ToString();
 
+    }
+    public class RegisterValidator : AbstractValidator<RegisterRequest>
+    {
+        private readonly IUserValidator _userValidator;
+
+        public RegisterValidator(IUserValidator userValidator)
+        {
+            _userValidator = userValidator;
+            Include(new PasswordValidator());
+
+            RuleFor(x => x.Email)
+                .NotEmpty().WithMessage("This field is required")
+                .EmailAddress().WithMessage("Not valid email address")
+                .MustAsync(BeUniqueEmail).WithMessage("Email already exist");
+        }
+
+        private async Task<bool> BeUniqueEmail(string email, CancellationToken token)
+        {
+            return await _userValidator.CheckIfUniqueEmail(email, token);
+        }
     }
 
 }

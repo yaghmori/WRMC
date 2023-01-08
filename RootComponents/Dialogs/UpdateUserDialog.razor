@@ -4,9 +4,10 @@
 
     <DialogContent>
         <EditForm Model="@User" OnValidSubmit="SaveChangesSubmit">
+            <FluentValidator />
+
             @if (!IsLoading)
             {
-                <DataAnnotationsValidator />
                 <div class="d-flex flex-column gap-2">
                     <MudTextField @bind-Value="@User.Email" For="() => User.Email" Label="@_displayResources[DisplayResources.Email]" Variant="Variant.Outlined" Immediate="true" />
                     <div class="d-flex flex-row gap-2">
