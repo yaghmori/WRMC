@@ -336,6 +336,9 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateDatabase(string id)
         {
+            try
+            {
+
 
             if (string.IsNullOrWhiteSpace(id))
                 return BadRequest(await Result.FailAsync("Invalid request id."));
@@ -355,7 +358,13 @@ namespace WRMC.Server.Controllers
             else
                 return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync("Create database failed."));
 
-           
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+
 
         }
 
