@@ -10,6 +10,8 @@ using WRMC.Core.Shared.ResultWrapper;
 using WRMC.Infrastructure.DataAccess.Context;
 using WRMC.Infrastructure.Domain.Entities;
 using WRMC.Infrastructure.UnitOfWork;
+using WRMC.Server.Extensions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WRMC.Server.Controllers
 {
@@ -336,35 +338,26 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateDatabase(string id)
         {
-            try
-            {
 
 
-            if (string.IsNullOrWhiteSpace(id))
-                return BadRequest(await Result.FailAsync("Invalid request id."));
+                if (string.IsNullOrWhiteSpace(id))
+                    return BadRequest(await Result.FailAsync("Invalid request id."));
 
-            var tenant = await _unitOfWork.Tenants.FindAsync(Guid.Parse(id));
-            if (tenant is null)
-                return NotFound(await Result.FailAsync("Tenant not found."));
+                var tenant = await _unitOfWork.Tenants.FindAsync(Guid.Parse(id));
+                if (tenant is null)
+                    return NotFound(await Result.FailAsync("Tenant not found."));
 
-            tenant.ConnectionString = string.Format(tenant.ConnectionString, id);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+                tenant.ConnectionString = string.Format(tenant.ConnectionString, id);
+                await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-            _unitOfWork.TenantDbContext.Database.SetConnectionString(tenant.ConnectionString);
-            TenantDbContext.ConnectionString = tenant.ConnectionString;
-            var result = await _unitOfWork.TenantDbContext.Database.EnsureCreatedAsync();
-            if (result)
-                return Ok(await Result.SuccessAsync("Database created successfully."));
-            else
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync("Create database failed."));
-
-            }
-            catch (Exception ex)
-            {
-
-            }
-
-
+                _unitOfWork.TenantDbContext.Database.SetConnectionString(tenant.ConnectionString);
+                TenantDbContext.ConnectionString = tenant.ConnectionString;
+                var result = await _unitOfWork.TenantDbContext.Database.EnsureCreatedAsync();
+                if (result)
+                    return Ok(await Result.SuccessAsync("Database created successfully."));
+                else
+                    return StatusCode(StatusCodes.Status500InternalServerError,
+                        await Result.FailAsync("Create database failed."));
 
         }
 

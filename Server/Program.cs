@@ -85,7 +85,7 @@ builder.Services.AddScoped<MainHub>();
 #region DbContext
 
 var connectionString = builder.Environment.IsDevelopment() ? builder.Configuration.GetConnectionString("Development_db") : builder.Configuration.GetConnectionString("Production_db");
-builder.Services.AddDbContext<ServerDbContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
+builder.Services.AddDbContext<ServerDbContext>(options => options.UseSqlServer(connectionString).EnableDetailedErrors(builder.Environment.IsDevelopment()), ServiceLifetime.Scoped);
 builder.Services.AddDbContext<TenantDbContext>(options => options.UseSqlServer(), ServiceLifetime.Scoped);
 
 #endregion

@@ -182,17 +182,17 @@ namespace WRMC.Core.Application.DataServices
             return await response.ToResult<bool>();
         }
 
-        public async Task<IResult<bool>> CreateDatabaseAsync(string tenantId)
+        public async Task<IResult> CreateDatabaseAsync(string tenantId)
         {
             if (string.IsNullOrWhiteSpace(tenantId))
-                return await Result<bool>.FailAsync("TenantId is null or empty.");
+                return await Result.FailAsync("TenantId is null or empty.");
 
             var uri = string.Format(EndPoints.TenantController.CreateDataBase, tenantId);
 
 
             var response = await _httpClient.PostAsync(uri, null);
-            var a =  await response.ToResult<bool>();
-            return a;
+            return await response.ToResult();
+             
         }
 
         public async Task<IResult<bool>> MigrateDatabaseAsync(string tenantId)

@@ -26,8 +26,8 @@ namespace WRMC.Core.Shared.Requests
         {
             _tenantValidator = tenantValidator;
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Please specify tenant name")
-                .MustAsync(BeUniqueName).WithMessage("Tenant name already exist");
+                .NotEmpty().WithMessage("Please specify tenant name");
+                //.MustAsync(BeUniqueName).WithMessage("Tenant name already exist");
 
             RuleFor(x => x.ConnectionString).NotEmpty().WithMessage("Please specify connection string");
             RuleFor(x => x.ExpireDate).NotEmpty().WithMessage("This field is required");
