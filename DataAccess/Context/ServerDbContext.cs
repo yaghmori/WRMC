@@ -3,12 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using WRMC.Infrastructure.Domain.Entities;
-using BCrypt.Net;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection.Emit;
-using WRMC.Core.Shared.Responses;
 using WRMC.Core.Shared.Constants;
+using WRMC.Infrastructure.Domain.Entities;
 
 namespace WRMC.Infrastructure.DataAccess.Context
 {
@@ -477,37 +473,37 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 b.Property(x => x.TobaccoPriorFreq).HasColumnOrder(29);
                 b.Property(x => x.TobaccoTotalYears).HasColumnOrder(30);
                 b.Property(x => x.UseDrugs).HasColumnOrder(31);
-                b.Property(x => x.DrugsQuitDate).HasColumnOrder(31);
-                b.Property(x => x.DrugFrequency).HasColumnOrder(32);
-                b.Property(x => x.DrugsTotalYears).HasColumnOrder(33);
-                b.Property(x => x.BirthsQty).HasColumnOrder(34);
-                b.Property(x => x.MiscarriageQty).HasColumnOrder(35);
-                b.Property(x => x.AbortionQty).HasColumnOrder(36);
-                b.Property(x => x.AbortionType).HasColumnOrder(37);
-                b.Property(x => x.AbortionDate).HasColumnOrder(38);
-                b.Property(x => x.AbortionIssues).HasColumnOrder(39);
-                b.Property(x => x.HavePlanB).HasColumnOrder(40);
-                b.Property(x => x.PlanBQty).HasColumnOrder(41);
-                b.Property(x => x.LastPlanBDate).HasColumnOrder(42);
-                b.Property(x => x.HaveBirthControl).HasColumnOrder(43);
-                b.Property(x => x.BirthControlEnd).HasColumnOrder(44);
-                b.Property(x => x.BirthControlType).HasColumnOrder(45);
-                b.Property(x => x.OtherBirthControlType).HasColumnOrder(46);
-                b.Property(x => x.BirthControlLong).HasColumnOrder(47);
-                b.Property(x => x.SexualActive).HasColumnOrder(48);
-                b.Property(x => x.SexualPartners).HasColumnOrder(49);
-                b.Property(x => x.HaveStdTest).HasColumnOrder(50);
-                b.Property(x => x.StdTypes).HasColumnOrder(51);
-                b.Property(x => x.StdTestDate).HasColumnOrder(52);
-                b.Property(x => x.StdTestResult).HasColumnOrder(53);
-                b.Property(x => x.HaveTreatment).HasColumnOrder(54);
-                b.Property(x => x.PartnerNotified).HasColumnOrder(55);
-                b.Property(x => x.AdversePrenatal).HasColumnOrder(56);
-                b.Property(x => x.HaveRapeAbuse).HasColumnOrder(57);
-                b.Property(x => x.RapeAbuseNotes).HasColumnOrder(58);
-                b.Property(x => x.Intentions).HasColumnOrder(59);
-                b.Property(x => x.AdoptionOption).HasColumnOrder(60);
-                b.Property(x => x.AbortionRisk).HasColumnOrder(61);
+                b.Property(x => x.DrugsQuitDate).HasColumnOrder(32);
+                b.Property(x => x.DrugFrequency).HasColumnOrder(33);
+                b.Property(x => x.DrugsTotalYears).HasColumnOrder(34);
+                b.Property(x => x.BirthsQty).HasColumnOrder(35);
+                b.Property(x => x.MiscarriageQty).HasColumnOrder(36);
+                b.Property(x => x.AbortionQty).HasColumnOrder(37);
+                b.Property(x => x.AbortionType).HasColumnOrder(38);
+                b.Property(x => x.AbortionDate).HasColumnOrder(39);
+                b.Property(x => x.AbortionIssues).HasColumnOrder(40);
+                b.Property(x => x.HavePlanB).HasColumnOrder(41);
+                b.Property(x => x.PlanBQty).HasColumnOrder(42);
+                b.Property(x => x.LastPlanBDate).HasColumnOrder(43);
+                b.Property(x => x.HaveBirthControl).HasColumnOrder(44);
+                b.Property(x => x.BirthControlEnd).HasColumnOrder(45);
+                b.Property(x => x.BirthControlType).HasColumnOrder(46);
+                b.Property(x => x.OtherBirthControlType).HasColumnOrder(47);
+                b.Property(x => x.BirthControlLong).HasColumnOrder(48);
+                b.Property(x => x.SexualActive).HasColumnOrder(49);
+                b.Property(x => x.SexualPartners).HasColumnOrder(50);
+                b.Property(x => x.HaveStdTest).HasColumnOrder(51);
+                b.Property(x => x.StdTypes).HasColumnOrder(52);
+                b.Property(x => x.StdTestDate).HasColumnOrder(53);
+                b.Property(x => x.StdTestResult).HasColumnOrder(54);
+                b.Property(x => x.HaveTreatment).HasColumnOrder(55);
+                b.Property(x => x.PartnerNotified).HasColumnOrder(56);
+                b.Property(x => x.AdversePrenatal).HasColumnOrder(57);
+                b.Property(x => x.HaveRapeAbuse).HasColumnOrder(58);
+                b.Property(x => x.RapeAbuseNotes).HasColumnOrder(59);
+                b.Property(x => x.Intentions).HasColumnOrder(60);
+                b.Property(x => x.AdoptionOption).HasColumnOrder(61);
+                b.Property(x => x.AbortionRisk).HasColumnOrder(62);
 
                 #endregion
             });
@@ -590,6 +586,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
             builder.Entity<Case>(b =>
             {
                 b.HasQueryFilter(x => x.IsDeleted == false);
+                b.HasOne(e => e.User).WithMany(e => e.Cases).HasForeignKey(e => e.UserId);
 
                 #region Column Order
 

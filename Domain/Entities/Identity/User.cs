@@ -9,7 +9,7 @@ namespace WRMC.Infrastructure.Domain.Entities
         {
 
         }
-        public string DefaultTenantId { get; set; }
+        public string? DefaultTenantId { get; set; }
         public string? EmailToken { get; set; }
         public DateTime? EmailTokenExpires { get; set; }
         public string? PhoneNumberToken { get; set; }

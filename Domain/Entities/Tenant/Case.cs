@@ -11,6 +11,6 @@ public class Case : BaseEntity<Guid>
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public string? Description { get; set; }
-    public virtual User User { get; set; }
+    public virtual User? User { get; set; }
     public virtual ICollection<Visit> Visits { get; set; } = new List<Visit>();
 }

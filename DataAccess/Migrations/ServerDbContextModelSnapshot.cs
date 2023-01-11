@@ -84,11 +84,80 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e2acb5e1-dc2c-41fc-9b54-c4a8e15b083e"),
+                            Id = new Guid("9cf65d6c-5411-4d44-a846-b1f61bc4e972"),
                             IsDeleted = false,
                             Key = "DefaultConnectionString",
                             Value = "Server=.;Database={0};Integrated Security = True;"
                         });
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Case", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("CaseNo")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(3);
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeletedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(7);
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(6);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(5);
+
+                    b.Property<short>("Status")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(4);
+
+                    b.Property<Guid?>("UserId")
+                        .IsRequired()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(2);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Cases");
                 });
 
             modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Culture", b =>
@@ -207,7 +276,7 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("7e47fe89-6571-4cbc-b5b7-16614d1dad22"),
+                            Id = new Guid("6db2b218-567e-4266-8782-78be093250b4"),
                             CultureName = "en-US",
                             DateSeparator = "/",
                             DisplayName = "English",
@@ -227,7 +296,7 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                         },
                         new
                         {
-                            Id = new Guid("bfa9f00f-05d8-45fb-86af-b6d84a70d88b"),
+                            Id = new Guid("a7db5686-c621-413c-8fba-496652f07b20"),
                             CultureName = "fa-IR",
                             DateSeparator = "/",
                             DisplayName = "فارسی",
@@ -245,6 +314,2194 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                             TimeSeparator = ":",
                             YearMonthPattern = "MMMM, yyyy"
                         });
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.DemographicIntake", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(1);
+
+                    b.Property<bool?>("AffordPrenatal")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(26);
+
+                    b.Property<bool?>("CombinedIncome")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(17);
+
+                    b.Property<bool?>("ConduciveRaising")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(28);
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeletedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("Disabled")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(24);
+
+                    b.Property<string>("Employer")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(14);
+
+                    b.Property<short?>("Employment")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(13);
+
+                    b.Property<string>("FinancialSupport")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(25);
+
+                    b.Property<bool?>("HaveInsurance")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(18);
+
+                    b.Property<bool?>("HidePregnancy")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(29);
+
+                    b.Property<short?>("ImmigrationStatus")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(11);
+
+                    b.Property<bool?>("InSchool")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(6);
+
+                    b.Property<short?>("Income")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(16);
+
+                    b.Property<short?>("InsuranceName")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(19);
+
+                    b.Property<bool>("IsComplete")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(4);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsUSCitizen")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(10);
+
+                    b.Property<short?>("LastGrade")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(7);
+
+                    b.Property<short?>("LivingArrangement")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(12);
+
+                    b.Property<short?>("MaritalStatus")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(9);
+
+                    b.Property<string>("MedicaidNo")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(20);
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("NeedInsurance")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(21);
+
+                    b.Property<short?>("NumberOfHousehold")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(23);
+
+                    b.Property<short?>("NumberOfTaxReturn")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(22);
+
+                    b.Property<string>("Occupation")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(15);
+
+                    b.Property<int?>("RegionId")
+                        .HasColumnType("int")
+                        .HasColumnOrder(5);
+
+                    b.Property<string>("SchoolName")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(8);
+
+                    b.Property<Guid?>("TaskId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(3);
+
+                    b.Property<bool?>("UndueBurden")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(27);
+
+                    b.Property<Guid?>("VisitId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(2);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RegionId");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasIndex("VisitId");
+
+                    b.ToTable("DemographicIntakes");
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.IntroMethod", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdditionalInfoLabel")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(9);
+
+                    b.Property<bool>("AdditionalInfoRequired")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(8);
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeletedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(7);
+
+                    b.Property<string>("DisplayTitle")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(6);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(5);
+
+                    b.Property<short>("Order")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(4);
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int")
+                        .HasColumnOrder(2);
+
+                    b.Property<short>("Type")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(3);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("IntroMethods");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AdditionalInfoRequired = false,
+                            Description = "Advertisement",
+                            DisplayTitle = "Advertisement",
+                            IsDeleted = false,
+                            Name = "Advertisement",
+                            Order = (short)1,
+                            Type = (short)0
+                        },
+                        new
+                        {
+                            Id = 10,
+                            AdditionalInfoRequired = false,
+                            Description = "Medical Referrals",
+                            DisplayTitle = "Medical Referrals",
+                            IsDeleted = false,
+                            Name = "MedicalReferrals",
+                            Order = (short)2,
+                            Type = (short)0
+                        },
+                        new
+                        {
+                            Id = 11,
+                            AdditionalInfoRequired = false,
+                            Description = "Government Agencies",
+                            DisplayTitle = "Government Agencies",
+                            IsDeleted = false,
+                            Name = "GovernmentAgencies",
+                            Order = (short)3,
+                            Type = (short)0
+                        },
+                        new
+                        {
+                            Id = 12,
+                            AdditionalInfoRequired = false,
+                            Description = "Alcohol/Drug Rehabs",
+                            DisplayTitle = "Alcohol/Drug Rehabs",
+                            IsDeleted = false,
+                            Name = "AlcoholDrugRehabs",
+                            Order = (short)4,
+                            Type = (short)0
+                        },
+                        new
+                        {
+                            Id = 13,
+                            AdditionalInfoRequired = false,
+                            Description = "Shelters",
+                            DisplayTitle = "Shelters",
+                            IsDeleted = false,
+                            Name = "Shelters",
+                            Order = (short)5,
+                            Type = (short)0
+                        },
+                        new
+                        {
+                            Id = 14,
+                            AdditionalInfoRequired = false,
+                            Description = "Church Referral",
+                            DisplayTitle = "Church Referral",
+                            IsDeleted = false,
+                            Name = "ChurchReferral",
+                            Order = (short)6,
+                            Type = (short)0
+                        },
+                        new
+                        {
+                            Id = 15,
+                            AdditionalInfoRequired = false,
+                            Description = "Abortion Clinic",
+                            DisplayTitle = "Abortion Clinic",
+                            IsDeleted = false,
+                            Name = "AbortionClinic",
+                            Order = (short)7,
+                            Type = (short)0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AdditionalInfoRequired = false,
+                            Description = "Friends/Relatives/Partner",
+                            DisplayTitle = "Friends/Relatives/Partner",
+                            IsDeleted = false,
+                            Name = "FriendsRelativesPartner",
+                            Order = (short)8,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AdditionalInfoRequired = false,
+                            Description = "Repeat Client",
+                            DisplayTitle = "Repeat Client",
+                            IsDeleted = false,
+                            Name = "RepeatClient",
+                            Order = (short)9,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 4,
+                            AdditionalInfoRequired = false,
+                            Description = "Walk-in/Passer By",
+                            DisplayTitle = "Walk-in/Passer By",
+                            IsDeleted = false,
+                            Name = "WalkInPasserBy",
+                            Order = (short)10,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            AdditionalInfoRequired = false,
+                            Description = "Crisis Pregnancy Centers",
+                            DisplayTitle = "Crisis Pregnancy Centers",
+                            IsDeleted = false,
+                            Name = "CrisisPregnancyCenters",
+                            Order = (short)11,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 6,
+                            AdditionalInfoRequired = false,
+                            Description = "Option United",
+                            DisplayTitle = "Option United",
+                            IsDeleted = false,
+                            Name = "OptionUnited",
+                            Order = (short)12,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 7,
+                            AdditionalInfoRequired = false,
+                            Description = "Community Event",
+                            DisplayTitle = "Community Event",
+                            IsDeleted = false,
+                            Name = "CommunityEvent",
+                            Order = (short)13,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 8,
+                            AdditionalInfoRequired = false,
+                            Description = "Church Event",
+                            DisplayTitle = "Church Event",
+                            IsDeleted = false,
+                            Name = "ChurchEvent",
+                            Order = (short)14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 9,
+                            AdditionalInfoRequired = false,
+                            Description = "Baby First Services",
+                            DisplayTitle = "Baby First Services",
+                            IsDeleted = false,
+                            Name = "BabyFirstServices",
+                            Order = (short)15,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 16,
+                            AdditionalInfoRequired = false,
+                            Description = "Help of Southern Nevada",
+                            DisplayTitle = "Help of Southern Nevada",
+                            IsDeleted = false,
+                            Name = "HelpOfSouthernNevada",
+                            Order = (short)16,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 20,
+                            AdditionalInfoLabel = "TV Station",
+                            AdditionalInfoRequired = true,
+                            Description = "TV Commercial",
+                            DisplayTitle = "TV Commercial",
+                            IsDeleted = false,
+                            Name = "TVCommercial",
+                            Order = (short)1,
+                            ParentId = 1,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 21,
+                            AdditionalInfoRequired = false,
+                            Description = "Radio Advertisement",
+                            DisplayTitle = "Radio Advertisement",
+                            IsDeleted = false,
+                            Name = "RadioAdvertisement",
+                            Order = (short)2,
+                            ParentId = 1,
+                            Type = (short)1
+                        },
+                        new
+                        {
+                            Id = 24,
+                            AdditionalInfoRequired = false,
+                            Description = "Social Media",
+                            DisplayTitle = "Social Media",
+                            IsDeleted = false,
+                            Name = "SocialMedia",
+                            Order = (short)3,
+                            ParentId = 1,
+                            Type = (short)1
+                        },
+                        new
+                        {
+                            Id = 17,
+                            AdditionalInfoRequired = false,
+                            Description = "Billboards",
+                            DisplayTitle = "Billboards",
+                            IsDeleted = false,
+                            Name = "Billboards",
+                            Order = (short)4,
+                            ParentId = 1,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 18,
+                            AdditionalInfoRequired = false,
+                            Description = "Bus Stop Fillers",
+                            DisplayTitle = "Bus Stop Fillers",
+                            IsDeleted = false,
+                            Name = "BusStopFillers",
+                            Order = (short)5,
+                            ParentId = 1,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 19,
+                            AdditionalInfoRequired = false,
+                            Description = "Phone book/Directories",
+                            DisplayTitle = "Phone book/Directories",
+                            IsDeleted = false,
+                            Name = "PhoneBookDirectories",
+                            Order = (short)6,
+                            ParentId = 1,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 22,
+                            AdditionalInfoRequired = false,
+                            Description = "Flyers",
+                            DisplayTitle = "Flyers",
+                            IsDeleted = false,
+                            Name = "Flyers",
+                            Order = (short)7,
+                            ParentId = 1,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 23,
+                            AdditionalInfoRequired = false,
+                            Description = "Newspaper",
+                            DisplayTitle = "Newspaper",
+                            IsDeleted = false,
+                            Name = "Newspaper",
+                            Order = (short)8,
+                            ParentId = 1,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 25,
+                            AdditionalInfoLabel = "Radio Station",
+                            AdditionalInfoRequired = true,
+                            Description = "Secular",
+                            DisplayTitle = "Secular Radio",
+                            IsDeleted = false,
+                            Name = "SecularRadio",
+                            Order = (short)1,
+                            ParentId = 21,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 26,
+                            AdditionalInfoLabel = "Radio Station",
+                            AdditionalInfoRequired = true,
+                            Description = "Christian",
+                            DisplayTitle = "Christian Radio",
+                            IsDeleted = false,
+                            Name = "ChristianRadio",
+                            Order = (short)2,
+                            ParentId = 21,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 27,
+                            AdditionalInfoRequired = false,
+                            Description = "Google Ads",
+                            DisplayTitle = "Google Ads",
+                            IsDeleted = false,
+                            Name = "GoogleAds",
+                            Order = (short)1,
+                            ParentId = 24,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 28,
+                            AdditionalInfoRequired = false,
+                            Description = "Facebook",
+                            DisplayTitle = "Facebook",
+                            IsDeleted = false,
+                            Name = "Facebook",
+                            Order = (short)2,
+                            ParentId = 24,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 29,
+                            AdditionalInfoRequired = false,
+                            Description = "Yelp",
+                            DisplayTitle = "Yelp",
+                            IsDeleted = false,
+                            Name = "Yelp",
+                            Order = (short)3,
+                            ParentId = 24,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 30,
+                            AdditionalInfoRequired = false,
+                            Description = "Instagram",
+                            DisplayTitle = "Instagram",
+                            IsDeleted = false,
+                            Name = "Instagram",
+                            Order = (short)4,
+                            ParentId = 24,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 31,
+                            AdditionalInfoRequired = false,
+                            Description = "Twitter",
+                            DisplayTitle = "Twitter",
+                            IsDeleted = false,
+                            Name = "Twitter",
+                            Order = (short)5,
+                            ParentId = 24,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 32,
+                            AdditionalInfoRequired = false,
+                            Description = "Game Apps",
+                            DisplayTitle = "Game Apps",
+                            IsDeleted = false,
+                            Name = "GameApps",
+                            Order = (short)6,
+                            ParentId = 24,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 33,
+                            AdditionalInfoRequired = false,
+                            Description = "Tinder",
+                            DisplayTitle = "Tinder",
+                            IsDeleted = false,
+                            Name = "Tinder",
+                            Order = (short)7,
+                            ParentId = 24,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 34,
+                            AdditionalInfoRequired = false,
+                            Description = "Signage",
+                            DisplayTitle = "Signage",
+                            IsDeleted = false,
+                            Name = "Signage",
+                            Order = (short)8,
+                            ParentId = 24,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 35,
+                            AdditionalInfoRequired = false,
+                            Description = "Medical Mobile Unit Sign",
+                            DisplayTitle = "Medical Mobile Unit Sign",
+                            IsDeleted = false,
+                            Name = "MedicalMobileUnitSign",
+                            Order = (short)9,
+                            ParentId = 24,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 36,
+                            AdditionalInfoRequired = false,
+                            Description = "Dr. Sauter",
+                            DisplayTitle = "Dr. Sauter",
+                            IsDeleted = false,
+                            Name = "DrSauter",
+                            Order = (short)1,
+                            ParentId = 10,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 37,
+                            AdditionalInfoRequired = false,
+                            Description = "Dr. Herrero",
+                            DisplayTitle = "Dr. Herrero",
+                            IsDeleted = false,
+                            Name = "DrHerrero",
+                            Order = (short)2,
+                            ParentId = 10,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 38,
+                            AdditionalInfoRequired = false,
+                            Description = "Dr. Strebel",
+                            DisplayTitle = "Dr. Strebel",
+                            IsDeleted = false,
+                            Name = "DrStrebel",
+                            Order = (short)3,
+                            ParentId = 10,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 39,
+                            AdditionalInfoRequired = false,
+                            Description = "UNLV Medicine",
+                            DisplayTitle = "UNLV Medicine",
+                            IsDeleted = false,
+                            Name = "UNLVMedicine",
+                            Order = (short)4,
+                            ParentId = 10,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 40,
+                            AdditionalInfoRequired = false,
+                            Description = "Baby Steps UMC",
+                            DisplayTitle = "Baby Steps UMC",
+                            IsDeleted = false,
+                            Name = "BabyStepsUMC",
+                            Order = (short)5,
+                            ParentId = 10,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 41,
+                            AdditionalInfoRequired = false,
+                            Description = "Sunny Babies",
+                            DisplayTitle = "Sunny Babies",
+                            IsDeleted = false,
+                            Name = "SunnyBabies",
+                            Order = (short)6,
+                            ParentId = 10,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 42,
+                            AdditionalInfoRequired = false,
+                            Description = "Mountain View Hospital",
+                            DisplayTitle = "Mountain View Hospital",
+                            IsDeleted = false,
+                            Name = "MountainViewHospital",
+                            Order = (short)7,
+                            ParentId = 10,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 43,
+                            AdditionalInfoRequired = false,
+                            Description = "Health Department",
+                            DisplayTitle = "Health Department",
+                            IsDeleted = false,
+                            Name = "HealthDepartment",
+                            Order = (short)8,
+                            ParentId = 10,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 44,
+                            AdditionalInfoRequired = false,
+                            Description = "Welfare",
+                            DisplayTitle = "Welfare",
+                            IsDeleted = false,
+                            Name = "Welfare",
+                            Order = (short)1,
+                            ParentId = 11,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 45,
+                            AdditionalInfoRequired = false,
+                            Description = "Medicaid",
+                            DisplayTitle = "Medicaid",
+                            IsDeleted = false,
+                            Name = "Medicaid",
+                            Order = (short)2,
+                            ParentId = 11,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 46,
+                            AdditionalInfoRequired = false,
+                            Description = "WIC",
+                            DisplayTitle = "WIC",
+                            IsDeleted = false,
+                            Name = "WIC",
+                            Order = (short)3,
+                            ParentId = 11,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 47,
+                            AdditionalInfoRequired = false,
+                            Description = "Department of Child and Family Services",
+                            DisplayTitle = "Department of Child and Family Services",
+                            IsDeleted = false,
+                            Name = "ChildFamilyServices",
+                            Order = (short)4,
+                            ParentId = 11,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 48,
+                            AdditionalInfoRequired = false,
+                            Description = "Nevada 211",
+                            DisplayTitle = "Nevada 211",
+                            IsDeleted = false,
+                            Name = "Nevada211",
+                            Order = (short)5,
+                            ParentId = 11,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 49,
+                            AdditionalInfoRequired = false,
+                            Description = "West Care Rehab",
+                            DisplayTitle = "West Care Rehab",
+                            IsDeleted = false,
+                            Name = "WestCareRehab",
+                            Order = (short)1,
+                            ParentId = 12,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 50,
+                            AdditionalInfoRequired = false,
+                            Description = "Center for Behavioral Health",
+                            DisplayTitle = "Center for Behavioral Health",
+                            IsDeleted = false,
+                            Name = "CenterForBehavioralHealth",
+                            Order = (short)2,
+                            ParentId = 12,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 51,
+                            AdditionalInfoRequired = false,
+                            Description = "Other",
+                            DisplayTitle = "Other",
+                            IsDeleted = false,
+                            Name = "OtherAlcoholDrugRehabs",
+                            Order = (short)3,
+                            ParentId = 12,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 52,
+                            AdditionalInfoRequired = false,
+                            Description = "Las Vegas Rescue Mission",
+                            DisplayTitle = "Las Vegas Rescue Mission",
+                            IsDeleted = false,
+                            Name = "LasVegasRescueMission",
+                            Order = (short)1,
+                            ParentId = 13,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 53,
+                            AdditionalInfoRequired = false,
+                            Description = "Shade Tree",
+                            DisplayTitle = "Shade Tree",
+                            IsDeleted = false,
+                            Name = "ShadeTree",
+                            Order = (short)2,
+                            ParentId = 13,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 54,
+                            AdditionalInfoRequired = false,
+                            Description = "SafeNest",
+                            DisplayTitle = "SafeNest",
+                            IsDeleted = false,
+                            Name = "SafeNest",
+                            Order = (short)3,
+                            ParentId = 13,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 55,
+                            AdditionalInfoRequired = false,
+                            Description = "Nevada Youth Partnership",
+                            DisplayTitle = "Nevada Youth Partnership",
+                            IsDeleted = false,
+                            Name = "NevadaYouthPartnership",
+                            Order = (short)4,
+                            ParentId = 13,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 56,
+                            AdditionalInfoRequired = false,
+                            Description = "Other",
+                            DisplayTitle = "Other",
+                            IsDeleted = false,
+                            Name = "Other",
+                            Order = (short)5,
+                            ParentId = 13,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 57,
+                            AdditionalInfoRequired = false,
+                            Description = "Grace Point Church",
+                            DisplayTitle = "Grace Point Church",
+                            IsDeleted = false,
+                            Name = "Grace Point Church",
+                            Order = (short)1,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 58,
+                            AdditionalInfoRequired = false,
+                            Description = "Green Valley Baptist",
+                            DisplayTitle = "Green Valley Baptist",
+                            IsDeleted = false,
+                            Name = "Green Valley Baptist",
+                            Order = (short)2,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 59,
+                            AdditionalInfoRequired = false,
+                            Description = "Green Valley Christian Center",
+                            DisplayTitle = "Green Valley Christian Center",
+                            IsDeleted = false,
+                            Name = "Green Valley Christian Center",
+                            Order = (short)3,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 60,
+                            AdditionalInfoRequired = false,
+                            Description = "Harvest Life Christian Fellowship",
+                            DisplayTitle = "Harvest Life Christian Fellowship",
+                            IsDeleted = false,
+                            Name = "Harvest Life Christian Fellowship",
+                            Order = (short)4,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 61,
+                            AdditionalInfoRequired = false,
+                            Description = "Highland Hills Baptist",
+                            DisplayTitle = "Highland Hills Baptist",
+                            IsDeleted = false,
+                            Name = "Highland Hills Baptist",
+                            Order = (short)5,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 62,
+                            AdditionalInfoRequired = false,
+                            Description = "Hope Church",
+                            DisplayTitle = "Hope Church",
+                            IsDeleted = false,
+                            Name = "Hope Church",
+                            Order = (short)6,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 63,
+                            AdditionalInfoRequired = false,
+                            Description = "Iglesia Agua Viva",
+                            DisplayTitle = "Iglesia Agua Viva",
+                            IsDeleted = false,
+                            Name = "Iglesia Agua Viva",
+                            Order = (short)7,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 64,
+                            AdditionalInfoRequired = false,
+                            Description = "Iglesia Bautista Pan De Vida",
+                            DisplayTitle = "Iglesia Bautista Pan De Vida",
+                            IsDeleted = false,
+                            Name = "Iglesia Bautista Pan De Vida",
+                            Order = (short)8,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 65,
+                            AdditionalInfoRequired = false,
+                            Description = "International Church of Las Vegas",
+                            DisplayTitle = "International Church of Las Vegas",
+                            IsDeleted = false,
+                            Name = "International Church of Las Vegas",
+                            Order = (short)9,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 66,
+                            AdditionalInfoRequired = false,
+                            Description = "Jesus the Good Shepard Church",
+                            DisplayTitle = "Jesus the Good Shepard Church",
+                            IsDeleted = false,
+                            Name = "Jesus the Good Shepard Church",
+                            Order = (short)10,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 67,
+                            AdditionalInfoRequired = false,
+                            Description = "Lake Mead Church",
+                            DisplayTitle = "Lake Mead Church",
+                            IsDeleted = false,
+                            Name = "Lake Mead Church",
+                            Order = (short)11,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 68,
+                            AdditionalInfoRequired = false,
+                            Description = "Las Vegas Bible Church",
+                            DisplayTitle = "Las Vegas Bible Church",
+                            IsDeleted = false,
+                            Name = "Las Vegas Bible Church",
+                            Order = (short)12,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 69,
+                            AdditionalInfoRequired = false,
+                            Description = "Las Vegas Church of the Nazarene",
+                            DisplayTitle = "Las Vegas Church of the Nazarene",
+                            IsDeleted = false,
+                            Name = "Las Vegas Church of the Nazarene",
+                            Order = (short)13,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 70,
+                            AdditionalInfoRequired = false,
+                            Description = "Life Baptist Church",
+                            DisplayTitle = "Life Baptist Church",
+                            IsDeleted = false,
+                            Name = "Life Baptist Church",
+                            Order = (short)14,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 71,
+                            AdditionalInfoRequired = false,
+                            Description = "Life Springs Christian Church",
+                            DisplayTitle = "Life Springs Christian Church",
+                            IsDeleted = false,
+                            Name = "Life Springs Christian Church",
+                            Order = (short)15,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 72,
+                            AdditionalInfoRequired = false,
+                            Description = "Living Grace Foursquare Church",
+                            DisplayTitle = "Living Grace Foursquare Church",
+                            IsDeleted = false,
+                            Name = "Living Grace Foursquare Church",
+                            Order = (short)16,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 73,
+                            AdditionalInfoRequired = false,
+                            Description = "Meadows Fellowship Christian Church",
+                            DisplayTitle = "Meadows Fellowship Christian Church",
+                            IsDeleted = false,
+                            Name = "Meadows Fellowship Christian Church",
+                            Order = (short)17,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 74,
+                            AdditionalInfoRequired = false,
+                            Description = "Messiah's Christian Fellowship",
+                            DisplayTitle = "Messiah's Christian Fellowship",
+                            IsDeleted = false,
+                            Name = "Messiah's Christian Fellowship",
+                            Order = (short)18,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 75,
+                            AdditionalInfoRequired = false,
+                            Description = "Moapa Christian Church",
+                            DisplayTitle = "Moapa Christian Church",
+                            IsDeleted = false,
+                            Name = "Moapa Christian Church",
+                            Order = (short)19,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 76,
+                            AdditionalInfoRequired = false,
+                            Description = "Mountain View Lutheran Church",
+                            DisplayTitle = "Mountain View Lutheran Church",
+                            IsDeleted = false,
+                            Name = "Mountain View Lutheran Church",
+                            Order = (short)20,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 77,
+                            AdditionalInfoRequired = false,
+                            Description = "Mountaintop Faith Ministries",
+                            DisplayTitle = "Mountaintop Faith Ministries",
+                            IsDeleted = false,
+                            Name = "Mountaintop Faith Ministries",
+                            Order = (short)21,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 78,
+                            AdditionalInfoRequired = false,
+                            Description = "Mt. Charleston Baptist Church",
+                            DisplayTitle = "Mt. Charleston Baptist Church",
+                            IsDeleted = false,
+                            Name = "Mt. Charleston Baptist Church",
+                            Order = (short)22,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 79,
+                            AdditionalInfoRequired = false,
+                            Description = "Neighborhood Church",
+                            DisplayTitle = "Neighborhood Church",
+                            IsDeleted = false,
+                            Name = "Neighborhood Church",
+                            Order = (short)23,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 80,
+                            AdditionalInfoRequired = false,
+                            Description = "Nellis Baptist Church",
+                            DisplayTitle = "Nellis Baptist Church",
+                            IsDeleted = false,
+                            Name = "Nellis Baptist Church",
+                            Order = (short)24,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 81,
+                            AdditionalInfoRequired = false,
+                            Description = "New Day Christian Church",
+                            DisplayTitle = "New Day Christian Church",
+                            IsDeleted = false,
+                            Name = "New Day Christian Church",
+                            Order = (short)25,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 82,
+                            AdditionalInfoRequired = false,
+                            Description = "No church stated",
+                            DisplayTitle = "No church stated",
+                            IsDeleted = false,
+                            Name = "No church stated",
+                            Order = (short)26,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 83,
+                            AdditionalInfoRequired = false,
+                            Description = "North Las Vegas Baptist Church",
+                            DisplayTitle = "North Las Vegas Baptist Church",
+                            IsDeleted = false,
+                            Name = "North Las Vegas Baptist Church",
+                            Order = (short)27,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 84,
+                            AdditionalInfoRequired = false,
+                            Description = "Northstar Baptist Church",
+                            DisplayTitle = "Northstar Baptist Church",
+                            IsDeleted = false,
+                            Name = "Northstar Baptist Church",
+                            Order = (short)28,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 85,
+                            AdditionalInfoRequired = false,
+                            Description = "Oasis Baptist Church",
+                            DisplayTitle = "Oasis Baptist Church",
+                            IsDeleted = false,
+                            Name = "Oasis Baptist Church",
+                            Order = (short)29,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 86,
+                            AdditionalInfoRequired = false,
+                            Description = "Oasis Christian Church",
+                            DisplayTitle = "Oasis Christian Church",
+                            IsDeleted = false,
+                            Name = "Oasis Christian Church",
+                            Order = (short)30,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 87,
+                            AdditionalInfoRequired = false,
+                            Description = "Our Lady of Las Vegas Catholic Church",
+                            DisplayTitle = "Our Lady of Las Vegas Catholic Church",
+                            IsDeleted = false,
+                            Name = "Our Lady of Las Vegas Catholic Church",
+                            Order = (short)31,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 88,
+                            AdditionalInfoRequired = false,
+                            Description = "Our Savior's Lutheran Church",
+                            DisplayTitle = "Our Savior's Lutheran Church",
+                            IsDeleted = false,
+                            Name = "Our Savior's Lutheran Church",
+                            Order = (short)32,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 89,
+                            AdditionalInfoRequired = false,
+                            Description = "Paradise Church",
+                            DisplayTitle = "Paradise Church",
+                            IsDeleted = false,
+                            Name = "Paradise Church",
+                            Order = (short)33,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 90,
+                            AdditionalInfoRequired = false,
+                            Description = "Prince of Peace",
+                            DisplayTitle = "Prince of Peace",
+                            IsDeleted = false,
+                            Name = "Prince of Peace",
+                            Order = (short)34,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 91,
+                            AdditionalInfoRequired = false,
+                            Description = "Providence Reformed Church",
+                            DisplayTitle = "Providence Reformed Church",
+                            IsDeleted = false,
+                            Name = "Providence Reformed Church",
+                            Order = (short)35,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 92,
+                            AdditionalInfoRequired = false,
+                            Description = "Remnant Ministries",
+                            DisplayTitle = "Remnant Ministries",
+                            IsDeleted = false,
+                            Name = "Remnant Ministries",
+                            Order = (short)36,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 93,
+                            AdditionalInfoRequired = false,
+                            Description = "Shadow Hills Church",
+                            DisplayTitle = "Shadow Hills Church",
+                            IsDeleted = false,
+                            Name = "Shadow Hills Church",
+                            Order = (short)37,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 94,
+                            AdditionalInfoRequired = false,
+                            Description = "South Hills Church Community",
+                            DisplayTitle = "South Hills Church Community",
+                            IsDeleted = false,
+                            Name = "South Hills Church Community",
+                            Order = (short)38,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 95,
+                            AdditionalInfoRequired = false,
+                            Description = "Southern Hills Baptist Church",
+                            DisplayTitle = "Southern Hills Baptist Church",
+                            IsDeleted = false,
+                            Name = "Southern Hills Baptist Church",
+                            Order = (short)39,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 96,
+                            AdditionalInfoRequired = false,
+                            Description = "Spring Valley Baptist Church",
+                            DisplayTitle = "Spring Valley Baptist Church",
+                            IsDeleted = false,
+                            Name = "Spring Valley Baptist Church",
+                            Order = (short)40,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 97,
+                            AdditionalInfoRequired = false,
+                            Description = "St. Anthony of Padua Catholic Church",
+                            DisplayTitle = "St. Anthony of Padua Catholic Church",
+                            IsDeleted = false,
+                            Name = "St. Anthony of Padua Catholic Church",
+                            Order = (short)41,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 98,
+                            AdditionalInfoRequired = false,
+                            Description = "St. Bridget Catholic Church",
+                            DisplayTitle = "St. Bridget Catholic Church",
+                            IsDeleted = false,
+                            Name = "St. Bridget Catholic Church",
+                            Order = (short)42,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 99,
+                            AdditionalInfoRequired = false,
+                            Description = "St. Francis of Assisi Catholic Church",
+                            DisplayTitle = "St. Francis of Assisi Catholic Church",
+                            IsDeleted = false,
+                            Name = "St. Francis of Assisi Catholic Church",
+                            Order = (short)43,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 100,
+                            AdditionalInfoRequired = false,
+                            Description = "St. John Neumann Roman Catholic Church",
+                            DisplayTitle = "St. John Neumann Roman Catholic Church",
+                            IsDeleted = false,
+                            Name = "St. John Neumann Roman Catholic Church",
+                            Order = (short)44,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 101,
+                            AdditionalInfoRequired = false,
+                            Description = "St. Joseph Husband of Mary Catholic Church",
+                            DisplayTitle = "St. Joseph Husband of Mary Catholic Church",
+                            IsDeleted = false,
+                            Name = "St. Joseph Husband of Mary Catholic Church",
+                            Order = (short)45,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 102,
+                            AdditionalInfoRequired = false,
+                            Description = "St. Thomas Moore Catholic Church",
+                            DisplayTitle = "St. Thomas Moore Catholic Church",
+                            IsDeleted = false,
+                            Name = "St. Thomas Moore Catholic Church",
+                            Order = (short)46,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 103,
+                            AdditionalInfoRequired = false,
+                            Description = "St. Viator's",
+                            DisplayTitle = "St. Viator's",
+                            IsDeleted = false,
+                            Name = "St. Viator's",
+                            Order = (short)47,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 104,
+                            AdditionalInfoRequired = false,
+                            Description = "Summerlin Community Church",
+                            DisplayTitle = "Summerlin Community Church",
+                            IsDeleted = false,
+                            Name = "Summerlin Community Church",
+                            Order = (short)48,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 105,
+                            AdditionalInfoRequired = false,
+                            Description = "The Church @ Lake Mead",
+                            DisplayTitle = "The Church @ Lake Mead",
+                            IsDeleted = false,
+                            Name = "The Church @ Lake Mead",
+                            Order = (short)49,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 106,
+                            AdditionalInfoRequired = false,
+                            Description = "The Church Las Vegas",
+                            DisplayTitle = "The Church Las Vegas",
+                            IsDeleted = false,
+                            Name = "The Church Las Vegas",
+                            Order = (short)50,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 107,
+                            AdditionalInfoRequired = false,
+                            Description = "The Crossing Church",
+                            DisplayTitle = "The Crossing Church",
+                            IsDeleted = false,
+                            Name = "The Crossing Church",
+                            Order = (short)51,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 108,
+                            AdditionalInfoRequired = false,
+                            Description = "The River A Christian Church",
+                            DisplayTitle = "The River A Christian Church",
+                            IsDeleted = false,
+                            Name = "The River A Christian Church",
+                            Order = (short)52,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 109,
+                            AdditionalInfoRequired = false,
+                            Description = "Trinity Life",
+                            DisplayTitle = "Trinity Life",
+                            IsDeleted = false,
+                            Name = "Trinity Life",
+                            Order = (short)53,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 110,
+                            AdditionalInfoRequired = false,
+                            Description = "Trinity Life",
+                            DisplayTitle = "Trinity Life",
+                            IsDeleted = false,
+                            Name = "Trinity Life",
+                            Order = (short)54,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 111,
+                            AdditionalInfoRequired = false,
+                            Description = "Twin Lakes Baptist Church",
+                            DisplayTitle = "Twin Lakes Baptist Church",
+                            IsDeleted = false,
+                            Name = "Twin Lakes Baptist Church",
+                            Order = (short)55,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 112,
+                            AdditionalInfoRequired = false,
+                            Description = "Valley Vegas Church",
+                            DisplayTitle = "Valley Vegas Church",
+                            IsDeleted = false,
+                            Name = "Valley Vegas Church",
+                            Order = (short)56,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 113,
+                            AdditionalInfoRequired = false,
+                            Description = "Wagon Wheel Missionary Baptist",
+                            DisplayTitle = "Wagon Wheel Missionary Baptist",
+                            IsDeleted = false,
+                            Name = "Wagon Wheel Missionary Baptist",
+                            Order = (short)57,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 114,
+                            AdditionalInfoRequired = false,
+                            Description = "Word of Life",
+                            DisplayTitle = "Word of Life",
+                            IsDeleted = false,
+                            Name = "Word of Life",
+                            Order = (short)58,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 115,
+                            AdditionalInfoRequired = false,
+                            Description = "Calvary Chapel Las Vegas",
+                            DisplayTitle = "Calvary Chapel Las Vegas",
+                            IsDeleted = false,
+                            Name = "Calvary Chapel Las Vegas",
+                            Order = (short)59,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 116,
+                            AdditionalInfoRequired = false,
+                            Description = "Calvary Chapel Lone Mountain",
+                            DisplayTitle = "Calvary Chapel Lone Mountain",
+                            IsDeleted = false,
+                            Name = "Calvary Chapel Lone Mountain",
+                            Order = (short)60,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 117,
+                            AdditionalInfoRequired = false,
+                            Description = "Calvary Chapel Henderson",
+                            DisplayTitle = "Calvary Chapel Henderson",
+                            IsDeleted = false,
+                            Name = "Calvary Chapel Henderson",
+                            Order = (short)61,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 118,
+                            AdditionalInfoRequired = false,
+                            Description = "Calvary Chapel Boulder City",
+                            DisplayTitle = "Calvary Chapel Boulder City",
+                            IsDeleted = false,
+                            Name = "Calvary Chapel Boulder City",
+                            Order = (short)62,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 119,
+                            AdditionalInfoRequired = false,
+                            Description = "Cornerstone Church",
+                            DisplayTitle = "Cornerstone Church",
+                            IsDeleted = false,
+                            Name = "Cornerstone Church",
+                            Order = (short)63,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 120,
+                            AdditionalInfoRequired = false,
+                            Description = "Canyon Ridge Church",
+                            DisplayTitle = "Canyon Ridge Church",
+                            IsDeleted = false,
+                            Name = "Canyon Ridge Church",
+                            Order = (short)64,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 121,
+                            AdditionalInfoRequired = false,
+                            Description = "Oasis Church",
+                            DisplayTitle = "Oasis Church",
+                            IsDeleted = false,
+                            Name = "Oasis Church",
+                            Order = (short)65,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 122,
+                            AdditionalInfoRequired = false,
+                            Description = "Life Church",
+                            DisplayTitle = "Life Church",
+                            IsDeleted = false,
+                            Name = "Life Church",
+                            Order = (short)66,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 123,
+                            AdditionalInfoRequired = false,
+                            Description = "Hope Church",
+                            DisplayTitle = "Hope Church",
+                            IsDeleted = false,
+                            Name = "Hope Church",
+                            Order = (short)67,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 124,
+                            AdditionalInfoRequired = false,
+                            Description = "Meadow Mesa",
+                            DisplayTitle = "Meadow Mesa",
+                            IsDeleted = false,
+                            Name = "Meadow Mesa",
+                            Order = (short)68,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 125,
+                            AdditionalInfoRequired = false,
+                            Description = "Walk Church",
+                            DisplayTitle = "Walk Church",
+                            IsDeleted = false,
+                            Name = "Walk Church",
+                            Order = (short)69,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 126,
+                            AdditionalInfoRequired = false,
+                            Description = "The Crossing",
+                            DisplayTitle = "The Crossing",
+                            IsDeleted = false,
+                            Name = "The Crossing",
+                            Order = (short)70,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 127,
+                            AdditionalInfoRequired = false,
+                            Description = "Bethany Baptist",
+                            DisplayTitle = "Bethany Baptist",
+                            IsDeleted = false,
+                            Name = "Bethany Baptist",
+                            Order = (short)71,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 128,
+                            AdditionalInfoRequired = false,
+                            Description = "Faith Lutheran",
+                            DisplayTitle = "Faith Lutheran",
+                            IsDeleted = false,
+                            Name = "Faith Lutheran",
+                            Order = (short)72,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 129,
+                            AdditionalInfoRequired = false,
+                            Description = "St. Joseph Husband of Mary",
+                            DisplayTitle = "St. Joseph Husband of Mary",
+                            IsDeleted = false,
+                            Name = "St. Joseph Husband of Mary",
+                            Order = (short)73,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 130,
+                            AdditionalInfoRequired = false,
+                            Description = "St Thomas Moore",
+                            DisplayTitle = "St Thomas Moore",
+                            IsDeleted = false,
+                            Name = "St Thomas Moore",
+                            Order = (short)74,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 131,
+                            AdditionalInfoRequired = false,
+                            Description = "St. Frances Assisi",
+                            DisplayTitle = "St. Frances Assisi",
+                            IsDeleted = false,
+                            Name = "St. Frances Assisi",
+                            Order = (short)75,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 132,
+                            AdditionalInfoRequired = false,
+                            Description = "Grace Point",
+                            DisplayTitle = "Grace Point",
+                            IsDeleted = false,
+                            Name = "Grace Point",
+                            Order = (short)76,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 133,
+                            AdditionalInfoRequired = false,
+                            Description = "Grace Bible Fellowship",
+                            DisplayTitle = "Grace Bible Fellowship",
+                            IsDeleted = false,
+                            Name = "Grace Bible Fellowship",
+                            Order = (short)77,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 134,
+                            AdditionalInfoRequired = false,
+                            Description = "Anthem Church",
+                            DisplayTitle = "Anthem Church",
+                            IsDeleted = false,
+                            Name = "Anthem Church",
+                            Order = (short)78,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 135,
+                            AdditionalInfoRequired = false,
+                            Description = "Green Valley Baptist",
+                            DisplayTitle = "Green Valley Baptist",
+                            IsDeleted = false,
+                            Name = "Green Valley Baptist",
+                            Order = (short)79,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 136,
+                            AdditionalInfoRequired = false,
+                            Description = "Other",
+                            DisplayTitle = "Other",
+                            IsDeleted = false,
+                            Name = "Other",
+                            Order = (short)80,
+                            ParentId = 14,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 137,
+                            AdditionalInfoRequired = false,
+                            Description = "Planned Parenthood",
+                            DisplayTitle = "Planned Parenthood",
+                            IsDeleted = false,
+                            Name = "Planned Parenthood",
+                            Order = (short)1,
+                            ParentId = 15,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 138,
+                            AdditionalInfoRequired = false,
+                            Description = "Birth Control Center",
+                            DisplayTitle = "Birth Control Center",
+                            IsDeleted = false,
+                            Name = "Birth Control Center",
+                            Order = (short)2,
+                            ParentId = 15,
+                            Type = (short)2
+                        },
+                        new
+                        {
+                            Id = 139,
+                            AdditionalInfoRequired = false,
+                            Description = "Other",
+                            DisplayTitle = "Other",
+                            IsDeleted = false,
+                            Name = "Other",
+                            Order = (short)3,
+                            ParentId = 15,
+                            Type = (short)2
+                        });
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.MedicalIntake", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(1);
+
+                    b.Property<DateTime?>("AbortionDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(39);
+
+                    b.Property<bool?>("AbortionIssues")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(40);
+
+                    b.Property<short?>("AbortionQty")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(37);
+
+                    b.Property<short?>("AbortionRisk")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(62);
+
+                    b.Property<short?>("AbortionType")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(38);
+
+                    b.Property<bool?>("AdoptionOption")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(61);
+
+                    b.Property<bool?>("AdversePrenatal")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(57);
+
+                    b.Property<short?>("AlcoholFrequency")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(23);
+
+                    b.Property<short?>("AlcoholPriorFreq")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(24);
+
+                    b.Property<DateTime?>("AlcoholQuitDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(22);
+
+                    b.Property<short?>("AlcoholTotalYears")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(25);
+
+                    b.Property<DateTime?>("BirthControlEnd")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(45);
+
+                    b.Property<short?>("BirthControlLong")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(48);
+
+                    b.Property<short?>("BirthControlType")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(46);
+
+                    b.Property<short?>("BirthsQty")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(35);
+
+                    b.Property<bool?>("BlackboxMedication")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(18);
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeletedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("DoctorCare")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(15);
+
+                    b.Property<string>("DrugFrequency")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(33);
+
+                    b.Property<DateTime?>("DrugsQuitDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(32);
+
+                    b.Property<short?>("DrugsTotalYears")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(34);
+
+                    b.Property<short?>("FirstMenstrualAge")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(9);
+
+                    b.Property<bool?>("HaveBirthControl")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(44);
+
+                    b.Property<bool?>("HaveNormalPeriod")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(7);
+
+                    b.Property<bool?>("HavePapSmear")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(19);
+
+                    b.Property<bool?>("HavePlanB")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(41);
+
+                    b.Property<bool?>("HaveRapeAbuse")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(58);
+
+                    b.Property<bool?>("HaveStdTest")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(51);
+
+                    b.Property<bool?>("HaveTreatment")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(55);
+
+                    b.Property<short?>("Intentions")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(60);
+
+                    b.Property<bool>("IsComplete")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(4);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsPeriodRemember")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(5);
+
+                    b.Property<DateTime?>("LastExaminationDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(20);
+
+                    b.Property<DateTime?>("LastPeriodDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(6);
+
+                    b.Property<DateTime?>("LastPlanBDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(43);
+
+                    b.Property<DateTime?>("LastSexIntercourse")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(10);
+
+                    b.Property<bool?>("MedicalConditions")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(13);
+
+                    b.Property<string>("MedicalConditionsNote")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(14);
+
+                    b.Property<bool?>("Medication")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(16);
+
+                    b.Property<string>("MedicationType")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(17);
+
+                    b.Property<short?>("MiscarriageQty")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(36);
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NormalPeriodNote")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(8);
+
+                    b.Property<string>("OtherBirthControlType")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(47);
+
+                    b.Property<string>("OtherSymptoms")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(12);
+
+                    b.Property<bool?>("PartnerNotified")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(56);
+
+                    b.Property<short?>("PlanBQty")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(42);
+
+                    b.Property<string>("RapeAbuseNotes")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(59);
+
+                    b.Property<short?>("SexualActive")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(49);
+
+                    b.Property<short?>("SexualPartners")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(50);
+
+                    b.Property<DateTime?>("StdTestDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(53);
+
+                    b.Property<bool?>("StdTestResult")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(54);
+
+                    b.Property<string>("StdTypes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(52);
+
+                    b.Property<string>("Symptoms")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(11);
+
+                    b.Property<Guid?>("TaskId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(3);
+
+                    b.Property<short?>("TobaccoFrequency")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(28);
+
+                    b.Property<short?>("TobaccoPriorFreq")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(29);
+
+                    b.Property<DateTime?>("TobaccoQuitDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(27);
+
+                    b.Property<short?>("TobaccoTotalYears")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(30);
+
+                    b.Property<bool?>("UseAlcohol")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(21);
+
+                    b.Property<bool?>("UseDrugs")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(31);
+
+                    b.Property<bool?>("UseTobacco")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(26);
+
+                    b.Property<Guid?>("VisitId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(2);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasIndex("VisitId");
+
+                    b.ToTable("MedicalIntakes");
                 });
 
             modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Region", b =>
@@ -2820,16 +5077,16 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4"),
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 19, 622, DateTimeKind.Utc).AddTicks(6055),
+                            Id = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f"),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 31, 940, DateTimeKind.Utc).AddTicks(9086),
                             IsDeleted = false,
                             Name = "administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = new Guid("7d124c01-cf5e-44e5-9275-9c6ab72fc26e"),
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 19, 631, DateTimeKind.Utc).AddTicks(4198),
+                            Id = new Guid("680b73b2-7ec4-4160-8d5f-6d228182c445"),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 31, 949, DateTimeKind.Utc).AddTicks(9051),
                             IsDeleted = false,
                             Name = "client",
                             NormalizedName = "CLIENT"
@@ -2899,1085 +5156,1084 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                             Id = 1,
                             ClaimType = "permission",
                             ClaimValue = "Global.Availability",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2138),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(203),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 2,
                             ClaimType = "permission",
                             ClaimValue = "Global.Correction",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2167),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(238),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 3,
                             ClaimType = "permission",
                             ClaimValue = "Global.Lot",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2176),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(247),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 4,
                             ClaimType = "permission",
                             ClaimValue = "Global.Notice",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2220),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(254),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 5,
                             ClaimType = "permission",
                             ClaimValue = "Global.Permission",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2230),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(282),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 6,
                             ClaimType = "permission",
                             ClaimValue = "Global.Queue",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2239),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(292),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 7,
                             ClaimType = "permission",
                             ClaimValue = "Global.Role",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2247),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(300),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 8,
                             ClaimType = "permission",
                             ClaimValue = "Global.Room",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2255),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(356),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 9,
                             ClaimType = "permission",
                             ClaimValue = "Global.Setting",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2263),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(365),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 10,
                             ClaimType = "permission",
                             ClaimValue = "Global.Slider",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2271),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(373),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 11,
                             ClaimType = "permission",
                             ClaimValue = "Global.Staff",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2279),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(380),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 12,
                             ClaimType = "permission",
                             ClaimValue = "Global.Tasks",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2287),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(387),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 13,
                             ClaimType = "permission",
                             ClaimValue = "Global.UserRole",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2294),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(394),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 14,
                             ClaimType = "permission",
                             ClaimValue = "Global.VisitTermination",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2302),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(400),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 15,
                             ClaimType = "permission",
                             ClaimValue = "Global.AppointmentBehalf",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2310),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(407),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 16,
                             ClaimType = "permission",
                             ClaimValue = "Global.CheckIn",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2318),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(414),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 17,
                             ClaimType = "permission",
                             ClaimValue = "Global.Checkout",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2326),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(421),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 18,
                             ClaimType = "permission",
                             ClaimValue = "Global.Connection",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2335),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(428),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 19,
                             ClaimType = "permission",
                             ClaimValue = "Global.Explorer",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2342),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(435),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 20,
                             ClaimType = "permission",
                             ClaimValue = "Global.RegisterBehalf",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2372),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(442),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 21,
                             ClaimType = "permission",
                             ClaimValue = "Global.Delayed",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2382),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(449),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 22,
                             ClaimType = "permission",
                             ClaimValue = "Global.CaseReview",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2390),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(477),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 23,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.Initial",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2397),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(503),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 24,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.Medical",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2404),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(510),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 25,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.Demographic",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2412),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(517),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 26,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.Required",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2420),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(527),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 27,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.Appointment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2427),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(536),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 28,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.Social",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2435),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(543),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 29,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.SocialReview",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2442),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(551),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 30,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.Decision",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2450),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(559),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 31,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.ExitSurvey",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2458),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(575),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 32,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.QaAssignment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2465),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(582),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 33,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.PaAssignment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2473),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(589),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 34,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.RequestList",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2482),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(596),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 35,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.Vulnerability",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2489),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(603),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 36,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.Spiritual",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2498),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(610),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 37,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyTest.TestResult",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2524),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(617),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 38,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyRetest.Medical",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2532),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(643),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 39,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyRetest.Appointment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2540),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(652),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 40,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyRetest.Social",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2548),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(660),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 41,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyRetest.Decision",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2555),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(666),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 42,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyRetest.Exit",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2564),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(673),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 43,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyRetest.Assignment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2571),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(680),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 44,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyRetest.RequestList",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2579),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(687),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 45,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyRetest.Vulnerability",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2586),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(694),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 46,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyRetest.Spiritual",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2594),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(702),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 47,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyRetest.TestResult",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2602),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(709),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 48,
                             ClaimType = "permission",
                             ClaimValue = "UltrasoundScan.Interview",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2609),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(715),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 49,
                             ClaimType = "permission",
                             ClaimValue = "UltrasoundScan.Appointment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2699),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(722),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 50,
                             ClaimType = "permission",
                             ClaimValue = "UltrasoundScan.UExit",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2732),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(729),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 51,
                             ClaimType = "permission",
                             ClaimValue = "UltrasoundScan.Assignment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2740),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(736),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 52,
                             ClaimType = "permission",
                             ClaimValue = "UltrasoundScan.RequestList",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2748),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(743),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 53,
                             ClaimType = "permission",
                             ClaimValue = "UltrasoundScan.UltrasoundReport",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2756),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(750),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 54,
                             ClaimType = "permission",
                             ClaimValue = "UltrasoundRescan.Interview",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2799),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(757),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 55,
                             ClaimType = "permission",
                             ClaimValue = "UltrasoundRescan.Appointment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2810),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(765),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 56,
                             ClaimType = "permission",
                             ClaimValue = "UltrasoundRescan.UExit",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2818),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(792),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 57,
                             ClaimType = "permission",
                             ClaimValue = "UltrasoundRescan.Assignment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2826),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(799),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 58,
                             ClaimType = "permission",
                             ClaimValue = "UltrasoundRescan.RequestList",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2833),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(806),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 59,
                             ClaimType = "permission",
                             ClaimValue = "UltrasoundRescan.UltrasoundReport",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2841),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(813),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 60,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyOptionsCounseling.Initial",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2849),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(820),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 61,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyOptionsCounseling.Demographic",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2856),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(826),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 62,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyOptionsCounseling.medical",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2864),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(833),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 63,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyOptionsCounseling.Required",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2871),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(840),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 64,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyOptionsCounseling.appointment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2879),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(847),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 65,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyOptionsCounseling.exit",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2886),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(854),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 66,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyOptionsCounseling.assignment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2899),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(861),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 67,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyOptionsCounseling.information",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2906),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(868),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 68,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyOptionsCounseling.requestlist",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2914),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(875),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 69,
                             ClaimType = "permission",
                             ClaimValue = "PostAbortionCounseling.Initial",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2921),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(881),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 70,
                             ClaimType = "permission",
                             ClaimValue = "PostAbortionCounseling.Demographic",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2948),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(888),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 71,
                             ClaimType = "permission",
                             ClaimValue = "PostAbortionCounseling.Medical",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2956),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(914),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 72,
                             ClaimType = "permission",
                             ClaimValue = "PostAbortionCounseling.Required",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2964),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(924),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 73,
                             ClaimType = "permission",
                             ClaimValue = "PostAbortionCounseling.Appointment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2971),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(931),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 74,
                             ClaimType = "permission",
                             ClaimValue = "PostAbortionCounseling.Exit",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2978),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(938),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 75,
                             ClaimType = "permission",
                             ClaimValue = "PostAbortionCounseling.Assignment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2986),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(944),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 76,
                             ClaimType = "permission",
                             ClaimValue = "PostAbortionCounseling.Information",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(2993),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(951),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 77,
                             ClaimType = "permission",
                             ClaimValue = "PostAbortionCounseling.RequestList",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3001),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(959),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 78,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyLossCounseling.Initial",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3008),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(965),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 79,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyLossCounseling.Demographic",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3016),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(972),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 80,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyLossCounseling.Medical",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3023),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(979),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 81,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyLossCounseling.Required",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3030),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(986),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 82,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyLossCounseling.Appointment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3038),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(993),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 83,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyLossCounseling.Exit",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3045),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1000),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 84,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyLossCounseling.Assignment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3053),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1006),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 85,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyLossCounseling.Information",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3061),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1013),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 86,
                             ClaimType = "permission",
                             ClaimValue = "PregnancyLossCounseling.RequestList",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3068),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1020),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 87,
                             ClaimType = "permission",
                             ClaimValue = "DiscipleshipCounseling.Initial",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3093),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1027),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 88,
                             ClaimType = "permission",
                             ClaimValue = "DiscipleshipCounseling.Demographic",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3102),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1034),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 89,
                             ClaimType = "permission",
                             ClaimValue = "DiscipleshipCounseling.Medical",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3111),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1061),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 90,
                             ClaimType = "permission",
                             ClaimValue = "DiscipleshipCounseling.Required",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3118),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1069),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 91,
                             ClaimType = "permission",
                             ClaimValue = "DiscipleshipCounseling.Appointment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3126),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1076),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 92,
                             ClaimType = "permission",
                             ClaimValue = "DiscipleshipCounseling.Exit",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3134),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1083),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 93,
                             ClaimType = "permission",
                             ClaimValue = "DiscipleshipCounseling.Assignment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3141),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1090),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 94,
                             ClaimType = "permission",
                             ClaimValue = "DiscipleshipCounseling.Information",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3149),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1097),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 95,
                             ClaimType = "permission",
                             ClaimValue = "DiscipleshipCounseling.RequestList",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3157),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1104),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 96,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalCareInterview.Pregnancy",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3164),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1110),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 97,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalCareInterview.MedicalHistory",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3172),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1118),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 98,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalCareInterview.SupportAssessment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3180),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1125),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 99,
                             ClaimType = "permission",
                             ClaimValue = "clien.prenatalcareinterviewt.Residence",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3187),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1131),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 100,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalCareInterview.CarrierScreening",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3195),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1138),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 101,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalCareInterview.Appointment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3202),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1145),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 102,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalCareInterview.Assignment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3210),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1152),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 103,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalCareInterview.RequestList",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3217),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1159),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 104,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalVisits.Appointment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3224),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1165),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 105,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalVisits.Exit",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3250),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1172),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 106,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalVisits.Assignment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3258),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1198),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 107,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalVisits.Prenatal",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3266),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1206),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 108,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalVisits.RequestList",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3273),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1213),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 109,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalVisits.Record",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3280),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1220),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 110,
                             ClaimType = "permission",
                             ClaimValue = "PrenatalVisits.Laboratory",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3288),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1227),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 111,
                             ClaimType = "permission",
                             ClaimValue = "MaleCounseling.Initial",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3296),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1234),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 112,
                             ClaimType = "permission",
                             ClaimValue = "MaleCounseling.Demographic",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3303),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1241),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 113,
                             ClaimType = "permission",
                             ClaimValue = "MaleCounseling.Malemedical",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3311),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1248),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 114,
                             ClaimType = "permission",
                             ClaimValue = "MaleCounseling.Required",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3318),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1254),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 115,
                             ClaimType = "permission",
                             ClaimValue = "MaleCounseling.Appointment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3325),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1261),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 116,
                             ClaimType = "permission",
                             ClaimValue = "MaleCounseling.Exit",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3333),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1268),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 117,
                             ClaimType = "permission",
                             ClaimValue = "MaleCounseling.MaleAssignment",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3341),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1275),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 118,
                             ClaimType = "permission",
                             ClaimValue = "MaleCounseling.Medical",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3349),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1281),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         },
                         new
                         {
                             Id = 119,
                             ClaimType = "permission",
                             ClaimValue = "MaleCounseling.MaleInformation",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(3356),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(1288),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f")
                         });
                 });
 
-            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Tenant", b =>
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Section", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnOrder(1);
 
-                    b.Property<string>("ConnectionString")
-                        .IsRequired()
+                    b.Property<string>("Command")
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnOrder(3);
+                        .HasColumnOrder(13);
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -3988,10 +6244,6 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.Property<string>("CreatedUserId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("DBProvider")
-                        .HasColumnType("int")
-                        .HasColumnOrder(4);
-
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
 
@@ -4001,20 +6253,28 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.Property<string>("DeletedUserId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("DisplayTitle")
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnOrder(5);
+                        .HasColumnOrder(4);
 
-                    b.Property<DateTime>("ExpireDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnOrder(6);
+                    b.Property<short>("Gender")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(8);
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit")
-                        .HasColumnOrder(7);
+                    b.Property<string>("Help")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(11);
+
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(14);
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit")
+                        .HasColumnOrder(10);
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
@@ -4028,28 +6288,536 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(3);
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int")
+                        .HasColumnOrder(9);
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnOrder(2);
+
+                    b.Property<string>("RequiredPolicy")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(15);
+
+                    b.Property<short>("SectionGroup")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(5);
+
+                    b.Property<short>("SectionType")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(6);
+
+                    b.Property<string>("URI")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(12);
+
+                    b.Property<short>("Visibility")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(7);
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tenant");
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Sections");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("c3c1384e-9822-49f1-97c5-0d065426329b"),
+                            Command = "-",
+                            DisplayTitle = "Pregnancy Test",
+                            Gender = (short)0,
+                            Help = "Pregnancy Test and Care Plan",
+                            IsDeleted = false,
+                            IsRequired = false,
+                            Name = "PregnancyTest",
+                            Order = 1,
+                            RequiredPolicy = "-",
+                            SectionGroup = (short)0,
+                            SectionType = (short)0,
+                            URI = "PregnancyTest",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("00000001-6df9-4ecb-86c8-000000000001"),
+                            Command = "-",
+                            DisplayTitle = "Step 1",
+                            Gender = (short)0,
+                            Help = "this is step 1",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Step1",
+                            Order = 1,
+                            ParentId = new Guid("c3c1384e-9822-49f1-97c5-0d065426329b"),
+                            RequiredPolicy = "-",
+                            SectionGroup = (short)1,
+                            SectionType = (short)0,
+                            URI = "-",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("00000002-6df9-4ecb-86c8-000000000002"),
+                            Command = "-",
+                            DisplayTitle = "Step 2",
+                            Gender = (short)0,
+                            Help = "this is step 2",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Step2",
+                            Order = 2,
+                            ParentId = new Guid("c3c1384e-9822-49f1-97c5-0d065426329b"),
+                            RequiredPolicy = "-",
+                            SectionGroup = (short)1,
+                            SectionType = (short)0,
+                            URI = "-",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("00000003-6df9-4ecb-86c8-000000000003"),
+                            Command = "-",
+                            DisplayTitle = "Step 3",
+                            Gender = (short)0,
+                            Help = "this is step 3",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Step3",
+                            Order = 3,
+                            ParentId = new Guid("c3c1384e-9822-49f1-97c5-0d065426329b"),
+                            RequiredPolicy = "-",
+                            SectionGroup = (short)1,
+                            SectionType = (short)0,
+                            URI = "-",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("00000004-6df9-4ecb-86c8-000000000004"),
+                            Command = "-",
+                            DisplayTitle = "Step 4",
+                            Gender = (short)0,
+                            Help = "this is step 4",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Step4",
+                            Order = 4,
+                            ParentId = new Guid("c3c1384e-9822-49f1-97c5-0d065426329b"),
+                            RequiredPolicy = "-",
+                            SectionGroup = (short)1,
+                            SectionType = (short)0,
+                            URI = "-",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("00000005-6df9-4ecb-86c8-000000000005"),
+                            Command = "-",
+                            DisplayTitle = "Step 5",
+                            Gender = (short)0,
+                            Help = "this is step 5",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Step5",
+                            Order = 5,
+                            ParentId = new Guid("c3c1384e-9822-49f1-97c5-0d065426329b"),
+                            RequiredPolicy = "-",
+                            SectionGroup = (short)1,
+                            SectionType = (short)0,
+                            URI = "-",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("00000006-6df9-4ecb-86c8-000000000006"),
+                            Command = "-",
+                            DisplayTitle = "Step 6",
+                            Gender = (short)0,
+                            Help = "this is step 6",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Step6",
+                            Order = 6,
+                            ParentId = new Guid("c3c1384e-9822-49f1-97c5-0d065426329b"),
+                            RequiredPolicy = "-",
+                            SectionGroup = (short)1,
+                            SectionType = (short)0,
+                            URI = "-",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("00000007-6df9-4ecb-86c8-000000000007"),
+                            Command = "-",
+                            DisplayTitle = "Step 7",
+                            Gender = (short)0,
+                            Help = "this is step 7",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Step7",
+                            Order = 7,
+                            ParentId = new Guid("c3c1384e-9822-49f1-97c5-0d065426329b"),
+                            RequiredPolicy = "-",
+                            SectionGroup = (short)1,
+                            SectionType = (short)0,
+                            URI = "-",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("00000008-6df9-4ecb-86c8-000000000008"),
+                            Command = "-",
+                            DisplayTitle = "Step 8",
+                            Gender = (short)0,
+                            Help = "this is step 8",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Step8",
+                            Order = 8,
+                            ParentId = new Guid("c3c1384e-9822-49f1-97c5-0d065426329b"),
+                            RequiredPolicy = "-",
+                            SectionGroup = (short)1,
+                            SectionType = (short)0,
+                            URI = "-",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("00000009-6df9-4ecb-86c8-000000000009"),
+                            Command = "-",
+                            DisplayTitle = "Step 9",
+                            Gender = (short)0,
+                            Help = "this is step 9",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Step9",
+                            Order = 9,
+                            ParentId = new Guid("c3c1384e-9822-49f1-97c5-0d065426329b"),
+                            RequiredPolicy = "-",
+                            SectionGroup = (short)1,
+                            SectionType = (short)0,
+                            URI = "-",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("00000010-6df9-4ecb-86c8-000000000010"),
+                            Command = "-",
+                            DisplayTitle = "Step 10",
+                            Gender = (short)0,
+                            Help = "this is step 10",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Step10",
+                            Order = 10,
+                            ParentId = new Guid("c3c1384e-9822-49f1-97c5-0d065426329b"),
+                            RequiredPolicy = "-",
+                            SectionGroup = (short)1,
+                            SectionType = (short)0,
+                            URI = "-",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("00000011-6df9-4ecb-86c8-000000000011"),
+                            Command = "-",
+                            DisplayTitle = "Step 11",
+                            Gender = (short)0,
+                            Help = "this is step 11",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Step11",
+                            Order = 11,
+                            ParentId = new Guid("c3c1384e-9822-49f1-97c5-0d065426329b"),
+                            RequiredPolicy = "-",
+                            SectionGroup = (short)1,
+                            SectionType = (short)0,
+                            URI = "-",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("900bad1f-876c-4a56-a8e5-7ac77a8a2e01"),
+                            Command = "Fill Demographic Intake",
+                            DisplayTitle = "Demographic Intake",
+                            Gender = (short)0,
+                            Help = "In this section, the corresponding form is filled by the client.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "DemographicIntake",
+                            Order = 1,
+                            ParentId = new Guid("00000001-6df9-4ecb-86c8-000000000001"),
+                            RequiredPolicy = "PregnancyTest.Demographic",
+                            SectionGroup = (short)2,
+                            SectionType = (short)2,
+                            URI = "DemographicIntake",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("ac2fd8fe-818d-48bb-a90e-81e87f26a272"),
+                            Command = "Fill Medical Info",
+                            DisplayTitle = "Medical Info",
+                            Gender = (short)0,
+                            Help = "In this section, the corresponding form is filled by the client.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "MedicalInfo",
+                            Order = 2,
+                            ParentId = new Guid("00000001-6df9-4ecb-86c8-000000000001"),
+                            RequiredPolicy = "PregnancyTest.Medical",
+                            SectionGroup = (short)2,
+                            SectionType = (short)3,
+                            URI = "-",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("eb461078-02b4-4695-a910-16469834c16a"),
+                            Command = "CheckIn",
+                            DisplayTitle = "Check-In",
+                            Gender = (short)0,
+                            Help = "In this section,the check-in will be done by the institution.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "CheckIn",
+                            Order = 1,
+                            ParentId = new Guid("00000002-6df9-4ecb-86c8-000000000002"),
+                            RequiredPolicy = "Global.CheckIn",
+                            SectionGroup = (short)2,
+                            SectionType = (short)1,
+                            URI = "CheckIn",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("71583efc-3a4e-4207-886c-c9d2b0312204"),
+                            Command = "Take Client",
+                            DisplayTitle = "Qualified Advocate Assignment",
+                            Gender = (short)0,
+                            Help = "In this section, one of the institution's employees will be responsible for continuing the work.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "QaAssignment",
+                            Order = 1,
+                            ParentId = new Guid("00000003-6df9-4ecb-86c8-000000000003"),
+                            RequiredPolicy = "PregnancyTest.QaAssignment",
+                            SectionGroup = (short)2,
+                            SectionType = (short)4,
+                            URI = "QaAssignment",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("94ce2417-aaa3-4277-99d8-0c355da36546"),
+                            Command = "Fill Social",
+                            DisplayTitle = "Social Form",
+                            Gender = (short)0,
+                            Help = "In this section, the corresponding form is filled by the client.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Social",
+                            Order = 1,
+                            ParentId = new Guid("00000004-6df9-4ecb-86c8-000000000004"),
+                            RequiredPolicy = "PregnancyTest.Social",
+                            SectionGroup = (short)2,
+                            SectionType = (short)5,
+                            URI = "Social",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("c47128ca-3fe7-42c9-bb85-2141ace9c22b"),
+                            Command = "Fill Test Result",
+                            DisplayTitle = "Test Result",
+                            Gender = (short)0,
+                            Help = "In this section,the test result will be done by the institution.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "TestResult",
+                            Order = 2,
+                            ParentId = new Guid("00000004-6df9-4ecb-86c8-000000000004"),
+                            RequiredPolicy = "PregnancyTest.TestResult",
+                            SectionGroup = (short)2,
+                            SectionType = (short)6,
+                            URI = "TestResult",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("07bf50e0-0d9c-409f-b5ef-0d6196a12c0b"),
+                            Command = "Take Client",
+                            DisplayTitle = "Pro Advocate Assignment",
+                            Gender = (short)0,
+                            Help = "In this section, one of the institution's employees will be responsible for continuing the work.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "PaAssignment",
+                            Order = 1,
+                            ParentId = new Guid("00000005-6df9-4ecb-86c8-000000000005"),
+                            RequiredPolicy = "PregnancyTest.PaAssignment",
+                            SectionGroup = (short)2,
+                            SectionType = (short)7,
+                            URI = "PaAssignment",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("53ff9112-3b15-479d-bf08-f32d2b30ae0f"),
+                            Command = "Review",
+                            DisplayTitle = "Social Review",
+                            Gender = (short)0,
+                            Help = "In this section, the social form filled by the client is approved by the institution.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "SocialReview",
+                            Order = 1,
+                            ParentId = new Guid("00000006-6df9-4ecb-86c8-000000000006"),
+                            RequiredPolicy = "PregnancyTest.SocialReview",
+                            SectionGroup = (short)2,
+                            SectionType = (short)8,
+                            URI = "Social",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("4105e988-33fc-4dc3-afd9-f4c04ffc547c"),
+                            Command = "Fill Decision",
+                            DisplayTitle = "Decision",
+                            Gender = (short)0,
+                            Help = "In this section, the corresponding form is filled by the client.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "Decision",
+                            Order = 1,
+                            ParentId = new Guid("00000007-6df9-4ecb-86c8-000000000007"),
+                            RequiredPolicy = "PregnancyTest.Decision",
+                            SectionGroup = (short)2,
+                            SectionType = (short)9,
+                            URI = "Decision",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("833f07ef-045a-41db-a1d9-e1f4c4c9d343"),
+                            Command = "Review",
+                            DisplayTitle = "Decision Review",
+                            Gender = (short)0,
+                            Help = "In this section, the decision form filled by the client is approved by the institution.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "DecisionReview",
+                            Order = 1,
+                            ParentId = new Guid("00000008-6df9-4ecb-86c8-000000000008"),
+                            RequiredPolicy = "PregnancyTest.Decision",
+                            SectionGroup = (short)2,
+                            SectionType = (short)10,
+                            URI = "Decision",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("98412242-1b4d-45c1-89f1-c1f9a198fc5e"),
+                            Command = "Fill Vulnerability",
+                            DisplayTitle = "Vulnerability",
+                            Gender = (short)0,
+                            Help = "In this section, the vulnerability form filled by the institution.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "vulnerability",
+                            Order = 1,
+                            ParentId = new Guid("00000009-6df9-4ecb-86c8-000000000009"),
+                            RequiredPolicy = "PregnancyTest.Vulnerability",
+                            SectionGroup = (short)2,
+                            SectionType = (short)11,
+                            URI = "vulnerability",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("546437d7-212c-48c4-99e6-effa0a60223a"),
+                            Command = "Fill Survey",
+                            DisplayTitle = "Exit Survey",
+                            Gender = (short)0,
+                            Help = "In this section, the exit survey form filled by the institution.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "ExitSurvey",
+                            Order = 1,
+                            ParentId = new Guid("00000010-6df9-4ecb-86c8-000000000010"),
+                            RequiredPolicy = "PregnancyTest.ExitSurvey",
+                            SectionGroup = (short)2,
+                            SectionType = (short)12,
+                            URI = "ExitSurvey",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("c52aa6e5-5e9b-415e-870a-6eaf4aef7dcf"),
+                            Command = "ARL",
+                            DisplayTitle = "ARL",
+                            Gender = (short)0,
+                            Help = "In this section, the ARL form filled by the institution.",
+                            IsDeleted = false,
+                            IsRequired = true,
+                            Name = "ARL",
+                            Order = 2,
+                            ParentId = new Guid("00000010-6df9-4ecb-86c8-000000000010"),
+                            RequiredPolicy = "PregnancyTest.RequestList",
+                            SectionGroup = (short)2,
+                            SectionType = (short)13,
+                            URI = "ARL",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("7815a693-ae0f-4f49-9777-b8d7eb5b4c1e"),
+                            Command = "Fill Spiritual",
+                            DisplayTitle = "Spiritual Form",
+                            Gender = (short)0,
+                            Help = "In this section, the ARL form filled by the institution.",
+                            IsDeleted = false,
+                            IsRequired = false,
+                            Name = "Spiritual",
+                            Order = 1,
+                            ParentId = new Guid("00000011-6df9-4ecb-86c8-000000000011"),
+                            RequiredPolicy = "PregnancyTest.Spiritual",
+                            SectionGroup = (short)2,
+                            SectionType = (short)14,
+                            URI = "Spiritual",
+                            Visibility = (short)2
+                        },
+                        new
+                        {
+                            Id = new Guid("e6f733bc-bf93-4b83-a028-e55bf46790c8"),
+                            Command = "Check-out",
+                            DisplayTitle = "Check-out",
+                            Gender = (short)0,
+                            Help = "In this section,the check-out will be done by the institution.",
+                            IsDeleted = false,
+                            IsRequired = false,
+                            Name = "Checkout",
+                            Order = 2,
+                            ParentId = new Guid("00000011-6df9-4ecb-86c8-000000000011"),
+                            RequiredPolicy = "Global.Checkout",
+                            SectionGroup = (short)2,
+                            SectionType = (short)2,
+                            URI = "Checkout",
+                            Visibility = (short)2
+                        });
                 });
 
-            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.User", b =>
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Tasks", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnOrder(0);
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int")
-                        .HasColumnOrder(23);
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnOrder(25);
+                        .HasColumnOrder(1);
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -4060,8 +6828,89 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.Property<string>("CreatedUserId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("DefaultTenantId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeletedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(6);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("SectionId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(4);
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(5);
+
+                    b.Property<short>("Status")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(7);
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(3);
+
+                    b.Property<Guid>("VisitId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(2);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SectionId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("VisitId");
+
+                    b.ToTable("Tasks");
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(1);
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int")
+                        .HasColumnOrder(22);
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(24);
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DefaultTenantId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
@@ -4075,37 +6924,38 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)")
-                        .HasColumnOrder(6);
+                        .HasColumnOrder(5);
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit")
-                        .HasColumnOrder(8);
+                        .HasColumnOrder(7);
 
                     b.Property<string>("EmailToken")
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnOrder(9);
+                        .HasColumnOrder(8);
 
                     b.Property<DateTime?>("EmailTokenExpires")
                         .HasColumnType("datetime2")
-                        .HasColumnOrder(10);
+                        .HasColumnOrder(9);
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit")
-                        .HasColumnOrder(20);
+                        .HasColumnOrder(19);
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsOnline")
-                        .HasColumnType("bit");
+                        .HasColumnType("bit")
+                        .HasColumnOrder(2);
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit")
-                        .HasColumnOrder(21);
+                        .HasColumnOrder(20);
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset")
-                        .HasColumnOrder(22);
+                        .HasColumnOrder(21);
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
@@ -4119,61 +6969,59 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)")
-                        .HasColumnOrder(7);
+                        .HasColumnOrder(6);
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)")
-                        .HasColumnOrder(5);
+                        .HasColumnOrder(45);
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnOrder(11);
+                        .HasColumnOrder(10);
 
                     b.Property<DateTime?>("PasswordResetAt")
                         .HasColumnType("datetime2")
-                        .HasColumnOrder(14);
+                        .HasColumnOrder(13);
 
                     b.Property<string>("PasswordToken")
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnOrder(12);
+                        .HasColumnOrder(11);
 
                     b.Property<DateTime?>("PasswordTokenExpires")
                         .HasColumnType("datetime2")
-                        .HasColumnOrder(13);
+                        .HasColumnOrder(12);
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnOrder(15);
+                        .HasColumnOrder(14);
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit")
-                        .HasColumnOrder(16);
+                        .HasColumnOrder(15);
 
                     b.Property<string>("PhoneNumberToken")
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnOrder(17);
+                        .HasColumnOrder(16);
 
                     b.Property<DateTime?>("PhoneNumberTokenExpires")
                         .HasColumnType("datetime2")
-                        .HasColumnOrder(18);
+                        .HasColumnOrder(17);
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)")
-                        .HasColumnOrder(24);
+                        .HasColumnOrder(23);
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit")
-                        .HasColumnOrder(19);
+                        .HasColumnOrder(18);
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)")
-                        .HasColumnOrder(4);
+                        .HasColumnOrder(3);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DefaultTenantId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -4188,10 +7036,10 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("817b6b01-25ab-4cf4-8b7e-157a8f996c48"),
+                            Id = new Guid("c84184d2-f664-43c0-9f3d-faa10fdf72ac"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "8e1f75d4-fdb0-4e37-aa25-b9760d8313b1",
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 487, DateTimeKind.Utc).AddTicks(9460),
+                            ConcurrencyStamp = "5f6db1aa-d8f3-47a5-8c83-53947aae0f22",
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 158, DateTimeKind.Utc).AddTicks(4704),
                             Email = "admin@wrmc.com",
                             EmailConfirmed = true,
                             IsActive = true,
@@ -4200,9 +7048,9 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@WRMC.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEFCf1lLNpcfy0ElsEOEn3JFaKHfCLtcOfOc1hmlZ9nUk6PBJKlsFeIHxMSbr39CJvA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMMRxlgq/CMG0nmpqAf4rx7GJ9/8jH7T35FPxY+8JAGB2HjtE4AZ3piUOjYpLJf/Sw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "7e9a15ed-fe94-4200-9e24-b13e6380c2b5",
+                            SecurityStamp = "af21cc70-87e2-4ca5-ace5-575e6a58ed71",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
@@ -4289,35 +7137,35 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ef55f690-5fc3-4d0f-9f7b-c5fcaca0ecb9"),
+                            Id = new Guid("a116a72a-8967-4bf3-9492-9fcf942cf594"),
                             Address = "SGT Miranda McAnderson\r\n6543 N 9th Street\r\nAPO, AA 33608-1234",
                             IsDefault = true,
                             IsDeleted = false,
                             Order = 1,
                             Type = (short)1,
-                            UserId = new Guid("817b6b01-25ab-4cf4-8b7e-157a8f996c48"),
+                            UserId = new Guid("c84184d2-f664-43c0-9f3d-faa10fdf72ac"),
                             ZipCode = "251742310"
                         },
                         new
                         {
-                            Id = new Guid("b80dde41-d26b-4f11-976e-66f102568f76"),
+                            Id = new Guid("c2c2cbb8-cfba-427e-b6f2-65e0e924a6e2"),
                             Address = "Suzy Queue\r\n4455 Landing Lange, APT 4\r\nLouisville, KY 40018-1234",
                             IsDefault = false,
                             IsDeleted = false,
                             Order = 2,
                             Type = (short)2,
-                            UserId = new Guid("817b6b01-25ab-4cf4-8b7e-157a8f996c48"),
+                            UserId = new Guid("c84184d2-f664-43c0-9f3d-faa10fdf72ac"),
                             ZipCode = "241542123"
                         },
                         new
                         {
-                            Id = new Guid("b5106f12-4501-4da5-aa7d-5efb567eb61d"),
+                            Id = new Guid("adb7513e-19c6-4717-9fa2-737342cb41f7"),
                             Address = "Robert Robertson, 1234 NW Bobcat Lane, St. Robert, MO 65584-5678",
                             IsDefault = false,
                             IsDeleted = false,
                             Order = 3,
                             Type = (short)1000,
-                            UserId = new Guid("817b6b01-25ab-4cf4-8b7e-157a8f996c48"),
+                            UserId = new Guid("c84184d2-f664-43c0-9f3d-faa10fdf72ac"),
                             ZipCode = "351745121"
                         });
                 });
@@ -4580,36 +7428,36 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e15bb5ae-762f-4d8b-9182-8bf89f6959f4"),
+                            Id = new Guid("9ae54f4b-6e01-4ab5-adf9-af795d107790"),
                             Description = "This is my main mobile",
                             IsDefault = true,
                             IsDeleted = false,
                             Order = 1,
                             PhoneNumber = "2345124454",
                             Type = (short)1,
-                            UserId = new Guid("817b6b01-25ab-4cf4-8b7e-157a8f996c48")
+                            UserId = new Guid("c84184d2-f664-43c0-9f3d-faa10fdf72ac")
                         },
                         new
                         {
-                            Id = new Guid("4c5b3ca2-2b71-45ed-9adb-bf10c5b5b9fa"),
+                            Id = new Guid("022879c0-a1e0-41ad-b7a3-e755eefd2fbe"),
                             Description = "Bussines Fax",
                             IsDefault = false,
                             IsDeleted = false,
                             Order = 2,
                             PhoneNumber = "5234525867",
                             Type = (short)4,
-                            UserId = new Guid("817b6b01-25ab-4cf4-8b7e-157a8f996c48")
+                            UserId = new Guid("c84184d2-f664-43c0-9f3d-faa10fdf72ac")
                         },
                         new
                         {
-                            Id = new Guid("da714479-17aa-4a4a-975c-0bbb30042ef9"),
+                            Id = new Guid("c748b13e-33c0-449f-8c25-12866f664450"),
                             Description = "Emergency Contact (my father)",
                             IsDefault = false,
                             IsDeleted = false,
                             Order = 3,
                             PhoneNumber = "8834551820",
                             Type = (short)5,
-                            UserId = new Guid("817b6b01-25ab-4cf4-8b7e-157a8f996c48")
+                            UserId = new Guid("c84184d2-f664-43c0-9f3d-faa10fdf72ac")
                         });
                 });
 
@@ -4723,6 +7571,8 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IntroMethodId");
+
                     b.HasIndex("UserId")
                         .IsUnique();
 
@@ -4731,12 +7581,12 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("18b01083-7fa8-40dc-9be0-b91a35ff98b8"),
+                            Id = new Guid("6b091a7b-ded8-47a3-baf9-5d5904a8baf0"),
                             FirstName = "Test name",
                             Gender = (short)1,
                             IsDeleted = false,
                             LastName = "Test family",
-                            UserId = new Guid("817b6b01-25ab-4cf4-8b7e-157a8f996c48")
+                            UserId = new Guid("c84184d2-f664-43c0-9f3d-faa10fdf72ac")
                         });
                 });
 
@@ -4796,11 +7646,11 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("2c96c3b3-3e11-4c6e-bb6a-671a9a82964f"),
-                            CreatedDate = new DateTime(2023, 1, 9, 20, 24, 20, 561, DateTimeKind.Utc).AddTicks(5180),
+                            Id = new Guid("92aaaf8e-77ac-4412-bdfe-3a6e51794523"),
+                            CreatedDate = new DateTime(2023, 1, 11, 17, 8, 33, 231, DateTimeKind.Utc).AddTicks(3098),
                             IsDeleted = false,
-                            RoleId = new Guid("ba5a97f6-d3f2-4b73-8af0-3803e218c8c4"),
-                            UserId = new Guid("817b6b01-25ab-4cf4-8b7e-157a8f996c48")
+                            RoleId = new Guid("65794e9f-091f-4362-b16c-76bb21000d9f"),
+                            UserId = new Guid("c84184d2-f664-43c0-9f3d-faa10fdf72ac")
                         });
                 });
 
@@ -4957,68 +7807,14 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("52333795-8095-4af2-b0fe-6713c1ee8c44"),
+                            Id = new Guid("ff21ef9d-abbf-4dbe-abfd-4ad86c6c87d7"),
                             Culture = "en-US",
                             DarkMode = false,
                             IsDeleted = false,
                             RightToLeft = false,
                             Theme = "",
-                            UserId = new Guid("817b6b01-25ab-4cf4-8b7e-157a8f996c48")
+                            UserId = new Guid("c84184d2-f664-43c0-9f3d-faa10fdf72ac")
                         });
-                });
-
-            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.UserTenant", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnOrder(1);
-
-                    b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedIpAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CreatedUserId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedIpAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DeletedUserId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifiedIpAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModifiedUserId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnOrder(3);
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnOrder(2);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserTenants");
                 });
 
             modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.UserToken", b =>
@@ -5081,6 +7877,134 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Visit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(1);
+
+                    b.Property<Guid?>("CaseId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(2);
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(7);
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeletedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(8);
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(5);
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedIpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnOrder(6);
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnOrder(4);
+
+                    b.Property<short>("Status")
+                        .HasColumnType("smallint")
+                        .HasColumnOrder(3);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CaseId");
+
+                    b.ToTable("Visits");
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Case", b =>
+                {
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.User", "User")
+                        .WithMany("Cases")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.DemographicIntake", b =>
+                {
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.Region", "Region")
+                        .WithMany()
+                        .HasForeignKey("RegionId");
+
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.Tasks", "Task")
+                        .WithMany("DemographicIntakes")
+                        .HasForeignKey("TaskId");
+
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.Visit", "Visit")
+                        .WithMany("DemographicIntakes")
+                        .HasForeignKey("VisitId");
+
+                    b.Navigation("Region");
+
+                    b.Navigation("Task");
+
+                    b.Navigation("Visit");
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.IntroMethod", b =>
+                {
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.IntroMethod", "Parent")
+                        .WithMany("IntroMethods")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.MedicalIntake", b =>
+                {
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.Tasks", "Task")
+                        .WithMany("MedicalIntakes")
+                        .HasForeignKey("TaskId");
+
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.Visit", "Visit")
+                        .WithMany("MedicalInformations")
+                        .HasForeignKey("VisitId");
+
+                    b.Navigation("Task");
+
+                    b.Navigation("Visit");
+                });
+
             modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Region", b =>
                 {
                     b.HasOne("WRMC.Infrastructure.Domain.Entities.Region", "Parent")
@@ -5101,13 +8025,38 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.User", b =>
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Section", b =>
                 {
-                    b.HasOne("WRMC.Infrastructure.Domain.Entities.Tenant", "DefaultTenant")
-                        .WithMany()
-                        .HasForeignKey("DefaultTenantId");
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.Section", "Parent")
+                        .WithMany("Sections")
+                        .HasForeignKey("ParentId");
 
-                    b.Navigation("DefaultTenant");
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Tasks", b =>
+                {
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.Section", "Section")
+                        .WithMany("VisitSections")
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.Visit", "Visit")
+                        .WithMany("Tasks")
+                        .HasForeignKey("VisitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Section");
+
+                    b.Navigation("User");
+
+                    b.Navigation("Visit");
                 });
 
             modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.UserAddress", b =>
@@ -5173,11 +8122,17 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
 
             modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.UserProfile", b =>
                 {
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.IntroMethod", "IntroMethod")
+                        .WithMany()
+                        .HasForeignKey("IntroMethodId");
+
                     b.HasOne("WRMC.Infrastructure.Domain.Entities.User", "User")
                         .WithOne("UserProfile")
                         .HasForeignKey("WRMC.Infrastructure.Domain.Entities.UserProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("IntroMethod");
 
                     b.Navigation("User");
                 });
@@ -5223,25 +8178,6 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.UserTenant", b =>
-                {
-                    b.HasOne("WRMC.Infrastructure.Domain.Entities.Tenant", "Tenant")
-                        .WithMany("UserTenants")
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WRMC.Infrastructure.Domain.Entities.User", "User")
-                        .WithMany("UserTenants")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Tenant");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.UserToken", b =>
                 {
                     b.HasOne("WRMC.Infrastructure.Domain.Entities.User", "User")
@@ -5251,6 +8187,25 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Visit", b =>
+                {
+                    b.HasOne("WRMC.Infrastructure.Domain.Entities.Case", "Case")
+                        .WithMany("Visits")
+                        .HasForeignKey("CaseId");
+
+                    b.Navigation("Case");
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Case", b =>
+                {
+                    b.Navigation("Visits");
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.IntroMethod", b =>
+                {
+                    b.Navigation("IntroMethods");
                 });
 
             modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Region", b =>
@@ -5267,13 +8222,24 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Tenant", b =>
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Section", b =>
                 {
-                    b.Navigation("UserTenants");
+                    b.Navigation("Sections");
+
+                    b.Navigation("VisitSections");
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Tasks", b =>
+                {
+                    b.Navigation("DemographicIntakes");
+
+                    b.Navigation("MedicalIntakes");
                 });
 
             modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.User", b =>
                 {
+                    b.Navigation("Cases");
+
                     b.Navigation("UserAddresses");
 
                     b.Navigation("UserClaims");
@@ -5294,9 +8260,16 @@ namespace WRMC.Infrastructure.DataAccess.Migrations
                     b.Navigation("UserSetting")
                         .IsRequired();
 
-                    b.Navigation("UserTenants");
-
                     b.Navigation("UserTokens");
+                });
+
+            modelBuilder.Entity("WRMC.Infrastructure.Domain.Entities.Visit", b =>
+                {
+                    b.Navigation("DemographicIntakes");
+
+                    b.Navigation("MedicalInformations");
+
+                    b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618
         }
