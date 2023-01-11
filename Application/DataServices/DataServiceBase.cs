@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 
 namespace WRMC.Core.Application.DataServices
 {
@@ -9,7 +9,7 @@ namespace WRMC.Core.Application.DataServices
 
         public DataServiceBase(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClientFactory.CreateClient(ApplicationConstants.ServerHttpClientName);
+            _httpClient = httpClientFactory.CreateClient(AppConstants.ServerHttpClientName);
 
         }
         public static Uri BuildUri(string path, Dictionary<string, string> queryParams)

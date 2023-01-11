@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 
 namespace WRMC.Core.Shared.Helpers
 {
@@ -26,53 +26,53 @@ namespace WRMC.Core.Shared.Helpers
             if (keyValuePairs != null)
             {                
                 //Roles
-                keyValuePairs.TryGetValue(ApplicationClaimTypes.Role, out var roles);
+                keyValuePairs.TryGetValue(AppClaimTypes.Role, out var roles);
                 if (roles != null)
                 {
                     if (roles.ToString().Trim().StartsWith("["))
                     {
                         var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString());
 
-                        claims.AddRange(parsedRoles.Select(role => new Claim(ApplicationClaimTypes.Role, role)));
+                        claims.AddRange(parsedRoles.Select(role => new Claim(AppClaimTypes.Role, role)));
                     }
                     else
                     {
-                        claims.Add(new Claim(ApplicationClaimTypes.Role, roles.ToString()));
+                        claims.Add(new Claim(AppClaimTypes.Role, roles.ToString()));
                     }
 
-                    keyValuePairs.Remove(ApplicationClaimTypes.Role);
+                    keyValuePairs.Remove(AppClaimTypes.Role);
                 }
 
                 //Permissions
-                keyValuePairs.TryGetValue(ApplicationClaimTypes.Permission, out var permissions);
+                keyValuePairs.TryGetValue(AppClaimTypes.Permission, out var permissions);
                 if (permissions != null)
                 {
                     if (permissions.ToString().Trim().StartsWith("["))
                     {
                         var parsedPermissions = JsonSerializer.Deserialize<string[]>(permissions.ToString());
-                        claims.AddRange(parsedPermissions.Select(permission => new Claim(ApplicationClaimTypes.Permission, permission)));
+                        claims.AddRange(parsedPermissions.Select(permission => new Claim(AppClaimTypes.Permission, permission)));
                     }
                     else
                     {
-                        claims.Add(new Claim(ApplicationClaimTypes.Permission, permissions.ToString()));
+                        claims.Add(new Claim(AppClaimTypes.Permission, permissions.ToString()));
                     }
-                    keyValuePairs.Remove(ApplicationClaimTypes.Permission);
+                    keyValuePairs.Remove(AppClaimTypes.Permission);
                 }
 
                 //Tenants
-                keyValuePairs.TryGetValue(ApplicationClaimTypes.Tenant, out var tenants);
+                keyValuePairs.TryGetValue(AppClaimTypes.Tenant, out var tenants);
                 if (tenants != null)
                 {
                     if (tenants.ToString().Trim().StartsWith("["))
                     {
                         var parsedtenants = JsonSerializer.Deserialize<string[]>(tenants.ToString());
-                        claims.AddRange(parsedtenants.Select(tenant => new Claim(ApplicationClaimTypes.Tenant, tenant)));
+                        claims.AddRange(parsedtenants.Select(tenant => new Claim(AppClaimTypes.Tenant, tenant)));
                     }
                     else
                     {
-                        claims.Add(new Claim(ApplicationClaimTypes.Tenant, tenants.ToString()));
+                        claims.Add(new Claim(AppClaimTypes.Tenant, tenants.ToString()));
                     }
-                    keyValuePairs.Remove(ApplicationClaimTypes.Tenant);
+                    keyValuePairs.Remove(AppClaimTypes.Tenant);
                 }
 
 

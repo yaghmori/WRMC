@@ -43,7 +43,7 @@ namespace WRMC.RootComponents.Dialogs
         private string GetMultiSelectionText(List<string> selectedValues)
         {
             SelectedRoles = SelectedRoles.ToList();
-            return _viewResources[ViewResources.RoleSelected, selectedValues.Count];
+            return _viewLocalizer[ViewResources.RoleSelected, selectedValues.Count];
         }
 
         public async void RemoveRole(MudChip chip)

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.PagedCollections;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
@@ -80,14 +80,14 @@ namespace WRMC.Server.Controllers
 
 
             //Assign Default Role
-            var clientRole = await _unitOfWork.Roles.GetFirstOrDefaultAsync(predicate: x => x.Name.Equals(ApplicationRoles.Client));
+            var clientRole = await _unitOfWork.Roles.GetFirstOrDefaultAsync(predicate: x => x.Name.Equals(AppRoles.Client));
             if (clientRole != null)
             {
                 await _unitOfWork.UserRoles.AddAsync(new UserRole(userEntity.Entity.Id, clientRole.Id));
             }
 
             //TODO : Send Email Verification Code
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<string>.SuccessAsync(userEntity.Entity.Id.ToString(), "User successfully created."));
 
@@ -134,7 +134,6 @@ namespace WRMC.Server.Controllers
                     .Include(x => x.UserSetting)
                     .Include(x => x.UserProfile)
                     .Include(x => x.UserRoles).ThenInclude(x => x.Role)
-                    .Include(x => x.UserTenants).ThenInclude(x => x.Tenant)
                     .Include(x => x.UserSessions),
                 orderBy: o => o.OrderByDescending(k => k.CreatedDate),
                 pageIndex: Convert.ToInt32(page),
@@ -155,7 +154,6 @@ namespace WRMC.Server.Controllers
                 .Include(x => x.UserSetting)
                 .Include(x => x.UserProfile)
                 .Include(x => x.UserRoles).ThenInclude(x => x.Role)
-                .Include(x => x.UserTenants).ThenInclude(x => x.Tenant)
                 .Include(x => x.UserSessions));
                 var response = _mapper.Map<List<UserResponse>>(users);
                 return Ok(await Result<List<UserResponse>>.SuccessAsync(response));
@@ -179,21 +177,12 @@ namespace WRMC.Server.Controllers
                 predicate: x => x.Id.ToString().Equals(id),
                 include: i => i.Include(x => x.UserClaims)
                     .Include(x => x.UserSetting)
-                    .Include(x => x.UserProfile)
+                    .Include(x => x.UserProfile).ThenInclude(x=>x.IntroMethod).ThenInclude(x=>x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent)
                     .Include(x => x.UserRoles).ThenInclude(x => x.Role)
-                    .Include(x => x.UserTenants).ThenInclude(x => x.Tenant)
                     .Include(x => x.UserSessions));
 
             var response = _mapper.Map<UserResponse>(user);
 
-            //TODO : Resolve Code Redundancy
-            //MultiTenancy
-            if (user?.UserProfile.IntroMethodId != null)
-            {
-                var introMethod = await _unitOfWork.IntroMethods.GetFirstOrDefaultAsync(predicate: x => x.Id.Equals(user.UserProfile.IntroMethodId),
-                    include: i => i.Include(x => x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent));
-                response.UserProfile.IntroMethod = _mapper.Map<IntroMethodResponse>(introMethod);
-            }
 
             return Ok(await Result<UserResponse>.SuccessAsync(response));
         }
@@ -221,7 +210,7 @@ namespace WRMC.Server.Controllers
             _mapper.Map(requestToPatch, user);
             _unitOfWork.Users.Update(user);
 
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             //SignalR
             var hubUsers = new List<string>() { user.Id.ToString().ToLower() };
@@ -258,7 +247,7 @@ namespace WRMC.Server.Controllers
                 user.PasswordToken = null;
                 user.PasswordTokenExpires = null;
                 user.PasswordResetAt = DateTime.UtcNow;
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 //SignalR
                 var hubUsers = new List<string>() { user.Id.ToString().ToLower() };
@@ -290,7 +279,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("User not found."));
 
             _unitOfWork.Users.Remove(user);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
 
             return Ok(await Result<bool>.SuccessAsync(true, "User successfully deleted."));
@@ -387,7 +376,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("Session not found."));
 
             _unitOfWork.UserSessions.Remove(session);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             //SignalR
             var hubUsers = new List<string>() { session.UserId.ToString().ToLowerInvariant() };
@@ -405,9 +394,9 @@ namespace WRMC.Server.Controllers
         /// Get User Claims
         /// </summary>
         /// <param name="id"></param>
-        /// <returns>List of UserClaimResponse</returns>
+        /// <returns>List of ClaimResponse</returns>
         [HttpGet("{id}/claims")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserClaimResponse>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ClaimResponse>))]
         public async Task<IActionResult> GetUserClaims(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -418,9 +407,9 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("User not found."));
 
             var userClaims = await _unitOfWork.UserClaims.GetAllAsync(predicate: x => x.UserId == user.Id);
-            var response = _mapper.Map<List<UserClaimResponse>>(userClaims);
+            var response = _mapper.Map<List<ClaimResponse>>(userClaims);
 
-            return Ok(await Result<List<UserClaimResponse>>.SuccessAsync(response));
+            return Ok(await Result<List<ClaimResponse>>.SuccessAsync(response));
 
 
         }
@@ -434,7 +423,7 @@ namespace WRMC.Server.Controllers
         /// <returns>bool</returns>
         [HttpPut("{id}/claims")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateUserClaims(string id, [FromBody] List<UserClaimRequest> request)
+        public async Task<IActionResult> UpdateUserClaims(string id, [FromBody] List<ClaimRequest> request)
         {
 
             if (id is null)
@@ -450,7 +439,7 @@ namespace WRMC.Server.Controllers
                 if (item is not null)
                     await _unitOfWork.UserClaims.AddAsync(new UserClaim { UserId = Guid.Parse(id), ClaimType = item.ClaimType, ClaimValue = item.ClaimValue });
             }
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
 
             //SignalR
@@ -463,66 +452,6 @@ namespace WRMC.Server.Controllers
 
         #endregion
 
-        #region UserTenants
-        /// <summary>
-        /// Get User Tenants
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>List of UserTenantResponse</returns>
-        [HttpGet("{id}/tenants")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<UserTenantResponse>))]
-        public async Task<IActionResult> GetUserTenants(string id)
-        {
-            if (id is null)
-                return BadRequest(await Result.FailAsync("Invalid Request id."));
-
-            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
-            if (user is null)
-                return NotFound(await Result.FailAsync("User not found."));
-
-            var tenants = await _unitOfWork.UserTenants.GetAllAsync(predicate: x => x.UserId == user.Id,
-                include: i => i.Include(x => x.Tenant));
-            var response = _mapper.Map<List<UserTenantResponse>>(tenants);
-
-            return Ok(await Result<List<UserTenantResponse>>.SuccessAsync(response));
-        }
-
-
-
-        /// <summary>
-        /// Update User Tenants
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="request"></param>
-        /// <returns>bool</returns>
-        [HttpPut("{id}/tenants")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateUserTenants(string id, [FromBody] List<string> request)
-        {
-            if (id is null)
-                return BadRequest(await Result.FailAsync("Invalid Request id."));
-
-            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(id));
-            if (user is null)
-                return NotFound(await Result.FailAsync("User not found."));
-
-            _unitOfWork.UserTenants.RemoveRange(predicate: x => x.UserId == user.Id);
-            foreach (var item in request)
-            {
-                if (item is not null)
-                    await _unitOfWork.UserTenants.AddAsync(new UserTenant { UserId = Guid.Parse(id), TenantId = Guid.Parse(item) });
-            }
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
-
-            //SignalR
-            var hubUsers = new List<string>() { id.ToLowerInvariant() };
-            await _mainHubContext.Clients.Users(hubUsers).UpdateAuthState(hubUsers);
-
-
-            return Ok(await Result<bool>.SuccessAsync(true, "User tenants successfully updated."));
-        }
-
-        #endregion
 
         #region UserRole
 
@@ -549,7 +478,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("UserRole not found."));
 
             _unitOfWork.UserRoles.Remove(userRole);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
 
             //SignalR
@@ -589,7 +518,7 @@ namespace WRMC.Server.Controllers
                 return Conflict(await Result.FailAsync("Alredy assign."));
             var userRole = new UserRole(Guid.Parse(userId), Guid.Parse(roleId));
             await _unitOfWork.UserRoles.AddAsync(userRole);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
 
             //SignalR
@@ -645,14 +574,14 @@ namespace WRMC.Server.Controllers
             _unitOfWork.UserRoles.RemoveRange(predicate: x => x.UserId == user.Id);
 
 
-            //await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            //await _unitOfWork.SaveChangesAsync();
 
             foreach (var item in request)
             {
                 if (item is not null)
                     await _unitOfWork.UserRoles.AddAsync(new UserRole { UserId = user.Id, RoleId = Guid.Parse(item) });
             }
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             //SignalR
             var hubUsers = new List<string>() { id.ToLowerInvariant() };
@@ -686,7 +615,7 @@ namespace WRMC.Server.Controllers
             var setting = _mapper.Map<UserSetting>(request);
             setting.UserId = user.Id;
             var entity = await _unitOfWork.UserSettings.AddAsync(setting);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             //SignalR
             var hubUsers = new List<string>() { id.ToLowerInvariant() };
@@ -749,7 +678,7 @@ namespace WRMC.Server.Controllers
             request.ApplyTo(requestToPatch);
             _mapper.Map(requestToPatch, setting);
             _unitOfWork.UserSettings.Update(setting);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             //SignalR
             var hubUsers = new List<string>() { id.ToLowerInvariant() };
@@ -781,7 +710,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("Setting not found."));
 
             _unitOfWork.UserSettings.Remove(setting);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             //SignalR
             var hubUsers = new List<string>() { id.ToLowerInvariant() };
@@ -815,7 +744,7 @@ namespace WRMC.Server.Controllers
             var profile = _mapper.Map<UserProfile>(request);
             profile.UserId = user.Id;
             var entity = await _unitOfWork.UserProfiles.AddAsync(profile);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             //SignalR
             var hubUsers = new List<string>() { id.ToLowerInvariant() };
@@ -839,18 +768,10 @@ namespace WRMC.Server.Controllers
                 return BadRequest(await Result.FailAsync("Invalid Request id."));
 
             var userProfile = await _unitOfWork.UserProfiles.GetFirstOrDefaultAsync(
-                predicate: x => x.Id.ToString().Equals(id));
+                predicate: x => x.Id.ToString().Equals(id),
+                include: i =>i.Include(x => x.IntroMethod).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent));
 
             var response = _mapper.Map<UserProfileResponse>(userProfile);
-
-            //TODO : Resolve Code Redundancy
-            //MultiTenancy
-            if (userProfile != null)
-            {
-                var introMethod = await _unitOfWork.IntroMethods.GetFirstOrDefaultAsync(predicate : x => x.Id.Equals(userProfile.IntroMethodId),
-                    include: i=>i.Include(x=>x.Parent).ThenInclude(x=>x.Parent).ThenInclude(x=>x.Parent).ThenInclude(x=>x.Parent));
-                response.IntroMethod = _mapper.Map<IntroMethodResponse>(introMethod);
-            }
 
             return Ok(await Result<UserProfileResponse>.SuccessAsync(response));
         }
@@ -881,7 +802,7 @@ namespace WRMC.Server.Controllers
             _mapper.Map(userProfileRequest, userProfile);
 
             _unitOfWork.UserProfiles.Update(userProfile);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
 
             //SignalR
@@ -914,7 +835,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("Profile not found."));
 
             _unitOfWork.UserProfiles.Remove(userProfile);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             //SignalR
             var hubUsers = new List<string>() { id.ToLowerInvariant() };
@@ -949,7 +870,7 @@ namespace WRMC.Server.Controllers
             var phoneNumber = _mapper.Map<UserPhoneNumber>(request);
             phoneNumber.UserId = user.Id;
             var entity = await _unitOfWork.UserPhoneNumbers.AddAsync(phoneNumber);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "PhoneNumber successfully Added."));
         }
@@ -1031,7 +952,7 @@ namespace WRMC.Server.Controllers
             request.ApplyTo(requestToPatch);
             _mapper.Map(requestToPatch, userPhoneNumber);
             _unitOfWork.UserPhoneNumbers.Update(userPhoneNumber);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "PhoneNumber successfully updated."));
 
         }
@@ -1064,7 +985,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("PhoneNumber not found."));
 
             _unitOfWork.UserPhoneNumbers.Remove(phoneNumber);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, "PhoneNumber successfully deleted."));
 
@@ -1096,7 +1017,7 @@ namespace WRMC.Server.Controllers
             var address = _mapper.Map<UserAddress>(request);
             address.UserId = user.Id;
             var entity = await _unitOfWork.UserAddresses.AddAsync(address);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "Address successfully Added."));
 
         }
@@ -1186,7 +1107,7 @@ namespace WRMC.Server.Controllers
             request.ApplyTo(requestToPatch);
             _mapper.Map(requestToPatch, userAddress);
             _unitOfWork.UserAddresses.Update(userAddress);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "UserAddress successfully updated."));
 
         }
@@ -1219,7 +1140,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("Address not found."));
 
             _unitOfWork.UserAddresses.Remove(address);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, "Address successfully deleted."));
 
@@ -1251,7 +1172,7 @@ namespace WRMC.Server.Controllers
             var address = _mapper.Map<UserAttachment>(request);
             address.UserId = user.Id;
             var entity = await _unitOfWork.UserAttachments.AddAsync(address);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<string>.SuccessAsync(entity.Entity.Id.ToString(), "Attachment successfully Added."));
 
         }
@@ -1338,7 +1259,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("Attachment not found."));
 
             _unitOfWork.UserAttachments.Remove(attachment);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, "Attachment successfully deleted."));
 

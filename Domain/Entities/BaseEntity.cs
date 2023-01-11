@@ -7,9 +7,9 @@ namespace WRMC.Infrastructure.Domain.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column(Order = 0)]
+        [Column(Order = 1)]
         public TKey Id { get; set; }
-        public DateTime? CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime? CreatedDate { get; set; }
         public string? CreatedUserId { get; set; }
         public string? CreatedIpAddress { get; set; }
 

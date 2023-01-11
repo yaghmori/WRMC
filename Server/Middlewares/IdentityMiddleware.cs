@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using AutoMapper;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.Helpers;
 using WRMC.Infrastructure.DataAccess.Context;
 using WRMC.Infrastructure.Domain.Entities;
@@ -24,7 +24,7 @@ namespace WRMC.Server.Middlewares
                 await _next(context);
                 return;
             }
-            var userId = context.User.FindFirst(x => x.Type.Equals(ApplicationClaimTypes.UserId))?.Value!;
+            var userId = context.User.FindFirst(x => x.Type.Equals(AppClaimTypes.UserId))?.Value!;
             if (userId == null)
             {
                 // not found
@@ -41,7 +41,7 @@ namespace WRMC.Server.Middlewares
             var roleClaims = new List<Claim>();
             foreach (var role in roles)
             {
-                roleClaims.Add(new Claim(ApplicationClaimTypes.Role, role.Name));
+                roleClaims.Add(new Claim(AppClaimTypes.Role, role.Name));
                 var items = await unitOfWork.RoleClaims.GetAllAsync(predicate: x => x.RoleId==role.Id ,
                     selector:s=>new Claim(s.ClaimType,s.ClaimValue));
                     roleClaims.AddRange(items);
@@ -53,17 +53,11 @@ namespace WRMC.Server.Middlewares
                selector: s => new Claim(s.ClaimType, s.ClaimValue));
                 userClaims.AddRange(permissions);
 
-            //Tenants
-            var tenantClaims = new List<Claim>();
-            var tenants = await unitOfWork.UserTenants.GetAllAsync(predicate: x => x.UserId.ToString().Equals(userId),
-                 selector: s => new Claim(ApplicationClaimTypes.Tenant, s.TenantId.ToString()));
-            tenantClaims.AddRange(tenants);
            
 
             var claims = new List<Claim>()
                 .Union(roleClaims,new ClaimComparer())
-                .Union(userClaims,new ClaimComparer())
-                .Union(tenantClaims, new ClaimComparer());
+                .Union(userClaims,new ClaimComparer());
 
 
             ClaimsIdentity identity = new ClaimsIdentity(claims);

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.PagedCollections;
 using WRMC.Core.Shared.Responses;
 using WRMC.Infrastructure.Localization;
@@ -49,21 +49,9 @@ namespace WRMC.RootComponents.Pages.Identity
 
         private void ViewUserSession(UserResponse user)
         {
-            _navigationManager.NavigateTo(ApplicationURL.ActiveSessions + "/" + user.Id);
+            _navigationManager.NavigateTo(AppURL.ActiveSessions + "/" + user.Id);
         }
 
-        private async Task UpdateUserTenants(UserResponse user)
-        {
-            var parameters = new DialogParameters { { "UserId", user.Id } };
-            var options = new DialogOptions()
-            { CloseButton = true, DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.ExtraSmall };
-            var dialog = _dialog.Show<UserTenantsDialog>(user.Email, parameters, options);
-            var result = await dialog.Result;
-            if (!result.Cancelled)
-            {
-                await _mudDataGrid.ReloadServerData();
-            }
-        }
 
         private async Task AddOrUpdateUser(UserResponse item)
         {
@@ -75,12 +63,12 @@ namespace WRMC.RootComponents.Pages.Identity
             if (item != null)//Edit
             {
                 parameters.Add("UserId", item.Id);
-                title = _viewResources[ViewResources.UpdateUser];
+                title = _viewLocalizer[ViewResources.UpdateUser];
                 dialog = _dialog.Show<UpdateUserDialog>(title, parameters, options);
             }
             else
             {
-                title = _viewResources[ViewResources.AddNewUser];
+                title = _viewLocalizer[ViewResources.AddNewUser];
                 dialog = _dialog.Show<CreateNewUserDialog>(title, parameters, options);
             }
             var result = await dialog.Result;
@@ -96,8 +84,8 @@ namespace WRMC.RootComponents.Pages.Identity
             var parameters = new DialogParameters
             {
                 { "Title", user.Email },
-                { "ButtonText", _viewResources[ViewResources.DeleteUser].Value },
-                { "ContentText", _messageResources[MessageResources.DoYouReallyWantToDeleteUser, user.Email].Value },
+                { "ButtonText", _viewLocalizer[ViewResources.DeleteUser].Value },
+                { "ContentText", _messageLocalizer[MessageResources.DoYouReallyWantToDeleteUser, user.Email].Value },
                 { "ButtonColor", Color.Error },
                 { "ButtonIcon", Icons.Rounded.Delete },
                 { "TitleIcon", Icons.Rounded.Delete },
@@ -116,7 +104,7 @@ namespace WRMC.RootComponents.Pages.Identity
                 if (result?.Succeeded==true)
                 {
                     var users = new List<string> { user.Id };
-                    _snackbar.Add(_messageResources[MessageResources.UserSuccessfullyDeleted].Value, Severity.Success);
+                    _snackbar.Add(_messageLocalizer[MessageResources.UserSuccessfullyDeleted].Value, Severity.Success);
                     await _mudDataGrid.ReloadServerData();
                 }
                 else
@@ -168,7 +156,7 @@ namespace WRMC.RootComponents.Pages.Identity
 
         protected override async Task OnParametersSetAsync()
         {
-            _appState.AppTitle = _viewResources[ViewResources.Users];
+            _appState.AppTitle = _viewLocalizer[ViewResources.Users];
             await base.OnParametersSetAsync();
         }
 

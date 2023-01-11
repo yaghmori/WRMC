@@ -1,4 +1,4 @@
-﻿using WRMC.Core.Shared.Constant;
+﻿using WRMC.Core.Shared.Constants;
 using WRMC.Infrastructure.Domain.Entities;
 
 namespace WRMC.Infrastructure.DataAccess.Context
@@ -7,8 +7,8 @@ namespace WRMC.Infrastructure.DataAccess.Context
     {
 
         public static List<Role> Roles = new List<Role> {
-            new Role { Id=Guid.NewGuid(), Name = ApplicationRoles.Administrator, NormalizedName = ApplicationRoles.Administrator.Normalize().ToUpper() },
-            new Role { Id=Guid.NewGuid(), Name = ApplicationRoles.Client, NormalizedName = ApplicationRoles.Client.Normalize().ToUpper() },
+            new Role { Id=Guid.NewGuid(), Name = AppRoles.Administrator, NormalizedName = AppRoles.Administrator.Normalize().ToUpper() },
+            new Role { Id=Guid.NewGuid(), Name = AppRoles.Client, NormalizedName = AppRoles.Client.Normalize().ToUpper() },
         };
     }
 }

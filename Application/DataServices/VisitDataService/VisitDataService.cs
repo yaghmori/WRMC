@@ -2,17 +2,17 @@
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using System.Text;
-using WRMC.Core.Application.Extensions;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Extensions;
 using WRMC.Core.Shared.PagedCollections;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
 using WRMC.Core.Shared.ResultWrapper;
 using WRMC.Infrastructure.Domain.Enums;
+using WRMC.Core.Shared.Constants;
 
 namespace WRMC.Core.Application.DataServices
 {
- 
+
 
     public class VisitDataService : DataServiceBase, IVisitDataService
     {

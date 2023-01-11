@@ -13,7 +13,6 @@ namespace WRMC.Infrastructure.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ServerDbContext _serverDbContext;
-        private readonly TenantDbContext _tenantDbContext;
 
 
         private bool disposed = false;
@@ -26,18 +25,15 @@ namespace WRMC.Infrastructure.UnitOfWork
         /// Initializes a new instance of the <see cref="UnitOfWork{TContext}"/> class.
         /// </summary>
         /// <param name="context">The context.</param>
-        public UnitOfWork(TenantDbContext tenantDbContext, ServerDbContext serverDbContext)
+        public UnitOfWork( ServerDbContext serverDbContext)
         {
 
             _serverDbContext = serverDbContext;
-            _tenantDbContext = tenantDbContext;
         }
         //Server Repositories
         private IRepository<User> _userRepository;
         private IRepository<Role> _roleRepository;
         private IRepository<UserRole> _userRoleRepository;
-        private IRepository<UserTenant> _userTenants;
-        private IRepository<Tenant> _tenants;
         private IRepository<Culture> _cultures;
         private IRepository<UserClaim> _userClaim;
         private IRepository<UserToken> _userTokens;
@@ -58,7 +54,6 @@ namespace WRMC.Infrastructure.UnitOfWork
         private ISectionRepository _section;
         private IRepository<Region> _region;
         private IRepository<Tasks> _tasks;
-        private IRepository<SectionClaim> _sectionClaims;
         private IRepository<MedicalIntake> _medicalIntakes;
         private IRepository<DemographicIntake> _demographicIntakes;
 
@@ -77,63 +72,34 @@ namespace WRMC.Infrastructure.UnitOfWork
 
 
         public ServerDbContext ServerDbContext => _serverDbContext;
-        public TenantDbContext TenantDbContext => _tenantDbContext;
 
 
 
         public IRepository<User> Users => _userRepository ??= new Repository<User>(_serverDbContext);
-
         public IRepository<Role> Roles => _roleRepository ??= new Repository<Role>(_serverDbContext);
-
         public IRepository<UserRole> UserRoles => _userRoleRepository ??= new Repository<UserRole>(_serverDbContext);
-
-        public IRepository<UserTenant> UserTenants => _userTenants ??= new Repository<UserTenant>(_serverDbContext);
-
-        public IRepository<Tenant> Tenants => _tenants ??= new Repository<Tenant>(_serverDbContext);
-
+        public IRepository<Region> Regions => _region ??= new Repository<Region>(_serverDbContext);
         public IRepository<Culture> Cultures => _cultures ??= new Repository<Culture>(_serverDbContext);
-
         public IRepository<UserClaim> UserClaims => _userClaim ??= new Repository<UserClaim>(_serverDbContext);
-
         public IRepository<UserToken> UserTokens => _userTokens ??= new Repository<UserToken>(_serverDbContext);
-
         public IRepository<UserSetting> UserSettings => _userSettings ??= new Repository<UserSetting>(_serverDbContext);
-
         public IRepository<UserProfile> UserProfiles => _userProfiles ??= new Repository<UserProfile>(_serverDbContext);
-
         public IRepository<AppSetting> AppSettings => _appSettings ??= new Repository<AppSetting>(_serverDbContext);
-
         public IRepository<RoleClaim> RoleClaims => _roleClaims ??= new Repository<RoleClaim>(_serverDbContext);
-
         public IRepository<UserLogin> UserLogins => _userLogin ??= new Repository<UserLogin>(_serverDbContext);
-
         public IRepository<UserSession> UserSessions => _userSession ??= new Repository<UserSession>(_serverDbContext);
-
         public IRepository<UserAttachment> UserAttachments => _userAttachment ??= new Repository<UserAttachment>(_serverDbContext);
-
         public IRepository<UserAddress> UserAddresses => _userAddresses ??= new Repository<UserAddress>(_serverDbContext);
-
         public IRepository<UserPhoneNumber> UserPhoneNumbers => _userPhoneNumbers ??= new Repository<UserPhoneNumber>(_serverDbContext);
 
         //====================================================================================================
-
-        public IRepository<IntroMethod> IntroMethods => _introMethods ??= new Repository<IntroMethod>(_tenantDbContext);
-
-        public IRepository<Case> Cases => _case ??= new Repository<Case>(_tenantDbContext);
-
-        public IRepository<Visit> Visits => _visit ??= new Repository<Visit>(_tenantDbContext);
-
-        public ISectionRepository Sections => _section ??= new SectionRepository(_tenantDbContext);
-
-        public IRepository<Region> Regions => _region ??= new Repository<Region>(_tenantDbContext);
-
-        public IRepository<Tasks> Tasks => _tasks ??= new Repository<Tasks>(_tenantDbContext);
-
-        public IRepository<SectionClaim> SectionClaims => _sectionClaims ??= new Repository<SectionClaim>(_tenantDbContext);
-
-        public IRepository<MedicalIntake> MedicalIntakes => _medicalIntakes ??= new Repository<MedicalIntake>(_tenantDbContext);
-
-        public IRepository<DemographicIntake> DemographicIntakes => _demographicIntakes ??= new Repository<DemographicIntake>(_tenantDbContext);
+        public IRepository<IntroMethod> IntroMethods => _introMethods ??= new Repository<IntroMethod>(_serverDbContext);
+        public IRepository<Case> Cases => _case ??= new Repository<Case>(_serverDbContext);
+        public IRepository<Visit> Visits => _visit ??= new Repository<Visit>(_serverDbContext);
+        public ISectionRepository Sections => _section ??= new SectionRepository(_serverDbContext);
+        public IRepository<Tasks> Tasks => _tasks ??= new Repository<Tasks>(_serverDbContext);
+        public IRepository<MedicalIntake> MedicalIntakes => _medicalIntakes ??= new Repository<MedicalIntake>(_serverDbContext);
+        public IRepository<DemographicIntake> DemographicIntakes => _demographicIntakes ??= new Repository<DemographicIntake>(_serverDbContext);
 
 
 
@@ -188,7 +154,6 @@ namespace WRMC.Infrastructure.UnitOfWork
 
                     // dispose the db context.
                     _serverDbContext.Dispose();
-                    _tenantDbContext.Dispose();
                 }
             }
 

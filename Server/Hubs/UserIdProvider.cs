@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using WRMC.Core.Application.Extensions;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Extensions;
 
 namespace WRMC.Server.Hubs
 {

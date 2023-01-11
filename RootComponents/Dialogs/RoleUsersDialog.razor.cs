@@ -43,7 +43,7 @@ namespace WRMC.RootComponents.Dialogs
         private string GetMultiSelectionText(List<string> selectedValues)
         {
             SelectedUsers = SelectedUsers.ToList();
-            return _viewResources[ViewResources.UserSelected, selectedValues.Count];
+            return _viewLocalizer[ViewResources.UserSelected, selectedValues.Count];
         }
 
         public async void RemoveUser(MudChip chip)

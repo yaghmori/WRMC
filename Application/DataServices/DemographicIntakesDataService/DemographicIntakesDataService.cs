@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.JsonPatch;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.Ocsp;
 using System.Text;
-using WRMC.Core.Application.Extensions;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
+using WRMC.Core.Shared.Extensions;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
 using WRMC.Core.Shared.ResultWrapper;

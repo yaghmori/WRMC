@@ -42,9 +42,9 @@ namespace WRMC.RootComponents.Components
         {
             var parameters = new DialogParameters
             {
-                { "Title", item.PhoneNumberType?.GetDisplayDescription() },
-                { "ButtonText", _viewResources[ViewResources.Delete].Value },
-                { "ContentText", _messageResources[MessageResources.DoYouReallyWantToDeletePhoneNumber].Value },
+                { "Title", item.Type?.GetDisplayDescription() },
+                { "ButtonText", _viewLocalizer[ViewResources.Delete].Value },
+                { "ContentText", _messageLocalizer[MessageResources.DoYouReallyWantToDeletePhoneNumber].Value },
                 { "ButtonColor", Color.Error },
                 { "ButtonIcon", Icons.Rounded.Delete },
                 { "TitleIcon", Icons.Rounded.Delete },
@@ -63,7 +63,7 @@ namespace WRMC.RootComponents.Components
                 if (result.Succeeded)
                 {
                     //TODO : Update Using SignalR
-                    _snackbar.Add(_messageResources[MessageResources.PhoneNumberSuccessfullyDeleted].Value, Severity.Success);
+                    _snackbar.Add(_messageLocalizer[MessageResources.PhoneNumberSuccessfullyDeleted].Value, Severity.Success);
                     await LoadUserPhoneNumbers();
                 }
                 else
@@ -83,7 +83,7 @@ namespace WRMC.RootComponents.Components
             if (item != null)
                 parameters.Add("UserPhoneNumberId", item.Id);
             var options = new DialogOptions{CloseButton = true, DisableBackdropClick = true, FullWidth = true, MaxWidth = MaxWidth.ExtraSmall};
-            var title = item == null ? _viewResources[ViewResources.AddNewPhoneNumber].Value : _viewResources[ViewResources.UpdatePhoneNumber].Value;
+            var title = item == null ? _viewLocalizer[ViewResources.AddNewPhoneNumber].Value : _viewLocalizer[ViewResources.UpdatePhoneNumber].Value;
             var dialog = _dialog.Show<AddOrUpdatePhoneNumberDialog>(title, parameters, options);
             var result = await dialog.Result;
             if (!result.Cancelled)

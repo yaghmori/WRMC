@@ -39,7 +39,7 @@ namespace WRMC.Server.Controllers
 
             var section = _mapper.Map<Section>(request);
             var item = await _unitOfWork.Sections.AddAsync(section);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<string>.SuccessAsync(data: item.Entity.Id.ToString(), message: "Section successfully created."));
 
@@ -135,7 +135,7 @@ namespace WRMC.Server.Controllers
             _mapper.Map(requestToPatch, section);
 
             _unitOfWork.Sections.Update(section);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, "Section successfully updated."));
         }
@@ -159,96 +159,12 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("Section not found."));
 
             _unitOfWork.Sections.Remove(section);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, "Section successfully deleted."));
 
         }
 
-
-        /// <summary>
-        /// Get Section Claims
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>List of SectionClaimResponse</returns>
-        [HttpGet("{id}/claims")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<SectionClaimResponse>))]
-        public async Task<IActionResult> GetSectionClaims(string id)
-        {
-            if (string.IsNullOrWhiteSpace(id))
-                return BadRequest(await Result.FailAsync("Invalid request id."));
-
-            var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(id));
-            if (section is null)
-                return NotFound(await Result.FailAsync("Section Not Found."));
-
-
-            var claims = await _unitOfWork.SectionClaims.GetAllAsync(
-                predicate: x => x.SectionId == section.Id);
-            var response = _mapper.Map<List<SectionClaimResponse>>(claims);
-
-            return Ok(await Result<IList<SectionClaimResponse>>.SuccessAsync(response));
-
-        }
-
-
-        /// <summary>
-        /// Add Section Claim
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>string</returns>
-        [HttpPost("{id}/claims")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        public async Task<IActionResult> AddSectionClaim(string id, SectionClaimRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(id))
-                return BadRequest(await Result.FailAsync("Invalid request id."));
-
-            var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(id));
-            if (section is null)
-                return NotFound(await Result.FailAsync("Section Not Found."));
-
-            var sectionClaim = new SectionClaim
-            {
-                SectionId = section.Id,
-                ClaimType = request.ClaimType,
-                ClaimValue = request.ClaimValue,
-            };
-
-            await _unitOfWork.SectionClaims.AddAsync(sectionClaim);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
-
-            return Ok(await Result<string>.SuccessAsync(data: sectionClaim.Id.ToString(), message: "Claim successfully added to section."));
-        }
-
-
-        /// <summary>
-        /// Update Section Claims
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>bool</returns>
-        [HttpPut("{id}/claims")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateSectionClaims(string id, List<SectionClaimRequest> request)
-        {
-            if (string.IsNullOrWhiteSpace(id))
-                return BadRequest(await Result.FailAsync("Invalid request id."));
-
-            var section = await _unitOfWork.Sections.FindAsync(Guid.Parse(id));
-            if (section is null)
-                return NotFound(await Result.FailAsync("Section Not Found."));
-
-            _unitOfWork.SectionClaims.RemoveRange(predicate: x => x.SectionId.ToString().Equals(id));
-            foreach (var item in request)
-            {
-                if (item is not null)
-                    await _unitOfWork.SectionClaims.AddAsync(new SectionClaim { SectionId = section.Id, ClaimType = item.ClaimType, ClaimValue = item.ClaimType });
-            }
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
-
-            return Ok(await Result<bool>.SuccessAsync(true, "SectionClaims successfully updated."));
-
-        }
 
 
         /// <summary>
@@ -260,7 +176,7 @@ namespace WRMC.Server.Controllers
         public async Task<IActionResult> DeleteAllSections()
         {
             _unitOfWork.Sections.RemoveAll();
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, "All sections successfully have been deleted."));
 

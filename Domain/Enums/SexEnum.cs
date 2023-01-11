@@ -6,8 +6,8 @@ namespace WRMC.Infrastructure.Domain.Enums;
 
 public enum GenderEnum : short
 {
-    [Display(Description ="I am female")]
+    [Display(Description ="Female")] //TODO : Localization
     Female = 0,
-    [Display(Description = "I am male")]
+    [Display(Description = "Male")]
     Male = 1,
 }

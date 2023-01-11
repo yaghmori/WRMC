@@ -45,7 +45,7 @@ namespace WRMC.Server.Controllers
 
             var visit = _mapper.Map<Visit>(request);
             await _unitOfWork.Visits.AddAsync(visit);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<string>.SuccessAsync(data: visit.Id.ToString(), "Visit successfully Created."));
 
         }
@@ -202,7 +202,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("Visit not found."));
 
             _unitOfWork.Visits.Remove(visit);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "Visit successfully deleted."));
 
         }
@@ -229,7 +229,7 @@ namespace WRMC.Server.Controllers
             request.ApplyTo(requestToPatch);
             _mapper.Map(requestToPatch, visit);
             _unitOfWork.Visits.Update(visit);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, "Visit successfully updated."));
 
@@ -287,24 +287,13 @@ namespace WRMC.Server.Controllers
 
             var visit = await _unitOfWork.Visits.GetFirstOrDefaultAsync(
                  predicate: x => x.Id.Equals(task.VisitId),
-                include: i => i.Include(x => x.Tasks).ThenInclude(x => x.Section).ThenInclude(x => x.Sections).Include(x => x.Case));
+                include: i => i.Include(x => x.Tasks).ThenInclude(x => x.Section).ThenInclude(x => x.Sections)
+                .Include(x => x.Case).ThenInclude(x=>x.User).ThenInclude(x=>x.UserProfile));
 
-            if (visit == null)
-                return NotFound(await Result.FailAsync("Visit not found."));
-
-            //MultiTenancy
-            var userId = visit?.Case?.UserId;
-            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(userId),
-                include: i => i.Include(x => x.UserProfile));
+            //if (visit == null)
+            //    return NotFound(await Result.FailAsync("Visit not found."));
 
             var response = _mapper.Map<VisitResponse>(visit);
-
-            //mapp user
-            if (response != null)
-            {
-                response.Case.User = _mapper.Map<UserResponse>(user);
-                response.User = _mapper.Map<UserResponse>(user);
-            }
 
             return Ok(await Result<VisitResponse>.SuccessAsync(response));
 
@@ -425,7 +414,7 @@ namespace WRMC.Server.Controllers
             }
 
 
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<List<string>>.SuccessAsync(addedSectionList, $"{addedSectionList.Count} VisitSection(0) successfully added."));
 
@@ -450,7 +439,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("VisitSection not found."));
 
             _unitOfWork.Tasks.Remove(visitSection);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, "VisitSection successfully deleted."));
 
@@ -477,7 +466,7 @@ namespace WRMC.Server.Controllers
             request.ApplyTo(requestToPatch);
             _mapper.Map(requestToPatch, visitSection);
             _unitOfWork.Tasks.Update(visitSection);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, " VisitSection successfully updated."));
 

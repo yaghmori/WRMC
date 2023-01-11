@@ -6,13 +6,13 @@
 
 <div Class="d-flex flex-row align-items-center  justify-content-between  mb-3">
     <MudHidden Breakpoint="Breakpoint.Xs">
-        <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">@_viewResources[ViewResources.Roles]</MudText>
+        <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">@_viewLocalizer[ViewResources.Roles]</MudText>
     </MudHidden>
 
     <div Class="d-flex flex-row align-items-center justify-content-sm-start justify-content-between gap-3">
                 <MudTextField T="string"
                               ValueChanged="@(s=>OnSearchData(s))"
-                              Placeholder="@_viewResources[ViewResources.Search]"
+                              Placeholder="@_viewLocalizer[ViewResources.Search]"
                               Adornment="Adornment.Start"
                               Margin="Margin.Dense"
                               Immediate="false" Clearable="true"
@@ -20,7 +20,7 @@
                               IconSize="Size.Medium"
                               Class="mt-n3"></MudTextField>
         <MudHidden Breakpoint="Breakpoint.Xs">
-                    <MudButton StartIcon="@Icons.Rounded.AddCircle" Variant="Variant.Filled" OnClick="()=>AddOrUpdateRole(null)" Color="Color.Primary">@_viewResources[ViewResources.AddNewRole]</MudButton>
+                    <MudButton StartIcon="@Icons.Rounded.AddCircle" Variant="Variant.Filled" OnClick="()=>AddOrUpdateRole(null)" Color="Color.Primary">@_viewLocalizer[ViewResources.AddNewRole]</MudButton>
         </MudHidden>
     </div>
 </div>
@@ -44,13 +44,13 @@
              FixedHeader="true">
     <NoRecordsContent>
         <div class="height:100px;">
-            <h6 class="text-secondary">@_messageResources[MessageResources.NoRecordFound]</h6>
+            <h6 class="text-secondary">@_messageLocalizer[MessageResources.NoRecordFound]</h6>
         </div>
     </NoRecordsContent>
 
 
     <Columns>
-        <Column T="RoleResponse" Field="Name" Title="@_displayResources[DisplayResources.RoleName]" />
+        <Column T="RoleResponse" Field="Name" Title="@_displayLocalizer[DisplayResources.RoleName]" />
         <Column Context="rowData" T="RoleResponse" Sortable="false" Resizable="false">
             <CellTemplate>
                 <MudButtonGroup Color="Color.Primary" Variant="Variant.Text" Class="d-flex justify-end">

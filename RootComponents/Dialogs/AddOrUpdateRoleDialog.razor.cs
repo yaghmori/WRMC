@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.Requests;
 using WRMC.Infrastructure.Localization;
 
@@ -12,17 +12,17 @@ namespace WRMC.RootComponents.Dialogs
     {
         [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
         [Parameter] public string RoleId { get; set; } = string.Empty;
-        public RoleRequest Role { get; set; } = new();
+        public RoleRequest Model { get; set; } = new();
 
         protected override async Task OnInitializedAsync()
         {
             IsLoading = true;
-            if (!string.IsNullOrWhiteSpace(RoleId))
+            if (!string.IsNullOrWhiteSpace(RoleId)) //load role
             {
                 var result = await _roleDataService.GetRoleAsync(RoleId);
                 if (result.Succeeded)
                 {
-                    Role = _autoMapper.Map<RoleRequest>(result.Data);
+                    Model = _autoMapper.Map<RoleRequest>(result.Data);
                 }
                 else
                 {
@@ -32,6 +32,8 @@ namespace WRMC.RootComponents.Dialogs
                     }
                 }
             }
+            Model.RoleId= RoleId; //for remote validation
+
             IsLoading = false;
             StateHasChanged();
         }
@@ -41,19 +43,19 @@ namespace WRMC.RootComponents.Dialogs
             bool dgResult = false;
             if (string.IsNullOrWhiteSpace(RoleId)) //New
             {
-                var result = await _roleDataService.AddRoleAsync(Role.Name);
+                var result = await _roleDataService.AddRoleAsync(Model.Name);
                 if (result.Succeeded)
                 {
                     var roleId = result.Data;
                     if (!string.IsNullOrWhiteSpace(roleId))
                     {
                         dgResult = true;
-                        _snackbar.Add(_messageResources[MessageResources.RoleSuccessfullyCreated], Severity.Success);
+                        _snackbar.Add(_messageLocalizer[MessageResources.RoleSuccessfullyCreated], Severity.Success);
                     }
                 }
                 else
                 {
-                    _snackbar.Add(_messageResources[MessageResources.CreatingRoleFailed], Severity.Error);
+                    _snackbar.Add(_messageLocalizer[MessageResources.CreatingRoleFailed], Severity.Error);
                     foreach (var message in result.Messages)
                     {
                         _snackbar.Add(message, Severity.Success);
@@ -62,15 +64,15 @@ namespace WRMC.RootComponents.Dialogs
             }
             else //Edit
             {
-                var result = await _roleDataService.UpdateRoleAsync(RoleId, Role.Name);
+                var result = await _roleDataService.UpdateRoleAsync(RoleId, Model.Name);
                 if (result.Succeeded)
                 {
                     dgResult = true;
-                    _snackbar.Add(_messageResources[MessageResources.RoleSuccessfullyUpdated], Severity.Success);
+                    _snackbar.Add(_messageLocalizer[MessageResources.RoleSuccessfullyUpdated], Severity.Success);
                 }
                 else
                 {
-                    _snackbar.Add(_messageResources[MessageResources.UpdatingRoleFailed], Severity.Error);
+                    _snackbar.Add(_messageLocalizer[MessageResources.UpdatingRoleFailed], Severity.Error);
                     foreach (var message in result.Messages)
                     {
                         _snackbar.Add(message, Severity.Success);

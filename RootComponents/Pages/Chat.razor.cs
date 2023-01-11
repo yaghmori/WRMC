@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.Responses;
 using WRMC.Infrastructure.Localization;
 
@@ -24,7 +24,7 @@ namespace WRMC.RootComponents.Pages
         private string GetMultiSelectionText(List<string> selectedValues)
         {       
             SelectedUsers = SelectedUsers.ToList();
-            return _viewResources[ViewResources.UserSelected, selectedValues.Count];
+            return _viewLocalizer[ViewResources.UserSelected, selectedValues.Count];
         }
 
         public async void RemoveUser(MudChip chip)

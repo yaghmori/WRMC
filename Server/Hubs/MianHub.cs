@@ -67,7 +67,7 @@ namespace WRMC.Server.Hubs
                 user.IsOnline = true;
             }
             _unitOfWork.Users.Update(user);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
@@ -78,7 +78,7 @@ namespace WRMC.Server.Hubs
                 user.IsOnline = false;
             }
             _unitOfWork.Users.Update(user);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
     }

@@ -6,7 +6,7 @@ namespace WRMC.RootComponents
 
     public class AppStateHandler
     {
-        private readonly IStringLocalizer<ViewResources> _viewResources;
+        private readonly IStringLocalizer<ViewResources> _viewLocalizer;
 
         public string AppTitle { get; set; } = string.Empty;
         public bool DrawerOpen { get; set; } = true;
@@ -16,7 +16,7 @@ namespace WRMC.RootComponents
 
         public AppStateHandler()
         {
-            //AppTitle = _viewResources[ViewResources.ApplicationTitle];
+            //AppTitle = _viewLocalizer[ViewResources.ApplicationTitle];
         }
 
 
@@ -33,7 +33,7 @@ namespace WRMC.RootComponents
         }
         public void SetAppTitleDefault(string title)
         {
-            AppTitle = _viewResources[ViewResources.AppTitle];
+            AppTitle = _viewLocalizer[ViewResources.AppTitle];
             OnAppTitleChanged?.Invoke();
         }
     }

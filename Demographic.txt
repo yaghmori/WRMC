@@ -41,11 +41,11 @@
                     <MudTabPanel>
                         <div>
                             <MudItem xs="12" sm="2">
-                                @_messageResources[MessageResources.USCitizen]
+                                @_messageLocalizer[MessageResources.USCitizen]
 
                                 <MudRadioGroup For="()=>DemographicRequest.IsUSCitizen" @bind-SelectedOption=DemographicRequest.IsUSCitizen>
-                                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                                 </MudRadioGroup>
                             </MudItem>
                             <MudItem xs="12" sm="5">
@@ -56,7 +56,7 @@
                                        For="@(()=>DemographicRequest.ImmigrationStatus)"
                                        T="ImmigrationStatusEnum?"
                                        Immediate=true
-                                       Label="@_displayResources[DisplayResources.DemographicIntake_ImmigrationStatus]"
+                                       Label="@_displayLocalizer[DisplayResources.DemographicIntake_ImmigrationStatus]"
                                        Variant="Variant.Outlined">
                                         @foreach (var item in Enum.GetValues(typeof(ImmigrationStatusEnum)).Cast<ImmigrationStatusEnum?>())
                                         {
@@ -73,7 +73,7 @@
                                              ResetValueOnEmptyText=true
                                              @bind-Value="@DemographicRequest.Region"
                                              For="()=>DemographicRequest.Region"
-                                             Label="@_viewResources[ViewResources.Country]"
+                                             Label="@_viewLocalizer[ViewResources.Country]"
                                              ToStringFunc="@(e=> e==null?null : e.Name)"
                                              Variant="Variant.Outlined"
                                              MaxItems="null"
@@ -89,7 +89,7 @@
                                        For="@(()=>DemographicRequest.MaritalStatus)"
                                        T="MaritalEnum?"
                                        Immediate=true
-                                       Label="@_displayResources[DisplayResources.DemographicIntake_MaritalStatus]"
+                                       Label="@_displayLocalizer[DisplayResources.DemographicIntake_MaritalStatus]"
                                        Variant="Variant.Outlined">
                                     @foreach (var item in Enum.GetValues(typeof(MaritalEnum)).Cast<MaritalEnum?>())
                                     {
@@ -102,7 +102,7 @@
                                        For="@(()=>DemographicRequest.LivingArrangement)"
                                        T="LivingEnum?"
                                        Immediate=true
-                                       Label="@_displayResources[DisplayResources.DemographicIntake_LivingArrangement]"
+                                       Label="@_displayLocalizer[DisplayResources.DemographicIntake_LivingArrangement]"
                                        Variant="Variant.Outlined">
                                     @foreach (var item in Enum.GetValues(typeof(LivingEnum)).Cast<LivingEnum?>())
                                     {
@@ -113,7 +113,7 @@
                             <MudItem xs="12" sm="3">
                                 <MudNumericField @bind-Value="DemographicRequest.NumberOfHousehold" T="short?"
                                              For="@(()=>DemographicRequest.NumberOfHousehold)"
-                                             Label="@_displayResources[DisplayResources.DemographicIntake_NumberOfPeopleInHousehold]"
+                                             Label="@_displayLocalizer[DisplayResources.DemographicIntake_NumberOfPeopleInHousehold]"
                                              Immediate=true
                                              Variant="Variant.Outlined">
                                 </MudNumericField>
@@ -122,10 +122,10 @@
 
                         <div>
                             <MudItem xs="12" sm="3">
-                                @_messageResources[MessageResources.AreYouCurrentlyAttendingSchool]
+                                @_messageLocalizer[MessageResources.AreYouCurrentlyAttendingSchool]
                                 <MudRadioGroup For="()=>DemographicRequest.InSchool" @bind-SelectedOption=DemographicRequest.InSchool>
-                                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                                 </MudRadioGroup>
                             </MudItem>
                             <MudItem xs="12" sm="3">
@@ -134,7 +134,7 @@
                                     <MudTextField @bind-Value="DemographicRequest.SchoolName"
                                           For="@(()=>DemographicRequest.SchoolName)"
                                           Immediate=true
-                                          Label="@_displayResources[DisplayResources.DemographicIntake_SchoolName]"
+                                          Label="@_displayLocalizer[DisplayResources.DemographicIntake_SchoolName]"
                                           Variant="Variant.Outlined" />
                                 }
                             </MudItem>
@@ -143,7 +143,7 @@
                                        For="@(()=>DemographicRequest.LastGrade)"
                                        T="LastGradeEnum?"
                                        Immediate=true
-                                       Label="@_displayResources[DisplayResources.DemographicIntake_LastGrade]"
+                                       Label="@_displayLocalizer[DisplayResources.DemographicIntake_LastGrade]"
                                        Variant="Variant.Outlined">
                                     @foreach (var item in Enum.GetValues(typeof(LastGradeEnum)).Cast<LastGradeEnum?>())
                                     {
@@ -155,10 +155,10 @@
 
                         <div>
                             <MudItem xs="12" sm="6">
-                                @_messageResources[MessageResources.DoYouHaveAnInsurance]
+                                @_messageLocalizer[MessageResources.DoYouHaveAnInsurance]
                                 <MudRadioGroup For="()=>DemographicRequest.HaveInsurance" @bind-SelectedOption=DemographicRequest.HaveInsurance>
-                                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                                 </MudRadioGroup>
                             </MudItem>
                             <MudItem xs="12" sm="3">
@@ -168,7 +168,7 @@
                                        For="@(()=>DemographicRequest.InsuranceName)"
                                        T="InsuranceNameEnum?"
                                        Immediate=true
-                                       Label="@_displayResources[DisplayResources.DemographicIntake_InsuranceName]"
+                                       Label="@_displayLocalizer[DisplayResources.DemographicIntake_InsuranceName]"
                                        Variant="Variant.Outlined">
                                         @foreach (var item in Enum.GetValues(typeof(InsuranceNameEnum)).Cast<InsuranceNameEnum?>())
                                         {
@@ -183,17 +183,17 @@
                                     <MudTextField @bind-Value="DemographicRequest.MedicaidNo"
                                           For="@(()=>DemographicRequest.MedicaidNo)"
                                           Immediate=true
-                                          Label="@_displayResources[DisplayResources.DemographicIntake_InsuranceNumber]"
+                                          Label="@_displayLocalizer[DisplayResources.DemographicIntake_InsuranceNumber]"
                                           Variant="Variant.Outlined" />
                                 }
                             </MudItem>
                             <MudItem xs="12" sm="6">
                                 @if (DemographicRequest?.HaveInsurance == false)
                                 {
-                                    @_messageResources[MessageResources.WouldYouLikeAssistanceInGettingInsurance]
+                                    @_messageLocalizer[MessageResources.WouldYouLikeAssistanceInGettingInsurance]
                                     <MudRadioGroup For="()=>DemographicRequest.NeedInsurance" @bind-SelectedOption=DemographicRequest.NeedInsurance>
-                                        <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                                        <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                                        <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                                        <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                                     </MudRadioGroup>
                                 }
                             </MudItem>
@@ -209,7 +209,7 @@
                                        For="@(()=>DemographicRequest.Employment)"
                                        T="EmploymentEnum?"
                                        Immediate=true
-                                       Label="@_displayResources[DisplayResources.DemographicIntake_EmploymentStatus]"
+                                       Label="@_displayLocalizer[DisplayResources.DemographicIntake_EmploymentStatus]"
                                        Variant="Variant.Outlined">
                                     @foreach (var item in Enum.GetValues(typeof(EmploymentEnum)).Cast<EmploymentEnum?>())
                                     {
@@ -224,7 +224,7 @@
                                           For="@(() => DemographicRequest.Employer)"
                                           Required=true
                                           Immediate=true
-                                          Label="@_displayResources[DisplayResources.DemographicIntake_Employer]"
+                                          Label="@_displayLocalizer[DisplayResources.DemographicIntake_Employer]"
                                           Variant="Variant.Outlined" />
                                 }
                             </MudItem>
@@ -235,7 +235,7 @@
                                           For="@(() => DemographicRequest.Occupation)"
                                           Required=true
                                           Immediate=true
-                                          Label="@_displayResources[DisplayResources.DemographicIntake_Occupation]"
+                                          Label="@_displayLocalizer[DisplayResources.DemographicIntake_Occupation]"
                                           Variant="Variant.Outlined" />
                                 }
                             </MudItem>
@@ -247,7 +247,7 @@
                                        For="@(()=>DemographicRequest.Income)"
                                        T="IncomeEnum?"
                                        Immediate=true
-                                       Label="@_displayResources[DisplayResources.DemographicIntake_Income]"
+                                       Label="@_displayLocalizer[DisplayResources.DemographicIntake_Income]"
                                        Variant="Variant.Outlined">
                                     @foreach (var item in Enum.GetValues(typeof(IncomeEnum)).Cast<IncomeEnum?>())
                                     {
@@ -258,10 +258,10 @@
                             <MudItem xs="12" sm="4">
                                 @if (DemographicRequest.Income == IncomeEnum.NoIncome || DemographicRequest.Income == IncomeEnum.WelfareSSIBenefits)
                                 {
-                                    @_messageResources[MessageResources.IsYourIncomeCombinedFromMultipleSources]
+                                    @_messageLocalizer[MessageResources.IsYourIncomeCombinedFromMultipleSources]
                                     <MudRadioGroup For="()=>DemographicRequest.CombinedIncome" @bind-SelectedOption=DemographicRequest.CombinedIncome>
-                                        <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                                        <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                                        <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                                        <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                                     </MudRadioGroup>
                                 }
                             </MudItem>
@@ -269,8 +269,8 @@
                                 <MudTextField @bind-Value="DemographicRequest.FinancialSupport"
                                           For="@(()=>DemographicRequest.FinancialSupport)"
                                           Immediate=true
-                                          Label="@_displayResources[DisplayResources.DemographicIntake_FinancialSupportSource]"
-                                          HelperText="@_messageResources[MessageResources.WhereDoesYourFinancialSupportComeFrom]"
+                                          Label="@_displayLocalizer[DisplayResources.DemographicIntake_FinancialSupportSource]"
+                                          HelperText="@_messageLocalizer[MessageResources.WhereDoesYourFinancialSupportComeFrom]"
                                           Variant="Variant.Outlined" />
                             </MudItem>
                         </div>
@@ -278,7 +278,7 @@
                         <MudItem xs="12">
                             <MudNumericField @bind-Value="DemographicRequest.NumberOfTaxReturn" T="short?"
                                          For="@(()=>DemographicRequest.NumberOfTaxReturn)"
-                                         Label="@_displayResources[DisplayResources.DemographicIntake_NumberOfPeopleOnYourTaxReturn]"
+                                         Label="@_displayLocalizer[DisplayResources.DemographicIntake_NumberOfPeopleOnYourTaxReturn]"
                                          Immediate=true
                                          Variant="Variant.Outlined">
                             </MudNumericField>
@@ -291,36 +291,36 @@
 
                         <div>
                             <MudItem sm="12" md="6">
-                                @_messageResources[MessageResources.DoYouHaveAccessToPrenatalCare]
+                                @_messageLocalizer[MessageResources.DoYouHaveAccessToPrenatalCare]
                                 <MudRadioGroup For="()=>DemographicRequest.AffordPrenatal" @bind-SelectedOption=DemographicRequest.AffordPrenatal>
-                                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                                 </MudRadioGroup>
                             </MudItem>
                             <MudItem sm="12" md="6">
-                                @_messageResources[MessageResources.DoYouFeelHavingAChildNowWouldCreateAnUndueBurdenFinancially]
+                                @_messageLocalizer[MessageResources.DoYouFeelHavingAChildNowWouldCreateAnUndueBurdenFinancially]
                                 <MudRadioGroup For="()=>DemographicRequest.UndueBurden" @bind-SelectedOption=DemographicRequest.UndueBurden>
-                                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                                 </MudRadioGroup>
                             </MudItem>
                         </div>
 
                         <div>
                             <MudItem sm="12" md="6">
-                                @_messageResources[MessageResources.IsYourCurrentLivingArrangementConduciveToRaisingChildren]
+                                @_messageLocalizer[MessageResources.IsYourCurrentLivingArrangementConduciveToRaisingChildren]
                                 <MudRadioGroup For="()=>DemographicRequest.ConduciveRaising" @bind-SelectedOption=DemographicRequest.ConduciveRaising>
-                                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                                 </MudRadioGroup>
                             </MudItem>
                             <MudItem sm="12" md="6">
                                 @if (DemographicRequest?.Gender == GenderEnum.Female)
                                 {
-                                    @_messageResources[MessageResources.ShouldTheTestResultBePositiveDoYouFeelYouNeedToHideYourPregnancy]
+                                    @_messageLocalizer[MessageResources.ShouldTheTestResultBePositiveDoYouFeelYouNeedToHideYourPregnancy]
                                     <MudRadioGroup For="()=>DemographicRequest.HidePregnancy" @bind-SelectedOption=DemographicRequest.HidePregnancy>
-                                        <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                                        <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                                        <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                                        <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                                     </MudRadioGroup>
 
                                 }
@@ -328,10 +328,10 @@
                         </div>
 
                         <MudItem sm="12">
-                            @_messageResources[MessageResources.AreYouDisabledAndOrDevelopmentallyDisabled]
+                            @_messageLocalizer[MessageResources.AreYouDisabledAndOrDevelopmentallyDisabled]
                             <MudRadioGroup For="()=>DemographicRequest.Disabled" @bind-SelectedOption=DemographicRequest.Disabled>
-                                <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                                <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                                <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                                <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                             </MudRadioGroup>
                         </MudItem>
 
@@ -362,11 +362,11 @@
                         @if (IsBusy)
                         {
                             <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                            <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                            <MudText Class="ms-2">@_viewLocalizer[ViewResources.Processing]</MudText>
                         }
                         else
                         {
-                            @_viewResources[ViewResources.Submit]
+                            @_viewLocalizer[ViewResources.Submit]
                         }
                     </MudButton>
                 </div>

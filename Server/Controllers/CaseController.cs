@@ -46,7 +46,7 @@ namespace WRMC.Server.Controllers
             
                 var caseEntity = _mapper.Map<Case>(request);
                 await _unitOfWork.Cases.AddAsync(caseEntity);
-                await _unitOfWork.TenantDbContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 return Ok(await Result<string>.SuccessAsync(data: caseEntity.Id.ToString(), "Case successfully Created."));
            
@@ -76,7 +76,7 @@ namespace WRMC.Server.Controllers
                 _mapper.Map(requestToPatch, _case);
 
                 _unitOfWork.Cases.Update(_case);
-                await _unitOfWork.TenantDbContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true, "Case successfully updated."));
            
         }
@@ -146,7 +146,7 @@ namespace WRMC.Server.Controllers
                     return NotFound(await Result.FailAsync("Case not found."));
 
                 _unitOfWork.Cases.Remove(_case);
-                await _unitOfWork.TenantDbContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true, "Case successfully deleted."));
 
         }

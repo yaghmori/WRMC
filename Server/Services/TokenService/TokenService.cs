@@ -3,7 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.Helpers;
 using WRMC.Infrastructure.Domain.Entities;
 
@@ -98,8 +98,8 @@ namespace Server.Services.TokenService
             var claims = new List<Claim>();
             if (user != null)
             {
-                claims.Add(new Claim(ApplicationClaimTypes.UserId, user.Id.ToString()));
-                claims.Add(new Claim(ApplicationClaimTypes.TenantId, user.DefaultTenantId.ToString()));
+                claims.Add(new Claim(AppClaimTypes.UserId, user.Id.ToString()));
+                claims.Add(new Claim(AppClaimTypes.TenantId, user.DefaultTenantId.ToString()));
             }
             return claims;
         }

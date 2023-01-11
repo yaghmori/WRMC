@@ -6,6 +6,7 @@ namespace WRMC.Core.Shared.Requests
 {
     public class RoleRequest
     {
+        public string? RoleId { get; set; } = string.Empty;
         public string Name { get; set; }
     }
     public class RoleValidator : AbstractValidator<RoleRequest>
@@ -17,8 +18,10 @@ namespace WRMC.Core.Shared.Requests
             _roleValidator = roleValidator;
 
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Please specify role name")
-                .MustAsync(BeUniqueEmail).WithMessage("Role name already exist");
+                .NotEmpty().WithMessage("Please specify role name");
+            RuleFor(x => x.Name).MustAsync(BeUniqueEmail).When(x =>x.RoleId==string.Empty).WithMessage("Role name already exist")
+           
+           ;
         }
         private async Task<bool> BeUniqueEmail(string email, CancellationToken token)
         {

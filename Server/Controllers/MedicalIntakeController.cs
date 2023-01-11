@@ -111,7 +111,7 @@ namespace WRMC.Server.Controllers
                 TaskId = task.Id,
                 IsComplete = request.IsComplete,
             });
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<string>.SuccessAsync(data: medicalIntake.Entity.Id.ToString(), message: "Medical Intake successfully created."));
 
         }
@@ -139,7 +139,7 @@ namespace WRMC.Server.Controllers
 
             var medicalIntake = _mapper.Map<MedicalIntake>(request);
             await _unitOfWork.MedicalIntakes.AddAsync(medicalIntake);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<string>.SuccessAsync(data: medicalIntake.Id.ToString(), message: "Medical Intake successfully created."));
 
         }
@@ -160,7 +160,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("Medical Intake not found."));
 
             _unitOfWork.MedicalIntakes.Remove(medicalIntake);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "Medical Intake successfully deleted."));
         }
 
@@ -185,7 +185,7 @@ namespace WRMC.Server.Controllers
             _mapper.Map(medicalIntakeRequest, medicalIntake);
 
             _unitOfWork.MedicalIntakes.Update(medicalIntake);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "Medical Intake successfully updated."));
         }
 

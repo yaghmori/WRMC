@@ -5,8 +5,8 @@
                 <NotAuthorized>
                     @if (context?.User?.Identity?.IsAuthenticated == true)
                     {
-                        <h4 class="text-danger">@_viewResources[ViewResources.AccessDenied]</h4>
-                        <p>@_messageResources[MessageResources.YouAreNotAuthorizedToAccessThisResource]</p>
+                        <h4 class="text-danger">@_viewLocalizer[ViewResources.AccessDenied]</h4>
+                        <p>@_messageLocalizer[MessageResources.YouAreNotAuthorizedToAccessThisResource]</p>
                     }
                     else
                     {
@@ -15,7 +15,7 @@
                     }
                 </NotAuthorized>
                 <Authorizing>
-                    <p class="mt-n2">@_viewResources[ViewResources.Authorizing]</p>
+                    <p class="mt-n2">@_viewLocalizer[ViewResources.Authorizing]</p>
                     <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mt-n5 mb-3" />
                 </Authorizing>
             </AuthorizeRouteView>

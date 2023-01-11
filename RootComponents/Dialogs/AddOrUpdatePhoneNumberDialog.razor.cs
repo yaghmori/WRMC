@@ -49,7 +49,7 @@ namespace WRMC.RootComponents.Dialogs
                     if (!string.IsNullOrWhiteSpace(PhoneNumberId))
                     {
                         dgResult = true;
-                        _snackbar.Add(_messageResources[MessageResources.PhoneNumberSuccessfullyAdded]?.Value, Severity.Success);
+                        _snackbar.Add(_messageLocalizer[MessageResources.PhoneNumberSuccessfullyAdded]?.Value, Severity.Success);
 
                         //TODO : Using SignalR
                     }
@@ -66,7 +66,7 @@ namespace WRMC.RootComponents.Dialogs
             {
                 var patchDoc = new JsonPatchDocument<UserPhoneNumberRequest>();
                 patchDoc.Replace(e => e.PhoneNumber,UserPhoneNumber.PhoneNumber);
-                patchDoc.Replace(e => e.PhoneNumberType,UserPhoneNumber.PhoneNumberType);
+                patchDoc.Replace(e => e.Type,UserPhoneNumber.Type);
                 patchDoc.Replace(e => e.Description,UserPhoneNumber.Description);
                 patchDoc.Replace(e => e.IsDefault,UserPhoneNumber.IsDefault);
 
@@ -75,7 +75,7 @@ namespace WRMC.RootComponents.Dialogs
                 if (result.Succeeded)
                 {
                     dgResult = true;
-                    _snackbar.Add(_messageResources[MessageResources.PhoneNumberSuccessfullyUpdated], Severity.Success);
+                    _snackbar.Add(_messageLocalizer[MessageResources.PhoneNumberSuccessfullyUpdated], Severity.Success);
 
                     //TODO : Using SignalR
                 }

@@ -29,11 +29,11 @@ namespace WRMC.RootComponents.Dialogs
             var result = await _userDataService.CreateNewUserAsync(NewUserRequest);
             if (result.Succeeded)
             {
-                _snackbar.Add(_messageResources[MessageResources.UserSuccessfullyCreated], Severity.Success);
+                _snackbar.Add(_messageLocalizer[MessageResources.UserSuccessfullyCreated], Severity.Success);
             }
             else
             {
-                _snackbar.Add(_messageResources[MessageResources.CreatingUserFailed], Severity.Error);
+                _snackbar.Add(_messageLocalizer[MessageResources.CreatingUserFailed], Severity.Error);
                 foreach (var message in result.Messages)
                 {
                     _snackbar.Add(message, Severity.Error);

@@ -13,14 +13,14 @@
              FixedHeader="true">
         <NoRecordsContent>
             <div class="height:100px;">
-                <h6 class="text-secondary">@_messageResources[MessageResources.NoRecordFound]</h6>
+                <h6 class="text-secondary">@_messageLocalizer[MessageResources.NoRecordFound]</h6>
             </div>
         </NoRecordsContent>
 
         <Columns>
-            <Column T="UserSessionResponse" Field="@nameof(UserSessionResponse.Name)" Title="@_contextResources[ContextResources.UserSession_Name]" />
-            <Column T="UserSessionResponse" Field="@nameof(UserSessionResponse.StartDate)" Title="@_contextResources[ContextResources.UserSession_StartDate]" />
-            <Column T="UserSessionResponse" Field="@nameof(UserSessionResponse.LoginProvider)" Title="@_contextResources[ContextResources.UserSession_LoginProvider]" />
+            <Column T="UserSessionResponse" Field="@nameof(UserSessionResponse.Name)" Title="@_contextLocalizer[ContextResources.UserSession_Name]" />
+            <Column T="UserSessionResponse" Field="@nameof(UserSessionResponse.StartDate)" Title="@_contextLocalizer[ContextResources.UserSession_StartDate]" />
+            <Column T="UserSessionResponse" Field="@nameof(UserSessionResponse.LoginProvider)" Title="@_contextLocalizer[ContextResources.UserSession_LoginProvider]" />
             <Column Resizable="false" Context="rowData" Sortable="false" T="UserSessionResponse">
                 <CellTemplate>
                     <MudButtonGroup Color="Color.Primary" Variant="Variant.Text" Class="d-flex justify-end">

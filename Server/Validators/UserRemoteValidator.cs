@@ -1,5 +1,4 @@
-﻿using WRMC.Core.Application.DataServices;
-using WRMC.Core.Shared.Validators;
+﻿using WRMC.Core.Shared.Validators;
 using WRMC.Infrastructure.UnitOfWork;
 
 namespace WRMC.Server.Validators

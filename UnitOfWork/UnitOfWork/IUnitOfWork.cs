@@ -13,16 +13,13 @@ namespace WRMC.Infrastructure.UnitOfWork
         IRepository<Role> Roles { get; }
         IRepository<RoleClaim> RoleClaims { get; }
         IRepository<UserRole> UserRoles { get; }
-        IRepository<UserTenant> UserTenants { get; }
         IRepository<UserToken> UserTokens { get; }
-        IRepository<Tenant> Tenants { get; }
         IRepository<Culture> Cultures { get; }
         IRepository<UserClaim> UserClaims { get; }
         IRepository<UserLogin> UserLogins { get; }
         IRepository<AppSetting> AppSettings { get; }
         IRepository<UserSession> UserSessions { get; }
         ISectionRepository Sections{ get; }
-        IRepository<SectionClaim> SectionClaims { get; }
         IRepository<Region> Regions { get; }
         IRepository<Tasks> Tasks { get; }
         IRepository<Visit> Visits { get; }
@@ -34,10 +31,9 @@ namespace WRMC.Infrastructure.UnitOfWork
         IRepository<MedicalIntake> MedicalIntakes { get; }
         IRepository<DemographicIntake> DemographicIntakes { get; }
 
-        TenantDbContext TenantDbContext { get; }
         ServerDbContext ServerDbContext { get; }
 
-
+        Task<int> SaveChangesAsync();
     }
 }
 

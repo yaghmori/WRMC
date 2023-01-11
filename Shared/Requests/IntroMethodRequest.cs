@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WRMC.Core.Shared.ValidationAttributes;
 using WRMC.Infrastructure.Domain.Entities;
@@ -10,27 +11,27 @@ namespace WRMC.Core.Shared.Requests
     {
 
         public string? ParentId { get; set; }
-
-        [Required]
         public virtual TreeTypeEnum Type { get; set; }
-
-        [Required]
         public short Order { get; set; }
-
-        [Required]
         public string Name { get; set; }
-
-        [Required]
         public string? DisplayTitle { get; set; }
-
-        [Required]
         public bool AdditionalInfoRequired { get; set; } = false;
-
-        [RequiredIf(nameof(AdditionalInfoRequired),true)]
         public string? AdditionalInfoLabel { get; set; }
-
         public string? Description { get; set; }
 
 
+    }
+
+    public class IntroMethodValidator : AbstractValidator<IntroMethodRequest>
+    {
+        public IntroMethodValidator()
+        {
+            RuleFor(x => x.ParentId).NotEmpty().WithMessage("ParentId is required"); //TODO : Localization
+            RuleFor(x => x.Type).NotEmpty().WithMessage("Type is required");
+            RuleFor(x => x.Name).NotEmpty().WithMessage("Name is required");
+            RuleFor(x => x.DisplayTitle).NotEmpty().WithMessage("DisplayTitle is required");
+            RuleFor(x => x.AdditionalInfoRequired).NotEmpty().WithMessage("Please specify if additional info is required");
+            RuleFor(x => x.AdditionalInfoLabel).NotEmpty().When(x=>x.AdditionalInfoRequired==true).WithMessage("Please specify additional info label");
+        }
     }
 }

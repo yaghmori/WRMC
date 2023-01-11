@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 
 namespace WRMC.RootComponents.Components
 {
@@ -11,12 +11,12 @@ namespace WRMC.RootComponents.Components
         {
             if (string.IsNullOrWhiteSpace(ReturnUrl))
             {
-                _navigationManager.NavigateTo(ApplicationURL.login, forceLoad: true);
+                _navigationManager.NavigateTo(AppURL.login, forceLoad: true);
             }
             else
             {
                 ReturnUrl = "~/" + ReturnUrl;
-                _navigationManager.NavigateTo($"{ApplicationURL.login}?returnUrl= {ReturnUrl}", forceLoad: true);
+                _navigationManager.NavigateTo($"{AppURL.login}?returnUrl= {ReturnUrl}", forceLoad: true);
             }
         }
     }

@@ -20,7 +20,7 @@ namespace WRMC.RootComponents.Components
             if (result.Succeeded)
             {
                 context.MarkAsUnmodified();
-                _snackbar.Add(_messageResources[MessageResources.UserPasswordChangeSuccessfully], Severity.Success);
+                _snackbar.Add(_messageLocalizer[MessageResources.UserPasswordChangeSuccessfully], Severity.Success);
                 changePasswordRequest = new();
 
                 //TODO : Remove Tokens to disconnect from all devices
@@ -28,7 +28,7 @@ namespace WRMC.RootComponents.Components
             }
             else
             {
-                _snackbar.Add(_messageResources[MessageResources.UserPassworNotUpdated], Severity.Error);
+                _snackbar.Add(_messageLocalizer[MessageResources.UserPassworNotUpdated], Severity.Error);
                 foreach (var message in result.Messages)
                 {
                     _snackbar.Add(message, Severity.Error);

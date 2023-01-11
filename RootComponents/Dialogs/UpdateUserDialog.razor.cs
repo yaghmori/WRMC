@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.Requests;
 using WRMC.Infrastructure.Localization;
 
@@ -50,12 +50,12 @@ namespace WRMC.RootComponents.Dialogs
             if (result.Succeeded)
             {
                 dgResult = true;
-                _snackbar.Add(_messageResources[MessageResources.UserSuccessfullyUpdated].Value, Severity.Success);
+                _snackbar.Add(_messageLocalizer[MessageResources.UserSuccessfullyUpdated].Value, Severity.Success);
             }
             else
             {
 
-                _snackbar.Add(_messageResources[MessageResources.UpdatingUserFailed].Value, Severity.Error);
+                _snackbar.Add(_messageLocalizer[MessageResources.UpdatingUserFailed].Value, Severity.Error);
                 foreach (var message in result.Messages)
                 {
                     _snackbar.Add(message, Severity.Error);

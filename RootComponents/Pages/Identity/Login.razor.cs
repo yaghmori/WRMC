@@ -1,6 +1,5 @@
 using MudBlazor;
-using WRMC.Core.Application.Authorization;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.Requests;
 
 namespace WRMC.RootComponents.Pages.Identity
@@ -35,7 +34,7 @@ namespace WRMC.RootComponents.Pages.Identity
             if (result.Succeeded)
             {
                 await ((AuthStateProvider)_authStateProvider).NotifyLoginAsync(result.Data, Request.IsPersistent);
-                _navigationManager.NavigateTo(ApplicationURL.Index, true);
+                _navigationManager.NavigateTo(AppURL.Index, true);
 
             }
             else

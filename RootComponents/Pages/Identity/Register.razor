@@ -5,24 +5,24 @@
 
 <EditForm Model="@model" OnValidSubmit="OnSubmitAsync">
     <FluentValidator />
-    <MudText Typo="Typo.h4" GutterBottom="true">@_viewResources[ViewResources.SignUp]</MudText>
-    <MudText>@_viewResources[ViewResources.AlreadyHaveAnAccount] <MudLink Href="@ApplicationURL.login">@_viewResources[ViewResources.SignIn]</MudLink></MudText>
+    <MudText Typo="Typo.h4" GutterBottom="true">@_viewLocalizer[ViewResources.SignUp]</MudText>
+    <MudText>@_viewLocalizer[ViewResources.AlreadyHaveAnAccount] <MudLink Href="@AppURL.login">@_viewLocalizer[ViewResources.SignIn]</MudLink></MudText>
 
 
-    <MudTextField Class="my-3" @bind-Value="model.Email" For="@(() => model.Email)" Placeholder="@_viewResources[ViewResources.Email]" Variant="Variant.Outlined" Immediate="true"></MudTextField>
+    <MudTextField Class="my-3" @bind-Value="model.Email" For="@(() => model.Email)" Placeholder="@_viewLocalizer[ViewResources.Email]" Variant="Variant.Outlined" Immediate="true"></MudTextField>
     
-    <MudTextField @bind-Value="model.Password" For="@(() => model.Password)" Placeholder="@_viewResources[ViewResources.Password]" Variant="Variant.Outlined" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="TogglePasswordVisibility" Immediate="true" />
-    <MudTextField Class="my-3" @bind-Value="model.PasswordConfirmation" For="@(() => model.PasswordConfirmation)" Placeholder="@_viewResources[ViewResources.PasswordConfirmation]" Variant="Variant.Outlined" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="TogglePasswordVisibility" Immediate="true" />
-    <MudCheckBox @bind-Checked="@AgreeToTerms" LabelPosition="LabelPosition.End" Color="Color.Primary" Class="ml-n3 mb-2 align-content-start"><small> @_messageResources[MessageResources.IhaveReadAndAgreeToTheTermsAndConditions]</small></MudCheckBox>
+    <MudTextField @bind-Value="model.Password" For="@(() => model.Password)" Placeholder="@_viewLocalizer[ViewResources.Password]" Variant="Variant.Outlined" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="TogglePasswordVisibility" Immediate="true" />
+    <MudTextField Class="my-3" @bind-Value="model.PasswordConfirmation" For="@(() => model.PasswordConfirmation)" Placeholder="@_viewLocalizer[ViewResources.PasswordConfirmation]" Variant="Variant.Outlined" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="TogglePasswordVisibility" Immediate="true" />
+    <MudCheckBox @bind-Checked="@AgreeToTerms" LabelPosition="LabelPosition.End" Color="Color.Primary" Class="ml-n3 mb-2 align-content-start"><small> @_messageLocalizer[MessageResources.IhaveReadAndAgreeToTheTermsAndConditions]</small></MudCheckBox>
     <MudButton ButtonType="ButtonType.Submit" Disabled="@(!context.Validate() || !context.IsModified() || IsBusy || !AgreeToTerms)" Variant="Variant.Filled" Color="Color.Primary"  Size="Size.Large" FullWidth="true">
         @if (IsBusy)
         {
             <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-            <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+            <MudText Class="ms-2">@_viewLocalizer[ViewResources.Processing]</MudText>
         }
         else
         {
-            @_viewResources[ViewResources.SignUp]
+            @_viewLocalizer[ViewResources.SignUp]
         }
     </MudButton>
 </EditForm>

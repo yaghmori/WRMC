@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 
 namespace WRMC.RootComponents.Extensions
 {
@@ -10,7 +10,7 @@ namespace WRMC.RootComponents.Extensions
             if (hubConnection == null)
             {
                 hubConnection = new HubConnectionBuilder()
-                                  .WithUrl(ApplicationConstants.ServerBaseAddress + EndPoints.MainHub, options =>
+                                  .WithUrl(AppConstants.ServerBaseAddress + EndPoints.MainHub, options =>
                                   {
                                       options.AccessTokenProvider = async () => await Task.FromResult(accessToken);
 

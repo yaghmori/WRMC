@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
 using WRMC.Infrastructure.Localization;
@@ -91,7 +91,7 @@ namespace WRMC.RootComponents.Components
             var result = await _demographicIntakesDataService.UpdateDemographicIntakeAsync(DemographicIntakeId, patchDoc);
             if (result?.Succeeded == true)
             {
-                _snackbar.Add(_messageResources[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
+                _snackbar.Add(_messageLocalizer[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
             }
             else
             {
@@ -120,7 +120,7 @@ namespace WRMC.RootComponents.Components
             var result = await _demographicIntakesDataService.UpdateDemographicIntakeAsync(DemographicIntakeId, patchDoc);
             if (result?.Succeeded == true)
             {
-                _snackbar.Add(_messageResources[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
+                _snackbar.Add(_messageLocalizer[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
             }
             else
             {
@@ -148,7 +148,7 @@ namespace WRMC.RootComponents.Components
             var result = await _demographicIntakesDataService.UpdateDemographicIntakeAsync(DemographicIntakeId, patchDoc);
             if (result?.Succeeded == true)
             {
-                _snackbar.Add(_messageResources[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
+                _snackbar.Add(_messageLocalizer[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
             }
             else
             {
@@ -173,7 +173,7 @@ namespace WRMC.RootComponents.Components
             var result = await _demographicIntakesDataService.UpdateDemographicIntakeAsync(DemographicIntakeId, patchDoc);
             if (result?.Succeeded == true)
             {
-                _snackbar.Add(_messageResources[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
+                _snackbar.Add(_messageLocalizer[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
             }
             else
             {
@@ -207,7 +207,7 @@ namespace WRMC.RootComponents.Components
 
                     if (updateResponse?.Succeeded == true)
                     {
-                        _snackbar.Add(_messageResources[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
+                        _snackbar.Add(_messageLocalizer[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
 
                         //Navigate to visits
                         _navigationManager.NavigateTo(ApplicationURL.Visits);

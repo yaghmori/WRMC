@@ -10,9 +10,9 @@
                    MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
                    MultiSelection="true"
                    Dense=true SelectAll="true"
-                   SelectAllText="@_viewResources[ViewResources.SelectAll]"
+                   SelectAllText="@_viewLocalizer[ViewResources.SelectAll]"
                    @bind-SelectedValues="SelectedRoles"
-                   Label="@_viewResources[ViewResources.Roles]"
+                   Label="@_viewLocalizer[ViewResources.Roles]"
                    AdornmentIcon="@Icons.Material.Filled.Search"
                    Variant="Variant.Outlined"
                    AnchorOrigin="Origin.BottomCenter">
@@ -37,7 +37,7 @@
     </DialogContent>
     <DialogActions>
         <div class="d-flex flex-row justify-content-end m-2 gap-2">
-            <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+            <MudButton OnClick="Cancel">@_viewLocalizer[ViewResources.Cancel]</MudButton>
             <MudButton Disabled="@InProcess"
                        OnClick="SaveChanges"
                        ButtonType="ButtonType.Submit"
@@ -47,11 +47,11 @@
                 @if (InProcess)
                 {
                     <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                    <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                    <MudText Class="ms-2">@_viewLocalizer[ViewResources.Processing]</MudText>
                 }
                 else
                 {
-                    @_viewResources[ViewResources.SaveChanges]
+                    @_viewLocalizer[ViewResources.SaveChanges]
                 }
             </MudButton>
         </div>

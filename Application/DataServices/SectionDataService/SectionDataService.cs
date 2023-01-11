@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using System.Text;
-using WRMC.Core.Application.Extensions;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
+using WRMC.Core.Shared.Extensions;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
 using WRMC.Core.Shared.ResultWrapper;
@@ -84,29 +84,6 @@ namespace WRMC.Core.Application.DataServices
 
             var uri = string.Format(EndPoints.SectionController.DeleteSectionById, sectionId);
             var response = await _httpClient.DeleteAsync(uri);
-            return await response.ToResult<bool>();
-        }
-
-        public async Task<IResult<List<SectionClaimResponse>>> GetSectionClaimsAsync(string sectionId)
-        {
-            if (string.IsNullOrWhiteSpace(sectionId))
-                return await Result<List<SectionClaimResponse>>.FailAsync("sectionId is null or empty.");
-
-
-            var uri = string.Format(EndPoints.SectionController.GetSectionClaims, sectionId);
-            var response = await _httpClient.GetAsync(uri);
-            return await response.ToResult<List<SectionClaimResponse>>();
-        }
-
-        public async Task<IResult<bool>> UpdateSectionClaimsAsync(string sectionId, List<SectionClaimRequest> request)
-        {
-            if (string.IsNullOrWhiteSpace(sectionId))
-                return await Result<bool>.FailAsync("SectionId is null or empty.");
-
-            var uri = EndPoints.SectionController.UpdateSectionClaims;
-
-            var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync(uri, content);
             return await response.ToResult<bool>();
         }
 

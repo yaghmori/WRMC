@@ -19,7 +19,7 @@
                 </ToolBarContent>
 
                 <HeaderContent>
-                    <MudTh>@_viewResources[ViewResources.SelectAll]</MudTh>
+                    <MudTh>@_viewLocalizer[ViewResources.SelectAll]</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>@context</MudTd>
@@ -33,11 +33,11 @@
     <DialogActions>
         <div class="d-flex flex-row align-items-center justify-content-between m-2" style="width:100%;">
             <div class="ml-3">
-                @_viewResources[ViewResources.SelectedClaims] : @SelectedClaims.Count
+                @_viewLocalizer[ViewResources.SelectedClaims] : @SelectedClaims.Count
             </div>
             <div class="gap-2 mr-1">
 
-                <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+                <MudButton OnClick="Cancel">@_viewLocalizer[ViewResources.Cancel]</MudButton>
                 <MudButton Disabled="@IsBusy"
                            OnClick="SaveChanges"
                            ButtonType="ButtonType.Submit"
@@ -47,11 +47,11 @@
                     @if (IsBusy)
                     {
                         <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                        <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                        <MudText Class="ms-2">@_viewLocalizer[ViewResources.Processing]</MudText>
                     }
                     else
                     {
-                        @_viewResources[ViewResources.SaveChanges]
+                        @_viewLocalizer[ViewResources.SaveChanges]
                     }
                 </MudButton>
             </div>

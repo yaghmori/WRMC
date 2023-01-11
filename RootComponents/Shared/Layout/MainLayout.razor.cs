@@ -2,15 +2,12 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 using System.Security.Claims;
-using WRMC.Core.Application.Extensions;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
+using WRMC.Core.Shared.Extensions;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
-using WRMC.RootComponents.Extensions;
-using WRMC.RootComponents.SignalRClient;
 
 namespace WRMC.RootComponents.Shared.Layout
 {
@@ -65,7 +62,7 @@ namespace WRMC.RootComponents.Shared.Layout
 
             _mainSignalRClinet.OnTerminateSession(async (List<string> userIds) =>
             {
-                _navigationManager.NavigateTo(ApplicationURL.Logout);
+                _navigationManager.NavigateTo(AppURL.Logout);
             });
 
 

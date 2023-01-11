@@ -2,13 +2,12 @@
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using System.Text;
-using WRMC.Core.Application.Extensions;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Extensions;
 using WRMC.Core.Shared.PagedCollections;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
 using WRMC.Core.Shared.ResultWrapper;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using WRMC.Core.Shared.Constants;
 
 namespace WRMC.Core.Application.DataServices
 {
@@ -148,41 +147,17 @@ namespace WRMC.Core.Application.DataServices
         }
         #endregion
 
-        #region UserTenants
-        public async Task<IResult<List<UserTenantResponse>>> GetUserTenantsAsync(string userId)
-        {
-            if (string.IsNullOrWhiteSpace(userId))
-                return await Result<List<UserTenantResponse>>.FailAsync("UserId is null or empty.");
-
-            var uri = string.Format(EndPoints.UserController.GetUserTenants, userId);
-
-            var response = await _httpClient.GetAsync(uri);
-            return await response.ToResult<List<UserTenantResponse>>();
-        }
-        public async Task<IResult<bool>> UpdateUserTenantsAsync(string userId, List<string> tenants)
-        {
-            if (string.IsNullOrWhiteSpace(userId))
-                return await Result<bool>.FailAsync("UserId is null or empty.");
-
-            var uri = string.Format(EndPoints.UserController.UpdateUserTenants, userId);
-
-            var content = new StringContent(JsonConvert.SerializeObject(tenants), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PutAsync(uri, content);
-            return await response.ToResult<bool>();
-        }
-        #endregion
-
         #region UserClaims
-        public async Task<IResult<List<UserClaimResponse>>> GetUserClaimsAsync(string userId)
+        public async Task<IResult<List<ClaimResponse>>> GetUserClaimsAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId))
-                return await Result<List<UserClaimResponse>>.FailAsync("UserId is null or empty.");
+                return await Result<List<ClaimResponse>>.FailAsync("UserId is null or empty.");
 
             var uri = string.Format(EndPoints.UserController.GetUserClaims, userId);
             var response = await _httpClient.GetAsync(uri);
-            return await response.ToResult<List<UserClaimResponse>>();
+            return await response.ToResult<List<ClaimResponse>>();
         }
-        public async Task<IResult<bool>> UpdateUserClaimsAsync(string userId, List<UserClaimRequest> claims)
+        public async Task<IResult<bool>> UpdateUserClaimsAsync(string userId, List<ClaimRequest> claims)
         {
             if (string.IsNullOrWhiteSpace(userId))
                 return await Result<bool>.FailAsync("UserId is null or empty.");

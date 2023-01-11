@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Server.Services.TokenService;
 using System.Data;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.Helpers;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
@@ -59,40 +59,33 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
         public async Task<IActionResult> RefreshToken(TokenRequest request)
         {
-            try
+            //Validate refresh token
+            var userSession = await _unitOfWork.UserSessions.GetFirstOrDefaultAsync(predicate: x => x.RefreshToken == request.RefreshToken && x.AccessToken == request.Token);
+            if (userSession is null)
+                return BadRequest(await Result.FailAsync("Invalid Token."));
+
+            if (userSession.RefreshTokenExpires <= DateTime.UtcNow)
+                return BadRequest(await Result.FailAsync("Refresh Token is expired."));
+
+            //var principal = _tokenServices.ValidateToken(request.RefreshToken);
+            //var userId = principal?.FindFirst(x => x.Type.Equals(ApplicationClaimTypes.UserId))?.Value;
+            //if (string.IsNullOrWhiteSpace(userId))
+            //    return BadRequest(await Result.FailAsync("Invalid Token."));
+
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id == userSession.UserId);
+            if (user is null) return
+                    BadRequest(await Result.FailAsync("User not found.")); //user deleted!
+
+            userSession.AccessToken = _tokenServices.GenerateJwtToken(user);
+            await _unitOfWork.SaveChangesAsync();
+            var token = new TokenResponse
             {
-                //Validate refresh token
-                var userSession = await _unitOfWork.UserSessions.GetFirstOrDefaultAsync(predicate: x => x.RefreshToken == request.RefreshToken && x.AccessToken == request.Token);
-                if (userSession is null)
-                    return BadRequest(await Result.FailAsync("Invalid Token."));
-
-                if (userSession.RefreshTokenExpires <= DateTime.UtcNow)
-                    return BadRequest(await Result.FailAsync("Refresh Token is expired."));
-
-                //var principal = _tokenServices.ValidateToken(request.RefreshToken);
-                //var userId = principal?.FindFirst(x => x.Type.Equals(ApplicationClaimTypes.UserId))?.Value;
-                //if (string.IsNullOrWhiteSpace(userId))
-                //    return BadRequest(await Result.FailAsync("Invalid Token."));
-
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Id == userSession.UserId);
-                if (user is null) return
-                        BadRequest(await Result.FailAsync("User not found.")); //user deleted!
-
-                userSession.AccessToken = _tokenServices.GenerateJwtToken(user);
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
-                var token = new TokenResponse
-                {
-                    AccessToken = userSession.AccessToken,
-                    RefreshToken = userSession.RefreshToken
-                };
-                return Ok(await Result<TokenResponse>.SuccessAsync(token));
+                AccessToken = userSession.AccessToken,
+                RefreshToken = userSession.RefreshToken
+            };
+            return Ok(await Result<TokenResponse>.SuccessAsync(token));
 
 
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
@@ -107,62 +100,55 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
         public async Task<IActionResult> GetToken(LoginByEmailRequest request)
         {
-            try
+
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Email.Equals(request.Email));
+
+            if (user == null)
+                return BadRequest(await Result.FailAsync("Incorrect UserName or password."));
+
+            if (_passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password) == PasswordVerificationResult.Failed)
+                return BadRequest(await Result.FailAsync("Incorrect UserName or password."));
+
+
+            if (!user.IsActive)
             {
-
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Email.Equals(request.Email));
-
-                if (user == null)
-                    return BadRequest(await Result.FailAsync("Incorrect UserName or password."));
-
-                if (_passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password)==PasswordVerificationResult.Failed)
-                    return BadRequest(await Result.FailAsync("Incorrect UserName or password."));
-
-
-                if (!user.IsActive)
-                {
-                    return BadRequest(await Result.FailAsync("User Not Active. Please contact the administrator."));
-                }
-
-
-
-                var sessions = await _unitOfWork.UserSessions.GetAllAsync(predicate: x => x.UserId == user.Id);
-                //TODO : Limit User only 1 active session at a time 
-                if (sessions.Count > 5)
-                    return Conflict(await Result.FailAsync("Only 5 active session allowed at a time."));
-
-                #region GenerateToken
-                var session = new UserSession
-                {
-                    UserId = user.Id,
-                    Name = Request.Headers.UserAgent.ToString(),
-                    LoginProvider = "IdentityServer",
-                    SessionIpAddress = HttpContext.Request?.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                    StartDate = DateTime.UtcNow,
-                    BuildVersion = "v1",
-                    AccessToken = _tokenServices.GenerateJwtToken(user),
-                    RefreshToken = Guid.NewGuid().ToString(),
-                    RefreshTokenExpires = DateTime.UtcNow.AddDays(Convert.ToInt32(ConfigHelper.JwtSettings.RefreshTokenExpiryInDay)),
-                };
-                await _unitOfWork.UserSessions.AddAsync(session);
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
-
-                var token = new TokenResponse
-                {
-                    AccessToken = session.AccessToken,
-                    RefreshToken = session.RefreshToken
-                };
-
-                #endregion
-
-                return Ok(await Result<TokenResponse>.SuccessAsync(token));
-
+                return BadRequest(await Result.FailAsync("User Not Active. Please contact the administrator."));
             }
-            catch (Exception ex)
+
+
+
+            var sessions = await _unitOfWork.UserSessions.GetAllAsync(predicate: x => x.UserId == user.Id);
+            //TODO : Limit User only 1 active session at a time 
+            if (sessions.Count > 5)
+                return Conflict(await Result.FailAsync("Only 5 active session allowed at a time."));
+
+            #region GenerateToken
+            var session = new UserSession
             {
+                UserId = user.Id,
+                Name = Request.Headers.UserAgent.ToString(),
+                LoginProvider = "IdentityServer",
+                SessionIpAddress = HttpContext.Request?.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                StartDate = DateTime.UtcNow,
+                BuildVersion = "v1",
+                AccessToken = _tokenServices.GenerateJwtToken(user),
+                RefreshToken = Guid.NewGuid().ToString(),
+                RefreshTokenExpires = DateTime.UtcNow.AddDays(Convert.ToInt32(ConfigHelper.JwtSettings.RefreshTokenExpiryInDay)),
+            };
+            await _unitOfWork.UserSessions.AddAsync(session);
+            await _unitOfWork.SaveChangesAsync();
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            var token = new TokenResponse
+            {
+                AccessToken = session.AccessToken,
+                RefreshToken = session.RefreshToken
+            };
+
+            #endregion
+
+            return Ok(await Result<TokenResponse>.SuccessAsync(token));
+
+
 
         }
 
@@ -176,58 +162,51 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public async Task<IActionResult> Register(RegisterRequest request)
         {
-            try
+            if (await _unitOfWork.Users.AnyAsync(a => a.Email != null && a.Email.Equals(request.Email)))
+                return Conflict(await Result<TokenResponse>.FailAsync("Email is is already exist."));
+            var user = _mapper.Map<User>(request);
+            user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+
+            //Add User
+            var userEntity = await _unitOfWork.Users.AddAsync(user);
+
+            //Create UserSettings
+            await _unitOfWork.UserSettings.AddAsync(new UserSetting
             {
-                if (await _unitOfWork.Users.AnyAsync(a => a.Email != null && a.Email.Equals(request.Email)))
-                    return Conflict(await Result<TokenResponse>.FailAsync("Email is is already exist."));
-                var user = _mapper.Map<User>(request);
-                user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+                UserId = userEntity.Entity.Id,
+                Culture = "en-US",
+                DarkMode = false,
+                RightToLeft = false,
+            });
 
-                //Add User
-                var userEntity = await _unitOfWork.Users.AddAsync(user);
-
-                //Create UserSettings
-                await _unitOfWork.UserSettings.AddAsync(new UserSetting
-                {
-                    UserId = userEntity.Entity.Id,
-                    Culture = "en-US",
-                    DarkMode = false,
-                    RightToLeft = false,
-                });
-
-                //Create UserProfiles
-                await _unitOfWork.UserProfiles.AddAsync(new UserProfile
-                {
-                    UserId = userEntity.Entity.Id,
-                    
-                });
-
-
-                //Assign Default Role
-                var clientRole = await _unitOfWork.Roles.GetFirstOrDefaultAsync(predicate: x => x.Name.Equals(ApplicationRoles.Client));
-                if (clientRole != null)
-                {
-                    await _unitOfWork.UserRoles.AddAsync(new UserRole(userEntity.Entity.Id, clientRole.Id));
-                }
-
-                //TODO : Send Email Verification Code
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
-
-                return Ok(await Result<string>.SuccessAsync(userEntity.Entity.Id.ToString(), "User successfully created."));
-                //if (result.Succeeded)
-                //{
-                //}
-                //else
-                //{
-                //    return BadRequest(await Result<TokenResponse>.FailAsync(result.Errors.Select(x => x.Description).ToList()));
-                //}
-
-            }
-            catch (Exception ex)
+            //Create UserProfiles
+            await _unitOfWork.UserProfiles.AddAsync(new UserProfile
             {
+                UserId = userEntity.Entity.Id,
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            });
+
+
+            //Assign Default Role
+            var clientRole = await _unitOfWork.Roles.GetFirstOrDefaultAsync(predicate: x => x.Name.Equals(AppRoles.Client));
+            if (clientRole != null)
+            {
+                await _unitOfWork.UserRoles.AddAsync(new UserRole(userEntity.Entity.Id, clientRole.Id));
             }
+
+            //TODO : Send Email Verification Code
+            await _unitOfWork.SaveChangesAsync();
+
+            return Ok(await Result<string>.SuccessAsync(userEntity.Entity.Id.ToString(), "User successfully created."));
+            //if (result.Succeeded)
+            //{
+            //}
+            //else
+            //{
+            //    return BadRequest(await Result<TokenResponse>.FailAsync(result.Errors.Select(x => x.Description).ToList()));
+            //}
+
+
         }
 
 
@@ -241,76 +220,69 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public async Task<IActionResult> RegisterTwoFactor(string email)
         {
-            try
+            if (email is null)
+                return BadRequest(await Result<TokenResponse>.FailAsync("Email is null or empty."));
+
+            if (await _unitOfWork.Users.AnyAsync(a => a.Email != null && a.Email.Equals(email)))
+                return Conflict(await Result<TokenResponse>.FailAsync("The entered email is already registered."));
+
+            var user = new User()
             {
-                if (email is null)
-                    return BadRequest(await Result<TokenResponse>.FailAsync("Email is null or empty."));
+                Email = email,
+                UserName = email,
+                ConcurrencyStamp = Guid.NewGuid().ToString(),
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+            //Create User
+            var userEntity = await _unitOfWork.Users.AddAsync(user);
+            //Create UserSettings
+            await _unitOfWork.UserSettings.AddAsync(new UserSetting
+            {
+                UserId = user.Id,
+                Culture = "en-US",
+                DarkMode = false,
+                RightToLeft = false,
+            });
+            //Create UserProfiles
+            await _unitOfWork.UserProfiles.AddAsync(new UserProfile
+            {
+                UserId = user.Id,
+            });
+            //Assign Default Role
+            var clientRole = await _unitOfWork.Roles.GetFirstOrDefaultAsync(predicate: x => x.Name.Equals(AppRoles.Client));
+            if (clientRole != null)
+            {
+                await _unitOfWork.UserRoles.AddAsync(new UserRole(userEntity.Entity.Id, clientRole.Id));
+            }
+            await _unitOfWork.SaveChangesAsync();
 
-                if (await _unitOfWork.Users.AnyAsync(a => a.Email != null && a.Email.Equals(email)))
-                    return Conflict(await Result<TokenResponse>.FailAsync("The entered email is already registered."));
-
-                var user = new User()
+            //TODO : Send Email Verification Code
+            if (_registerConfirmationRequired)
+            {
+                try
                 {
-                    Email = email,
-                    UserName = email,
-                    ConcurrencyStamp = Guid.NewGuid().ToString(),
-                    SecurityStamp = Guid.NewGuid().ToString()
-                };
-                //Create User
-                var userEntity = await _unitOfWork.Users.AddAsync(user);
-                //Create UserSettings
-                await _unitOfWork.UserSettings.AddAsync(new UserSetting
-                {
-                    UserId = user.Id,
-                    Culture = "en-US",
-                    DarkMode = false,
-                    RightToLeft = false,
-                });
-                //Create UserProfiles
-                await _unitOfWork.UserProfiles.AddAsync(new UserProfile
-                {
-                    UserId = user.Id,
-                });
-                //Assign Default Role
-                var clientRole = await _unitOfWork.Roles.GetFirstOrDefaultAsync(predicate: x => x.Name.Equals(ApplicationRoles.Client));
-                if (clientRole != null)
-                {
-                    await _unitOfWork.UserRoles.AddAsync(new UserRole(userEntity.Entity.Id, clientRole.Id));
+                    user.EmailToken = _tokenServices.GenerateRandomCode();
+                    user.EmailTokenExpires = DateTime.UtcNow.AddHours(1);
+                    await _messageSender.SendEmailAsync(user.Email, $"Email Confirmation Request {user.Email}", user.EmailToken, true);
                 }
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
-
-                //TODO : Send Email Verification Code
-                if (_registerConfirmationRequired)
+                catch
                 {
-                    try
-                    {
-                        user.EmailToken = _tokenServices.GenerateRandomCode();
-                        user.EmailTokenExpires = DateTime.UtcNow.AddHours(1);
-                        await _messageSender.SendEmailAsync(user.Email, $"Email Confirmation Request {user.Email}", user.EmailToken, true);
-                    }
-                    catch
-                    {
-                    }
                 }
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(user.PhoneNumber))
+                    user.PhoneNumberConfirmed = true;
                 else
-                {
-                    if (string.IsNullOrWhiteSpace(user.PhoneNumber))
-                        user.PhoneNumberConfirmed = true;
-                    else
-                        user.PhoneNumberConfirmed = false;
+                    user.PhoneNumberConfirmed = false;
 
-                    user.EmailConfirmed = true;
-                }
-
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
-
-                return Ok(await Result<string>.SuccessAsync(userEntity.Entity.Id.ToString(), "User successfully created."));
+                user.EmailConfirmed = true;
             }
-            catch (Exception ex)
-            {
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            await _unitOfWork.SaveChangesAsync();
+
+            return Ok(await Result<string>.SuccessAsync(userEntity.Entity.Id.ToString(), "User successfully created."));
+
         }
 
 
@@ -324,39 +296,33 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
         public async Task<IActionResult> VerifyPhoneNumber(string phoneNumber, string token)
         {
-            try
+
+            if (phoneNumber is null)
+                return BadRequest(await Result<TokenResponse>.FailAsync("PhoneNumber is null or empty."));
+            if (token is null)
+                return BadRequest(await Result<TokenResponse>.FailAsync("Token is null or empty."));
+
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.PhoneNumber.Equals(phoneNumber) && x.PhoneNumberToken == token);
+            if (user is null)
             {
-                if (phoneNumber is null)
-                    return BadRequest(await Result<TokenResponse>.FailAsync("PhoneNumber is null or empty."));
-                if (token is null)
-                    return BadRequest(await Result<TokenResponse>.FailAsync("Token is null or empty."));
-
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.PhoneNumber.Equals(phoneNumber) && x.PhoneNumberToken == token);
-                if (user is null)
-                {
-                    return BadRequest(await Result<TokenResponse>.FailAsync("Invalid Token."));
-                }
-                if (user.PhoneNumberTokenExpires < DateTime.UtcNow)
-                {
-                    return BadRequest(await Result<TokenResponse>.FailAsync("Token Expired."));
-                }
-
-                user.PhoneNumberToken = null;
-                user.PhoneNumberConfirmed = true;
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
-
-                var tokenResponse = new TokenResponse
-                {
-                    AccessToken = _tokenServices.GenerateJwtToken(user),
-                    RefreshToken = _tokenServices.GenerateRefreshToken(user)
-                };
-                return Ok(await Result<TokenResponse>.SuccessAsync(tokenResponse));
+                return BadRequest(await Result<TokenResponse>.FailAsync("Invalid Token."));
             }
-            catch (Exception ex)
+            if (user.PhoneNumberTokenExpires < DateTime.UtcNow)
             {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+                return BadRequest(await Result<TokenResponse>.FailAsync("Token Expired."));
             }
+
+            user.PhoneNumberToken = null;
+            user.PhoneNumberConfirmed = true;
+            await _unitOfWork.SaveChangesAsync();
+
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = _tokenServices.GenerateJwtToken(user),
+                RefreshToken = _tokenServices.GenerateRefreshToken(user)
+            };
+            return Ok(await Result<TokenResponse>.SuccessAsync(tokenResponse));
+
 
         }
 
@@ -371,36 +337,30 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
         public async Task<IActionResult> VerifyEmail(string email, string token)
         {
-            try
+
+            if (email is null) return BadRequest(await Result<TokenResponse>.FailAsync("Email is null or empty."));
+            if (token is null) return BadRequest(await Result<TokenResponse>.FailAsync("Token is null or empty."));
+
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Email.Equals(email) && x.EmailToken == token);
+            if (user is null)
             {
-                if (email is null) return BadRequest(await Result<TokenResponse>.FailAsync("Email is null or empty."));
-                if (token is null) return BadRequest(await Result<TokenResponse>.FailAsync("Token is null or empty."));
-
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Email.Equals(email) && x.EmailToken == token);
-                if (user is null)
-                {
-                    return BadRequest(await Result<TokenResponse>.FailAsync("Invalid Token."));
-                }
-                if (user.EmailTokenExpires < DateTime.UtcNow)
-                {
-                    return BadRequest(await Result<TokenResponse>.FailAsync("Token Expired."));
-                }
-
-                user.EmailToken = null;
-                user.EmailConfirmed = true;
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
-                var tokenResponse = new TokenResponse
-                {
-                    AccessToken = _tokenServices.GenerateJwtToken(user),
-                    RefreshToken = _tokenServices.GenerateRefreshToken(user)
-                };
-                return Ok(await Result<TokenResponse>.SuccessAsync(tokenResponse));
+                return BadRequest(await Result<TokenResponse>.FailAsync("Invalid Token."));
             }
-            catch (Exception ex)
+            if (user.EmailTokenExpires < DateTime.UtcNow)
             {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+                return BadRequest(await Result<TokenResponse>.FailAsync("Token Expired."));
             }
+
+            user.EmailToken = null;
+            user.EmailConfirmed = true;
+            await _unitOfWork.SaveChangesAsync();
+            var tokenResponse = new TokenResponse
+            {
+                AccessToken = _tokenServices.GenerateJwtToken(user),
+                RefreshToken = _tokenServices.GenerateRefreshToken(user)
+            };
+            return Ok(await Result<TokenResponse>.SuccessAsync(tokenResponse));
+
         }
 
 
@@ -414,25 +374,19 @@ namespace WRMC.Server.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> TwoFactorLoginByPhoneNumber(string phoneNumber)
         {
-            try
-            {
-                if (phoneNumber is null) return BadRequest(await Result.FailAsync("PhoneNumber is null or empty."));
 
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.PhoneNumber.Equals(phoneNumber));
-                if (user is not null)
-                {
-                    user.PhoneNumberToken = _tokenServices.GenerateRandomCode();
-                    user.PhoneNumberTokenExpires = DateTime.UtcNow.AddHours(1);
-                    await _messageSender.SendEmailAsync(user.Email, $"کد ورود به برنامه شماره {user.PhoneNumber}", user.PhoneNumberToken, true);
-                    await _unitOfWork.ServerDbContext.SaveChangesAsync();
-                }
-                return Ok(await Result.SuccessAsync("Verification token sent."));
-            }
-            catch (Exception ex)
-            {
+            if (phoneNumber is null) return BadRequest(await Result.FailAsync("PhoneNumber is null or empty."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.PhoneNumber.Equals(phoneNumber));
+            if (user is not null)
+            {
+                user.PhoneNumberToken = _tokenServices.GenerateRandomCode();
+                user.PhoneNumberTokenExpires = DateTime.UtcNow.AddHours(1);
+                await _messageSender.SendEmailAsync(user.Email, $"کد ورود به برنامه شماره {user.PhoneNumber}", user.PhoneNumberToken, true);
+                await _unitOfWork.SaveChangesAsync();
             }
+            return Ok(await Result.SuccessAsync("Verification token sent."));
+
         }
 
 
@@ -446,25 +400,19 @@ namespace WRMC.Server.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> TwoFactorLoginByEmail(string email)
         {
-            try
-            {
-                if (email is null) return BadRequest(await Result.FailAsync("Email is null or empty."));
 
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Email.Equals(email));
-                if (user is not null)
-                {
-                    user.PhoneNumberToken = _tokenServices.GenerateRandomCode();
-                    user.PhoneNumberTokenExpires = DateTime.UtcNow.AddHours(1);
-                    await _messageSender.SendEmailAsync(user.Email, $"کد ورود به برنامه ایمیل {user.Email}", user.PhoneNumberToken, true);
-                    await _unitOfWork.ServerDbContext.SaveChangesAsync();
-                }
-                return Ok(await Result.SuccessAsync("Verification token sent."));
-            }
-            catch (Exception ex)
-            {
+            if (email is null) return BadRequest(await Result.FailAsync("Email is null or empty."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Email.Equals(email));
+            if (user is not null)
+            {
+                user.PhoneNumberToken = _tokenServices.GenerateRandomCode();
+                user.PhoneNumberTokenExpires = DateTime.UtcNow.AddHours(1);
+                await _messageSender.SendEmailAsync(user.Email, $"کد ورود به برنامه ایمیل {user.Email}", user.PhoneNumberToken, true);
+                await _unitOfWork.SaveChangesAsync();
             }
+            return Ok(await Result.SuccessAsync("Verification token sent."));
+
         }
 
 
@@ -480,25 +428,18 @@ namespace WRMC.Server.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ForgotPasswordByUserId(string userId)
         {
-            try
+            if (userId is null)
+                return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
+            if (user is not null)
             {
-                if (userId is null)
-                    return BadRequest(await Result.FailAsync("UserId is null or empty."));
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is not null)
-                {
-                    user.PasswordToken = _tokenServices.GenerateRandomCode();
-                    user.PasswordTokenExpires = DateTime.UtcNow.AddHours(1);
-                    await _messageSender.SendEmailAsync(user.Email, $"بازیابی کلمه عبور کاربر {user.UserName}", user.PasswordToken, true);
-                    await _unitOfWork.ServerDbContext.SaveChangesAsync();
-                }
-                return Ok(await Result.SuccessAsync("Verification token sent."));
+                user.PasswordToken = _tokenServices.GenerateRandomCode();
+                user.PasswordTokenExpires = DateTime.UtcNow.AddHours(1);
+                await _messageSender.SendEmailAsync(user.Email, $"بازیابی کلمه عبور کاربر {user.UserName}", user.PasswordToken, true);
+                await _unitOfWork.SaveChangesAsync();
             }
-            catch (Exception ex)
-            {
+            return Ok(await Result.SuccessAsync("Verification token sent."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
         }
 
 
@@ -514,25 +455,19 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> ForgotPasswordByEmail(string email)
         {
-            try
-            {
-                if (email is null) return BadRequest(await Result.FailAsync("UserName is null or empty."));
 
-                var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Email.Equals(email));
-                if (user is not null)
-                {
-                    user.PasswordToken = _tokenServices.GenerateRandomCode();
-                    user.PasswordTokenExpires = DateTime.UtcNow.AddHours(1);
-                    await _messageSender.SendEmailAsync(user.Email, $"بازیابی کلمه عبور ایمیل {user.Email}", user.PasswordToken, true);
-                    await _unitOfWork.ServerDbContext.SaveChangesAsync();
-                }
-                return Ok(await Result.SuccessAsync("Verification token sent."));
-            }
-            catch (Exception ex)
-            {
+            if (email is null) return BadRequest(await Result.FailAsync("UserName is null or empty."));
 
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+            var user = await _unitOfWork.Users.GetFirstOrDefaultAsync(predicate: x => x.Email.Equals(email));
+            if (user is not null)
+            {
+                user.PasswordToken = _tokenServices.GenerateRandomCode();
+                user.PasswordTokenExpires = DateTime.UtcNow.AddHours(1);
+                await _messageSender.SendEmailAsync(user.Email, $"بازیابی کلمه عبور ایمیل {user.Email}", user.PasswordToken, true);
+                await _unitOfWork.SaveChangesAsync();
             }
+            return Ok(await Result.SuccessAsync("Verification token sent."));
+
         }
 
 
@@ -546,39 +481,33 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> ResetPassword(string userId, [FromBody] ResetPasswordRequest request)
         {
-            try
+
+
+            if (userId is null) return BadRequest(await Result.FailAsync("UserId is null or empty."));
+            var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
+            if (user is null)
             {
-
-                if (userId is null) return BadRequest(await Result.FailAsync("UserId is null or empty."));
-                var user = await _unitOfWork.Users.FindAsync(Guid.Parse(userId));
-                if (user is null)
-                {
-                    return NotFound(await Result.FailAsync("User not found."));
-                }
-                if (!user.PasswordToken.Equals(request.Token))
-                {
-                    return BadRequest(await Result.FailAsync("Invalid Token."));
-                }
-                if (user.PasswordTokenExpires < DateTime.UtcNow)
-                {
-                    return BadRequest(await Result.FailAsync("Token Expired."));
-                }
-
-
-                user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
-                user.SecurityStamp = Guid.NewGuid().ToString();
-                user.PasswordToken = null;
-                user.PasswordTokenExpires = null;
-                user.PasswordResetAt = DateTime.UtcNow;
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
-                return Ok(await Result.SuccessAsync("Password successfully reset."));
-
+                return NotFound(await Result.FailAsync("User not found."));
             }
-            catch (Exception ex)
+            if (!user.PasswordToken.Equals(request.Token))
             {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
+                return BadRequest(await Result.FailAsync("Invalid Token."));
             }
+            if (user.PasswordTokenExpires < DateTime.UtcNow)
+            {
+                return BadRequest(await Result.FailAsync("Token Expired."));
+            }
+
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+            user.SecurityStamp = Guid.NewGuid().ToString();
+            user.PasswordToken = null;
+            user.PasswordTokenExpires = null;
+            user.PasswordResetAt = DateTime.UtcNow;
+            await _unitOfWork.SaveChangesAsync();
+            return Ok(await Result.SuccessAsync("Password successfully reset."));
+
+
         }
 
 

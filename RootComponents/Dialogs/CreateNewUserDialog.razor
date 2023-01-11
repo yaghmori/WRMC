@@ -7,7 +7,7 @@
 
                 <MudTextField @bind-Value="@NewUserRequest.Email"
                               For="() => NewUserRequest.Email"
-                              Label="@_displayResources[DisplayResources.Email]"
+                              Label="@_displayLocalizer[DisplayResources.Email]"
                               Variant="Variant.Outlined"
                               Immediate="true" />
                 <MudItem xs="12" md="4">
@@ -23,12 +23,12 @@
                 <div class="d-flex flex-row gap-2">
                     <MudTextField @bind-Value="@NewUserRequest.FirstName"
                                   For="() => NewUserRequest.FirstName"
-                                  Label="@_displayResources[DisplayResources.FirstName]"
+                                  Label="@_displayLocalizer[DisplayResources.FirstName]"
                                   Variant="Variant.Outlined"
                                   Immediate="true" />
                     <MudTextField @bind-Value="@NewUserRequest.LastName"
                                   For="() => NewUserRequest.LastName"
-                                  Label="@_displayResources[DisplayResources.LastName]"
+                                  Label="@_displayLocalizer[DisplayResources.LastName]"
                                   Variant="Variant.Outlined"
                                   Immediate="true" />
                 </div>
@@ -36,7 +36,7 @@
 
                     <MudTextField @bind-Value="@NewUserRequest.Password"
                                   For="() => NewUserRequest.Password"
-                                  Label="@_displayResources[DisplayResources.Password]"
+                                  Label="@_displayLocalizer[DisplayResources.Password]"
                                   Variant="Variant.Outlined"
                                   Adornment="Adornment.End"
                                   AdornmentIcon="@Icons.Material.Filled.Cached"
@@ -44,7 +44,7 @@
                                   Immediate="true" />
                     <MudTextField @bind-Value="@NewUserRequest.PasswordConfirmation"
                                   For="() => NewUserRequest.PasswordConfirmation"
-                                  Label="@_displayResources[DisplayResources.PasswordConfirmation]"
+                                  Label="@_displayLocalizer[DisplayResources.PasswordConfirmation]"
                                   Variant="Variant.Outlined"
                                   Immediate="true" />
 
@@ -53,7 +53,7 @@
 
             </div>
             <div class="d-flex flex-row justify-content-end mt-4 mb-2 gap-2">
-                <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+                <MudButton OnClick="Cancel">@_viewLocalizer[ViewResources.Cancel]</MudButton>
                 <MudButton Disabled="@(!context.Validate() ||  !context.IsModified() || IsBusy)"
                            ButtonType="ButtonType.Submit"
                            Class="w-85"
@@ -62,11 +62,11 @@
                     @if (IsBusy)
                     {
                         <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                        <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                        <MudText Class="ms-2">@_viewLocalizer[ViewResources.Processing]</MudText>
                     }
                     else
                     {
-                        @_viewResources[ViewResources.SaveChanges].Value
+                        @_viewLocalizer[ViewResources.SaveChanges].Value
                     }
                 </MudButton>
             </div>

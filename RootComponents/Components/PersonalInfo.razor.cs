@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
 using WRMC.Infrastructure.Domain.Enums;
@@ -21,7 +21,7 @@ namespace WRMC.RootComponents.Components
         protected async override Task OnParametersSetAsync()
         {
             IsLoading = true;
-            _appState.SetAppTitle(_viewResources[ViewResources.Profile]);
+            _appState.SetAppTitle(_viewLocalizer[ViewResources.Profile]);
             //Load Personal Info
             await LoadPersonalInfo();
 
@@ -57,7 +57,7 @@ namespace WRMC.RootComponents.Components
                 MaxWidth = MaxWidth.ExtraSmall
             };
 
-            var dialog = _dialog.Show<SelectIntroMethodDialog>(_displayResources[DisplayResources.IntroMethodId], options);
+            var dialog = _dialog.Show<SelectIntroMethodDialog>(_displayLocalizer[DisplayResources.IntroMethodId], options);
             var result = await dialog.Result;
             if (!result.Cancelled)
             {
@@ -92,11 +92,11 @@ namespace WRMC.RootComponents.Components
             if (result.Succeeded)
             {
                 context.MarkAsUnmodified();
-                _snackbar.Add(_messageResources[MessageResources.UserAccountUpdatedSuccessfully], Severity.Success);
+                _snackbar.Add(_messageLocalizer[MessageResources.UserAccountUpdatedSuccessfully], Severity.Success);
             }
             else
             {
-                _snackbar.Add(_messageResources[MessageResources.UserAccountNotUpdated], Severity.Error);
+                _snackbar.Add(_messageLocalizer[MessageResources.UserAccountNotUpdated], Severity.Error);
                 foreach (var message in result.Messages)
                 {
                     _snackbar.Add(message, Severity.Error);

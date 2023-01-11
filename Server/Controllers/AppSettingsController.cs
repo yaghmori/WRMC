@@ -40,21 +40,15 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         public async Task<IActionResult> AddAppSetting(AppSettingsRequest request)
         {
-            try
-            {
+            
                 if (await _unitOfWork.AppSettings.AnyAsync(x => x.Key.Equals(request.Key)))
                     return Conflict(await Result.FailAsync("key is already defined."));
 
                 var appSetting = _mapper.Map<AppSetting>(request);
                 await _unitOfWork.AppSettings.AddAsync(appSetting);
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return Ok(await Result<string>.SuccessAsync(data: appSetting.Id.ToString(),"AppSettings successfully created."));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+           
         }
 
         /// <summary>
@@ -65,48 +59,35 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<AppSettingsResponse>))]
         public async Task<IActionResult> GetAppSettings(string? query = null)
         {
-            try
-            {
+            
                 var appSettings = await _unitOfWork.AppSettings.GetAllAsync(
                     predicate: x => (!string.IsNullOrWhiteSpace(query) ? x.Key.Contains(query) : true));
                 var response = _mapper.Map<List<AppSettingsResponse>>(appSettings);
                 return Ok(await Result<IList<AppSettingsResponse>>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+           
         }
 
 
         /// <summary>
         /// Get AppSetting By Id
         /// </summary>
-        /// <param name="appSettingsId"></param>
+        /// <param name="id"></param>
         /// <returns>AppSettingsResponse</returns>
-        [HttpGet("{appSettingsId}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AppSettingsResponse))]
-        public async Task<IActionResult> GetAppSettingsById(string appSettingsId)
+        public async Task<IActionResult> GetAppSettingsById(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(appSettingsId))
-                    return BadRequest(await Result.FailAsync("AppSettingsId is null or empty."));
+             if (string.IsNullOrWhiteSpace(id))
+                    return BadRequest(await Result.FailAsync("Invalid Request Id."));
 
-                var appSetting = await _unitOfWork.AppSettings.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(appSettingsId));
+                var appSetting = await _unitOfWork.AppSettings.GetFirstOrDefaultAsync(predicate: x => x.Id.ToString().Equals(id));
 
                 if (appSetting == null)
                     return NotFound(await Result.FailAsync("AppSetting not found."));
 
                 var response = _mapper.Map<AppSettingsResponse>(appSetting);
                 return Ok(await Result<AppSettingsResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            
         }
 
 
@@ -119,8 +100,7 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AppSettingsResponse))]
         public async Task<IActionResult> GetAppSettingsByKey(string key)
         {
-            try
-            {
+            
                 if (string.IsNullOrWhiteSpace(key))
                     return BadRequest(await Result.FailAsync("Key is null or empty."));
 
@@ -131,42 +111,31 @@ namespace WRMC.Server.Controllers
 
                 var response = _mapper.Map<AppSettingsResponse>(appSetting);
                 return Ok(await Result<AppSettingsResponse>.SuccessAsync(response));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+           
         }
 
 
         /// <summary>
         /// Delete AppSetting By Id
         /// </summary>
-        /// <param name="appSettingsId"></param>
+        /// <param name="id"></param>
         /// <returns>bool</returns>
-        [HttpDelete("{appSettingsId}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteAppSettingById(string appSettingsId)
+        public async Task<IActionResult> DeleteAppSettingById(string id)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(appSettingsId))
-                    return BadRequest(await Result.FailAsync("AppSettingsId is null or empty."));
+          
+                if (string.IsNullOrWhiteSpace(id))
+                    return BadRequest(await Result.FailAsync("Invalid Request Id."));
 
-                var appSetting = await _unitOfWork.AppSettings.FindAsync(Guid.Parse(appSettingsId));
+                var appSetting = await _unitOfWork.AppSettings.FindAsync(Guid.Parse(id));
                 if (appSetting is null)
                     return NotFound(await Result.FailAsync("AppSetting not found."));
 
                 _unitOfWork.AppSettings.Remove(appSetting);
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true,"AppSetting successfully deleted."));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            
         }
 
 
@@ -179,8 +148,7 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
         public async Task<IActionResult> DeleteAppSettingByKey(string key)
         {
-            try
-            {
+           
                 if (string.IsNullOrWhiteSpace(key))
                     return BadRequest(await Result.FailAsync("Key is null or empty."));
 
@@ -189,32 +157,25 @@ namespace WRMC.Server.Controllers
                     return NotFound(await Result.FailAsync("AppSetting not found."));
 
                 _unitOfWork.AppSettings.Remove(appSetting);
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true,"AppSetting successfully deleted."));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            
         }
 
         /// <summary>
         /// Update AppSetting
         /// </summary>
-        /// <param name="appSettingId"></param>
+        /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns>bool</returns>
-        [HttpPatch("{appSettingId}")]
+        [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
-        public async Task<IActionResult> UpdateAppSettingById(string appSettingId, [FromBody] JsonPatchDocument<AppSettingsRequest> request)
+        public async Task<IActionResult> UpdateAppSettingById(string id, [FromBody] JsonPatchDocument<AppSettingsRequest> request)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(appSettingId))
-                    return BadRequest(await Result.FailAsync("AppSettingId is null or empty."));
+               if (string.IsNullOrWhiteSpace(id))
+                    return BadRequest(await Result.FailAsync("Invalid Request Id."));
 
-                var appSetting = await _unitOfWork.AppSettings.FindAsync(Guid.Parse(appSettingId));
+                var appSetting = await _unitOfWork.AppSettings.FindAsync(Guid.Parse(id));
                 if (appSetting is null)
                     return NotFound(await Result.FailAsync("AppSetting not found."));
 
@@ -222,14 +183,9 @@ namespace WRMC.Server.Controllers
                 request.ApplyTo(requestToPatch);
                 _mapper.Map(requestToPatch, appSetting);
 
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true,"AppSetting successfully updated."));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync(ex.GetMessages().ToList()));
-            }
+            
         }
     }
 }

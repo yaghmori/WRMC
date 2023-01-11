@@ -9,8 +9,7 @@ namespace WRMC.Infrastructure.Domain.Entities
         {
 
         }
-        public Guid? DefaultTenantId { get; set; }
-
+        public string DefaultTenantId { get; set; }
         public string? EmailToken { get; set; }
         public DateTime? EmailTokenExpires { get; set; }
         public string? PhoneNumberToken { get; set; }
@@ -23,7 +22,6 @@ namespace WRMC.Infrastructure.Domain.Entities
 
         public virtual UserSetting UserSetting { get; set; }
         public virtual UserProfile UserProfile { get; set; }
-        public virtual Tenant? DefaultTenant { get; set; }
 
         public virtual ICollection<UserAttachment> UserImages { get; set; } = new List<UserAttachment>();
         public virtual ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
@@ -33,7 +31,7 @@ namespace WRMC.Infrastructure.Domain.Entities
         public virtual ICollection<UserToken> UserTokens { get; set; } = new List<UserToken>();
         public virtual ICollection<UserSession> UserSessions { get; set; } = new List<UserSession>();
         public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-        public virtual ICollection<UserTenant> UserTenants { get; set; } = new List<UserTenant>();
+        public virtual ICollection<Case> Cases { get; set; } = new List<Case>();
 
         #region AuditEntity
         public DateTime? CreatedDate { get; set; } = DateTime.UtcNow;

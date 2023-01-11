@@ -27,7 +27,7 @@ namespace WRMC.Core.Application.DataServices
         Task<IResult<UserResponse>> GetUserAsync(string userId);
         Task<IResult<UserAttachmentResponse>> GetUserAttachmentAsync(string userId, string attachmentId);
         Task<IResult<List<UserAttachmentResponse>>> GetUserAttachmentsAsync(string userId);
-        Task<IResult<List<UserClaimResponse>>> GetUserClaimsAsync(string userId);
+        Task<IResult<List<ClaimResponse>>> GetUserClaimsAsync(string userId);
         Task<IResult<UserPhoneNumberResponse>> GetUserPhoneNumberAsync(string userId, string phoneNumberId);
         Task<IResult<List<UserPhoneNumberResponse>>> GetUserPhoneNumbersAsync(string userId);
         Task<IResult<UserProfileResponse>> GetUserProfileAsync(string userId);
@@ -36,15 +36,13 @@ namespace WRMC.Core.Application.DataServices
         Task<IResult<List<UserSessionResponse>>> GetUserSessionsAsync(string userId);
         Task<IResult<UserSettingResponse>> GetUserSettingAsync(string userId);
         Task<IResult<IPagedList<UserResponse>>> GetUsersPagedAsync(int page = 0, int pageSize = 10, string query = null);
-        Task<IResult<List<UserTenantResponse>>> GetUserTenantsAsync(string userId);
         Task<IResult<bool>> SetPasswordAsync(string userId, PasswordRequest request);
         Task<IResult<bool>> TerminateSessionAsync(string sessionId);
         Task<IResult<bool>> UpdateUserAsync(string userId, JsonPatchDocument<UserRequest> request);
-        Task<IResult<bool>> UpdateUserClaimsAsync(string userId, List<UserClaimRequest> claims);
+        Task<IResult<bool>> UpdateUserClaimsAsync(string userId, List<ClaimRequest> claims);
         Task<IResult<bool>> UpdateUserProfileAsync(string userId, JsonPatchDocument<UserProfileRequest> request);
         Task<IResult<bool>> UpdateUserRolesAsync(string userId, List<string> roles);
         Task<IResult<bool>> UpdateUserSettingsAsync(string userId, JsonPatchDocument<UserSettingRequest> request);
-        Task<IResult<bool>> UpdateUserTenantsAsync(string userId, List<string> tenants);
         Task<IResult<bool>> UpdateUserAddressAsync(string userId, string addressId, JsonPatchDocument<UserAddressRequest> request);
         Task<IResult<bool>> UpdateUserPhoneNumberAsync(string userId, string phoneNumberId, JsonPatchDocument<UserPhoneNumberRequest> request);
     }

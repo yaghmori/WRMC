@@ -10,11 +10,11 @@
 
             @if (!IsLoading)
             {
-                <MudSelect @bind-Value="AddressRequest.AddressType"
+                <MudSelect @bind-Value="AddressRequest.Type"
                        Required=true
                        Immediate=true
-                       For="@(()=>AddressRequest.AddressType)"
-                       Label="@_displayResources[DisplayResources.UserAddress_AddressType]"
+                       For="@(()=>AddressRequest.Type)"
+                       Label="@_displayLocalizer[DisplayResources.UserAddress_AddressType]"
                        Variant="Variant.Outlined">
                     @foreach (var item in Enum.GetValues(typeof(AddressTypeEnum)).Cast<AddressTypeEnum?>())
                     {
@@ -35,7 +35,7 @@
                              Value="@AddressRequest.SelectedState"
                              For="()=>AddressRequest.SelectedState"
                              ValueChanged="OnStateValueChanged"
-                             Label="@_viewResources[ViewResources.USStates]"
+                             Label="@_viewLocalizer[ViewResources.USStates]"
                              ToStringFunc="@(e=> e==null?null : e.Name)"
                              Variant="Variant.Outlined"
                              MaxItems="null"
@@ -49,7 +49,7 @@
                              ResetValueOnEmptyText=true
                              @bind-Value="@AddressRequest.SelectedCity"
                              For="()=>AddressRequest.SelectedCity"
-                             Label="@_viewResources[ViewResources.City]"
+                             Label="@_viewLocalizer[ViewResources.City]"
                              ToStringFunc="@(e=> e==null?null : e.Name)"
                              Variant="Variant.Outlined"
                              MaxItems="null"
@@ -61,7 +61,7 @@
                 @*<MudTextField Text="@UserAddress.Region?.Name"
             @bind-Value="@UserAddress.RegionId"
             For="@(() => UserAddress.RegionId)"
-            Label="@_displayResources[DisplayResources.UserAddress_Region]"
+            Label="@_displayLocalizer[DisplayResources.UserAddress_Region]"
             @onclick="SelectRegionDialog"
             OnAdornmentClick="SelectRegionDialog"
             Variant="Variant.Outlined"
@@ -73,19 +73,19 @@
                 <MudTextField @bind-Value="@AddressRequest.Address"
                           Lines=5
                           For="() => AddressRequest.Address"
-                          Label="@_displayResources[DisplayResources.UserAddress_Address]"
+                          Label="@_displayLocalizer[DisplayResources.UserAddress_Address]"
                           Variant="Variant.Outlined"
                           Required=true
                           Immediate=true />
 
                 <MudTextField @bind-Value="@AddressRequest.ZipCode"
                           For="() => AddressRequest.ZipCode"
-                          Label="@_displayResources[DisplayResources.UserAddress_ZipCode]"
+                          Label="@_displayLocalizer[DisplayResources.UserAddress_ZipCode]"
                           Variant="Variant.Outlined"
                           Immediate="true" 
                           Class="mt-2"/>
                 <div class="d-flex flex-row justify-content-end mt-4 mb-2 gap-2">
-                    <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+                    <MudButton OnClick="Cancel">@_viewLocalizer[ViewResources.Cancel]</MudButton>
                     <MudButton Disabled="@(!context.Validate() || !context.IsModified() || IsBusy)"
                            ButtonType="ButtonType.Submit"
                            Class="w-85"
@@ -94,11 +94,11 @@
                         @if (IsBusy)
                         {
                             <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                            <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                            <MudText Class="ms-2">@_viewLocalizer[ViewResources.Processing]</MudText>
                         }
                         else
                         {
-                            @_viewResources[ViewResources.SaveChanges]
+                            @_viewLocalizer[ViewResources.SaveChanges]
 
                         }
                     </MudButton>

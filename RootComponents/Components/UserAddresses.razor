@@ -2,8 +2,8 @@
 @if (!IsLoading)
 {
     <div class="d-flex  align-content-center  justify-content-between mb-3">
-        <h5>@_viewResources[ViewResources.Addresses]</h5>
-        <MudButton StartIcon="@Icons.Rounded.AddCircle" Variant="Variant.Filled" OnClick="()=>AddOrUpdateAddress(null)" Color="Color.Primary">@_viewResources[ViewResources.AddNewAddress]</MudButton>
+        <h5>@_viewLocalizer[ViewResources.Addresses]</h5>
+        <MudButton StartIcon="@Icons.Rounded.AddCircle" Variant="Variant.Filled" OnClick="()=>AddOrUpdateAddress(null)" Color="Color.Primary">@_viewLocalizer[ViewResources.AddNewAddress]</MudButton>
     </div>
     <MudDataGrid T="UserAddressResponse"
              Items="AddressCollection"
@@ -17,15 +17,15 @@
              FixedHeader="true">
         <NoRecordsContent>
             <div class="height:100px;">
-                <h6 class="text-secondary">@_messageResources[MessageResources.NoRecordFound]</h6>
+                <h6 class="text-secondary">@_messageLocalizer[MessageResources.NoRecordFound]</h6>
             </div>
         </NoRecordsContent>
         <Columns>
-            <Column T="UserAddressResponse" Field="@nameof(UserAddressResponse.Address)" Title="@_displayResources[DisplayResources.UserAddress_Address]">
+            <Column T="UserAddressResponse" Field="@nameof(UserAddressResponse.Address)" Title="@_displayLocalizer[DisplayResources.UserAddress_Address]">
                 <CellTemplate>
                     <div class="d-flex flex-column align-items-start justify-content-start gap-1" >
                         <div class="d-flex flex-row align-items-center justify-content-start">
-                            <i class="far fa-@context.Item?.AddressType?.GetDisplayShortName()" />
+                            <i class="far fa-@context.Item?.Type?.GetDisplayShortName()" />
                             <div class="mx-2">@context.Item?.Region?.Path</div>
                         </div>
                         <div>@context.Item?.Address</div>

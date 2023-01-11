@@ -1,7 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.SignalR.Client;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.SignalR;
 
 namespace WRMC.RootComponents.SignalR
@@ -13,14 +13,14 @@ namespace WRMC.RootComponents.SignalR
         protected SignalRClientBase(ISyncLocalStorageService localStorage, ISyncSessionStorageService sessionStorageService, string hubPath)
         {
             string accessToken;
-            var isPersistent = localStorage.GetItem<bool>(ApplicationConstants.IsPersistent);
+            var isPersistent = localStorage.GetItem<bool>(AppConstants.IsPersistent);
             if (isPersistent)
-                accessToken = localStorage.GetItem<string>(ApplicationConstants.AccessToken);
+                accessToken = localStorage.GetItem<string>(AppConstants.AccessToken);
             else
-                accessToken = sessionStorageService.GetItem<string>(ApplicationConstants.AccessToken);
+                accessToken = sessionStorageService.GetItem<string>(AppConstants.AccessToken);
 
             HubConnection = new HubConnectionBuilder()
-               .WithUrl(ApplicationConstants.ServerBaseAddress + hubPath, options =>
+               .WithUrl(AppConstants.ServerBaseAddress + hubPath, options =>
                {
                    options.AccessTokenProvider = async () => await Task.FromResult(accessToken);
                })

@@ -114,7 +114,7 @@ namespace WRMC.RootComponents.Dialogs
                     if (!string.IsNullOrWhiteSpace(addressId))
                     {
                         dgResult = true;
-                        _snackbar.Add(_messageResources[MessageResources.AddressSuccessfullyAdded]?.Value, Severity.Success);
+                        _snackbar.Add(_messageLocalizer[MessageResources.AddressSuccessfullyAdded]?.Value, Severity.Success);
 
                         //TODO : Using SignalR
                     }
@@ -133,7 +133,7 @@ namespace WRMC.RootComponents.Dialogs
                 var patchDoc = new JsonPatchDocument<UserAddressRequest>();
                 patchDoc.Replace(e => e.Address, AddressRequest.Address);
                 patchDoc.Replace(e => e.RegionId, AddressRequest.RegionId);
-                patchDoc.Replace(e => e.AddressType, AddressRequest.AddressType);
+                patchDoc.Replace(e => e.Type, AddressRequest.Type);
                 patchDoc.Replace(e => e.Description, AddressRequest.Description);
                 patchDoc.Replace(e => e.IsDefault, AddressRequest.IsDefault);
                 patchDoc.Replace(e => e.ZipCode, AddressRequest.ZipCode);
@@ -143,7 +143,7 @@ namespace WRMC.RootComponents.Dialogs
                 if (result?.Succeeded == true)
                 {
                     dgResult = true;
-                    _snackbar.Add(_messageResources[MessageResources.AddressSuccessfullyUpdated], Severity.Success);
+                    _snackbar.Add(_messageLocalizer[MessageResources.AddressSuccessfullyUpdated], Severity.Success);
 
                     //TODO : Using SignalR
                 }
@@ -168,7 +168,7 @@ namespace WRMC.RootComponents.Dialogs
                 FullWidth = true,
                 MaxWidth = MaxWidth.ExtraSmall
             };
-            var dialog = _dialog.Show<RegionTreeSelectionDialog>(_displayResources[DisplayResources.UserAddress_Region], options);
+            var dialog = _dialog.Show<RegionTreeSelectionDialog>(_displayLocalizer[DisplayResources.UserAddress_Region], options);
             var result = await dialog.Result;
             if (!result.Cancelled)
             {

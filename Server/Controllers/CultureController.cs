@@ -70,7 +70,7 @@ namespace WRMC.Server.Controllers
 
             var culture = _mapper.Map<Culture>(request);
             await _unitOfWork.Cultures.AddAsync(culture);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<string>.SuccessAsync(data: culture.Id.ToString(), message: "Culture successfully created."));
 
         }
@@ -91,7 +91,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("Culture not found."));
 
             _unitOfWork.Cultures.Remove(culture);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "Culture successfully deleted."));
 
         }
@@ -114,7 +114,7 @@ namespace WRMC.Server.Controllers
 
             culture = _mapper.Map<Culture>(request);
             _unitOfWork.Cultures.Update(culture);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "Culture successfully updated."));
 
         }

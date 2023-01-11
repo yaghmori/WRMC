@@ -5,22 +5,13 @@ namespace WRMC.Infrastructure.Domain.Entities
 {
     public class Region : BaseEntity<int>
     {
-        [Column(Order = 1)]
         public int? ParentId { get; set; }
-        [Column(Order = 2)]
         public virtual RegionTypeEnum RegionType { get; set; }
-        [Column(Order = 3)]
         public string Name { get; set; } = default!;
-        [Column(Order = 4)]
-
         public string? OfficialName { get; set; }
-        [Column(Order = 5)]
         public string? Iso2 { get; set; }
-        [Column(Order = 6)]
         public string? Iso3 { get; set; }
-        [Column(Order = 7)]
         public short? Numeric { get; set; }
-        [Column(Order = 8)]
         public string? Flag { get; set; }
         public virtual Region? Parent { get; set; }
 

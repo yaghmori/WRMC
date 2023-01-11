@@ -35,7 +35,7 @@
                                 {
                                     <MudNumericField @bind-Value="UserProfileRequest.Height" T="short?"
                                              For="@(()=>UserProfileRequest.Height)"
-                                             Label="@_displayResources[DisplayResources.UserProfile_Height]"
+                                             Label="@_displayLocalizer[DisplayResources.UserProfile_Height]"
                                              Immediate=true
                                              Margin="Margin.Dense"
                                              Variant="Variant.Outlined">
@@ -48,7 +48,7 @@
                                 {
                                     <MudNumericField @bind-Value="UserProfileRequest.Weight" T="short?"
                                              For="@(()=>UserProfileRequest.Weight)"
-                                             Label="@_displayResources[DisplayResources.UserProfile_Weight]"
+                                             Label="@_displayLocalizer[DisplayResources.UserProfile_Weight]"
                                              Immediate=true
                                              Margin="Margin.Dense"
                                              Variant="Variant.Outlined">
@@ -59,7 +59,7 @@
                             <MudItem xs="12">
                                 <MudTextField @bind-Value="@UserProfileRequest.IdNumber"
                                           For="@(() => UserProfileRequest.IdNumber)"
-                                          Label="@_displayResources[DisplayResources.IdNumber]"
+                                          Label="@_displayLocalizer[DisplayResources.IdNumber]"
                                           Immediate="true"
                                           Variant="Variant.Outlined"
                                           Adornment="Adornment.Start"
@@ -69,7 +69,7 @@
                             <MudItem xs="12" md="6">
                                 <MudDatePicker @bind-Date="UserProfileRequest.BirthDate"
                                            For="@(()=>UserProfileRequest.BirthDate)"
-                                           Label="@_displayResources[DisplayResources.BirthDate]"
+                                           Label="@_displayLocalizer[DisplayResources.BirthDate]"
                                            PickerVariant="PickerVariant.Dialog"
                                            Variant="Variant.Outlined" />
                             </MudItem>
@@ -78,7 +78,7 @@
                                 <MudSelect @bind-Value="UserProfileRequest.RaceNationality"
                                        Immediate=true
                                        For="@(()=>UserProfileRequest.RaceNationality)"
-                                       Label="@_displayResources[DisplayResources.RaceNationality]"
+                                       Label="@_displayLocalizer[DisplayResources.RaceNationality]"
                                        Variant="Variant.Outlined">
                                     @foreach (var item in Enum.GetValues(typeof(RaceEnum)).Cast<RaceEnum?>())
                                     {
@@ -90,7 +90,7 @@
                             <MudItem xs="12" md="4">
                                 <MudTextField @bind-Value="@UserProfileRequest.FirstName"
                                           For="@(() => UserProfileRequest.FirstName)"
-                                          Label="@_displayResources[DisplayResources.FirstName]"
+                                          Label="@_displayLocalizer[DisplayResources.FirstName]"
                                           Immediate=true
                                           Variant="Variant.Outlined" />
                             </MudItem>
@@ -98,7 +98,7 @@
                             <MudItem xs="12" md="4">
                                 <MudTextField @bind-Value="@UserProfileRequest.MiddleName"
                                           For="@(() => UserProfileRequest.MiddleName)"
-                                          Label="@_displayResources[DisplayResources.MiddleName]"
+                                          Label="@_displayLocalizer[DisplayResources.MiddleName]"
                                           Immediate="true"
                                           Variant="Variant.Outlined" />
                             </MudItem>
@@ -106,7 +106,7 @@
                             <MudItem xs="12" md="4">
                                 <MudTextField @bind-Value="@UserProfileRequest.LastName"
                                           For="@(() => UserProfileRequest.LastName)"
-                                          Label="@_displayResources[DisplayResources.LastName]"
+                                          Label="@_displayLocalizer[DisplayResources.LastName]"
                                           Immediate="true"
                                           Variant="Variant.Outlined" />
                             </MudItem>
@@ -115,7 +115,7 @@
                                 <MudTextField Text="@UserProfileRequest.IntroMethod?.Path"
                                           @bind-Value="@UserProfileRequest.IntroMethod"
                                           For="@(() => UserProfileRequest.IntroMethod)"
-                                          Label="@_displayResources[DisplayResources.IntroMethodId]"
+                                          Label="@_displayLocalizer[DisplayResources.IntroMethodId]"
                                           @onclick="SelectIntroMethodDialog"
                                           OnAdornmentClick="SelectIntroMethodDialog"
                                           Variant="Variant.Outlined"
@@ -142,11 +142,11 @@
                             @if (IsBusy)
                             {
                                 <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                                <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                                <MudText Class="ms-2">@_viewLocalizer[ViewResources.Processing]</MudText>
                             }
                             else
                             {
-                                @_viewResources[ViewResources.SaveChanges]
+                                @_viewLocalizer[ViewResources.SaveChanges]
                             }
 
                         </MudButton>

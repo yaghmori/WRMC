@@ -5,14 +5,14 @@
 
 
 <MudHidden Breakpoint="Breakpoint.Xs">
-    <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">@_viewResources[ViewResources.Profile]</MudText>
+    <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">@_viewLocalizer[ViewResources.Profile]</MudText>
 </MudHidden>
 
 <MudTabs Elevation="1" Rounded="true" PanelClass="mt-6">
     <ChildContent>
         <MudTabPanel>
             <TabContent>
-                <div><i class="far fa-user-tag fa-lg mx-1"></i> @_viewResources[ViewResources.PersonalInfo]</div>
+                <div><i class="far fa-user-tag fa-lg mx-1"></i> @_viewLocalizer[ViewResources.PersonalInfo]</div>
             </TabContent>
             <ChildContent>
                 <PersonalInfo UserId="@User.Id"/>
@@ -21,26 +21,26 @@
         </MudTabPanel>
         <MudTabPanel>
             <TabContent>
-                <div style="width:100%;"><i class="far fa-file-circle-info fa-lg mx-1"></i> @_viewResources[ViewResources.AdditionalInfo]</div>
+                <div style="width:100%;"><i class="far fa-file-circle-info fa-lg mx-1"></i> @_viewLocalizer[ViewResources.AdditionalInfo]</div>
             </TabContent>
             <ChildContent>
                 @if (!IsLoading)
                 {
                     <MudTabs Position="Position.Left" Elevation="2" Rounded="true" PanelClass="mx-4"
                          MaxHeight=500 Style="height:500px;">
-                        <MudTabPanel Text="@_viewResources[ViewResources.PhoneNumbers]" Icon="@Icons.Material.Filled.LocalPhone">
+                        <MudTabPanel Text="@_viewLocalizer[ViewResources.PhoneNumbers]" Icon="@Icons.Material.Filled.LocalPhone">
                             <MudItem xs="12">
                                 <UserPhoneNumbers UserId="@User.Id"/>
                             </MudItem>
 
                         </MudTabPanel>
-                        <MudTabPanel Text="@_viewResources[ViewResources.Addresses]" Icon="@Icons.Material.Filled.LocationOn">
+                        <MudTabPanel Text="@_viewLocalizer[ViewResources.Addresses]" Icon="@Icons.Material.Filled.LocationOn">
                             <MudItem xs="12">
                                 <UserAddresses UserId="@User.Id"/>
                             </MudItem>
 
                         </MudTabPanel>
-                        <MudTabPanel Text="@_viewResources[ViewResources.Attachments]" Icon="@Icons.Material.Filled.Attachment">
+                        <MudTabPanel Text="@_viewLocalizer[ViewResources.Attachments]" Icon="@Icons.Material.Filled.Attachment">
                             <MudItem xs="12">
                                 <UserAttachments UserId="@User.Id"/>
                             </MudItem>
@@ -58,7 +58,7 @@
         </MudTabPanel>
         <MudTabPanel>
             <TabContent>
-                <div style="width:100%;"><i class="far fa-lock-keyhole fa-lg mx-1"></i> @_viewResources[ViewResources.PrivacyAndSecurity]</div>
+                <div style="width:100%;"><i class="far fa-lock-keyhole fa-lg mx-1"></i> @_viewLocalizer[ViewResources.PrivacyAndSecurity]</div>
             </TabContent>
             <ChildContent>
                 <ChangePassword UserId="@User.Id"/>
@@ -66,7 +66,7 @@
         </MudTabPanel>
         <MudTabPanel>
             <TabContent>
-                <div style="width:100%;"><i class="far fa-laptop-mobile fa-lg mx-1"></i> @_viewResources[ViewResources.ActiveSessions]</div>
+                <div style="width:100%;"><i class="far fa-laptop-mobile fa-lg mx-1"></i> @_viewLocalizer[ViewResources.ActiveSessions]</div>
             </TabContent>
             <ChildContent>
                     <MudItem xs="12">

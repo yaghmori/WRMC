@@ -3,15 +3,15 @@
 
 <MudNavMenu Bordered="true" Rounded="true" Color="Color.Primary" Class="pa-2">
 
-    <MudNavLink Href="@ApplicationURL.Dashboard" Match="NavLinkMatch.All" Icon="fad fa-grid-horizontal">@_viewResources[ViewResources.Dashboard]</MudNavLink>
-    <MudNavLink Href="@ApplicationURL.Visits" Match="NavLinkMatch.All" Icon="fad fa-calendar-week">@_viewResources[ViewResources.Visits]</MudNavLink>
-    <MudNavLink Href="@ApplicationURL.Chat" Icon="fad fa-messages">@_viewResources[ViewResources.Chat]</MudNavLink>
-    <MudNavLink Href="@ApplicationURL.Tenants" Icon="fad fa-coins">@_viewResources[ViewResources.Tenants]</MudNavLink>
-    <MudText Typo="Typo.subtitle2" Color="Color.Inherit" Class="ml-4 my-3">@_viewResources[ViewResources.IdentityManagement]</MudText>
-    <MudNavLink Href="@ApplicationURL.Users" Icon="fad fa-user-group">@_viewResources[ViewResources.Users]</MudNavLink>
-    <MudNavLink Href="@ApplicationURL.Roles" Icon="fad fa-user-group">@_viewResources[ViewResources.Roles]</MudNavLink>
-    <MudNavLink Href="@ApplicationURL.AppSettings" Icon="fad fa-gears">@_viewResources[ViewResources.AppSettings]</MudNavLink>
-    <MudNavLink Href="@ApplicationURL.Logout" Icon="fad fa-right-from-bracket">@_viewResources[ViewResources.Logout]</MudNavLink>
+    <MudNavLink Href="@AppURL.Dashboard" Match="NavLinkMatch.All" Icon="fad fa-grid-horizontal">@_viewLocalizer[ViewResources.Dashboard]</MudNavLink>
+    <MudNavLink Href="@AppURL.Visits" Match="NavLinkMatch.All" Icon="fad fa-calendar-week">@_viewLocalizer[ViewResources.Visits]</MudNavLink>
+    <MudNavLink Href="@AppURL.Chat" Icon="fad fa-messages">@_viewLocalizer[ViewResources.Chat]</MudNavLink>
+    <MudNavLink Href="@AppURL.Tenants" Icon="fad fa-coins">@_viewLocalizer[ViewResources.Tenants]</MudNavLink>
+    <MudText Typo="Typo.subtitle2" Color="Color.Inherit" Class="ml-4 my-3">@_viewLocalizer[ViewResources.IdentityManagement]</MudText>
+    <MudNavLink Href="@AppURL.Users" Icon="fad fa-user-group">@_viewLocalizer[ViewResources.Users]</MudNavLink>
+    <MudNavLink Href="@AppURL.Roles" Icon="fad fa-user-group">@_viewLocalizer[ViewResources.Roles]</MudNavLink>
+    <MudNavLink Href="@AppURL.AppSettings" Icon="fad fa-gears">@_viewLocalizer[ViewResources.AppSettings]</MudNavLink>
+    <MudNavLink Href="@AppURL.Logout" Icon="fad fa-right-from-bracket">@_viewLocalizer[ViewResources.Logout]</MudNavLink>
 
 </MudNavMenu>
 

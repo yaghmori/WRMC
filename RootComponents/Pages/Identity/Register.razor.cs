@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Localization;
 using MudBlazor;
-using WRMC.Core.Application.Authorization;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.Requests;
 
 namespace WRMC.RootComponents.Pages.Identity
@@ -46,9 +45,9 @@ namespace WRMC.RootComponents.Pages.Identity
                 var tokenResponse = await _authDataService.GetTokenAsync(tokenRequest);
                 if (tokenResponse.Succeeded)
                 {
-                    _snackbar.Add(_messageResources.GetString("RegisterSuccessfull").Value, Severity.Success);
+                    _snackbar.Add(_messageLocalizer.GetString("RegisterSuccessfull").Value, Severity.Success);
                     await ((AuthStateProvider)_authStateProvider).NotifyLoginAsync(tokenResponse.Data, false);
-                    _navigationManager.NavigateTo(ApplicationURL.Index, true);
+                    _navigationManager.NavigateTo(AppURL.Index, true);
 
                 }
             }
@@ -57,7 +56,7 @@ namespace WRMC.RootComponents.Pages.Identity
                 await ((AuthStateProvider)_authStateProvider).NotifyLogoutAsync();
                 foreach (var messages in registerResponse.Messages)
                 {
-                    _snackbar.Add(_messageResources.GetString(messages).Value, Severity.Error);
+                    _snackbar.Add(_messageLocalizer.GetString(messages).Value, Severity.Error);
                 }
             }
         }

@@ -10,10 +10,10 @@
 
             @if (!IsLoading)
             {
-                <MudSelect @bind-Value="UserPhoneNumber.PhoneNumberType"
+                <MudSelect @bind-Value="UserPhoneNumber.Type"
                        Immediate=true
-                       For="@(()=>UserPhoneNumber.PhoneNumberType)"
-                       Label="@_displayResources[DisplayResources.UserPhoneNumber_Type]"
+                       For="@(()=>UserPhoneNumber.Type)"
+                       Label="@_displayLocalizer[DisplayResources.UserPhoneNumber_Type]"
                        Variant="Variant.Outlined">
                     @foreach (var item in Enum.GetValues(typeof(PhoneNumberTypeEnum)).Cast<PhoneNumberTypeEnum?>())
                     {
@@ -25,11 +25,11 @@
                         </MudSelectItem>
                     }
                 </MudSelect>
-                <MudTextField @bind-Value="@UserPhoneNumber.PhoneNumber" For="() => UserPhoneNumber.PhoneNumber" Label="@_displayResources[DisplayResources.UserPhoneNumber_PhoneNumber]" Variant="Variant.Outlined" Immediate="true" />
+                <MudTextField @bind-Value="@UserPhoneNumber.PhoneNumber" For="() => UserPhoneNumber.PhoneNumber" Label="@_displayLocalizer[DisplayResources.UserPhoneNumber_PhoneNumber]" Variant="Variant.Outlined" Immediate="true" />
                 <br />
-                <MudTextField @bind-Value="@UserPhoneNumber.Description" Lines=5 For="() => UserPhoneNumber.Description" Label="@_displayResources[DisplayResources.UserPhoneNumber_Description]" Variant="Variant.Outlined" Immediate="true" />
+                <MudTextField @bind-Value="@UserPhoneNumber.Description" Lines=5 For="() => UserPhoneNumber.Description" Label="@_displayLocalizer[DisplayResources.UserPhoneNumber_Description]" Variant="Variant.Outlined" Immediate="true" />
                 <div class="d-flex flex-row justify-content-end mt-4 mb-2 gap-2">
-                    <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+                    <MudButton OnClick="Cancel">@_viewLocalizer[ViewResources.Cancel]</MudButton>
                     <MudButton Disabled="@(!context.Validate() || !context.IsModified() || IsBusy)"
                            ButtonType="ButtonType.Submit"
                            Class="w-85"
@@ -38,11 +38,11 @@
                         @if (IsBusy)
                         {
                             <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                            <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                            <MudText Class="ms-2">@_viewLocalizer[ViewResources.Processing]</MudText>
                         }
                         else
                         {
-                            @_viewResources[ViewResources.SaveChanges]
+                            @_viewLocalizer[ViewResources.SaveChanges]
 
                         }
                     </MudButton>

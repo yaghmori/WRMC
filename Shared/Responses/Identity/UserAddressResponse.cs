@@ -10,7 +10,7 @@ namespace WRMC.Core.Shared.Responses
         public string? UserId { get; set; }
         public string? RegionId { get; set; }
         public virtual RegionResponse? Region { get; set; }
-        public AddressTypeEnum? AddressType { get; set; }
+        public AddressTypeEnum? Type { get; set; }
         public string? Address { get; set; } = default!;
         public string? ZipCode { get; set; } = default!;
         public string? Description { get; set; }

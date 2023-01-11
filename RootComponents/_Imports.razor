@@ -39,7 +39,7 @@
 @using WRMC.RootComponents.Themes
 @using WRMC.RootComponents.Pages
 @using WRMC.Core.Application
-@using WRMC.Core.Shared.Constant
+@using WRMC.Core.Shared.Constants
 
 @inject IAuthorizationService _authorizationService
 @inject NavigationManager _navigationManager
@@ -50,11 +50,11 @@
 @inject MudBlazor.ISnackbar _snackbar
 @inject MudBlazor.IDialogService _dialog
 
-@inject IStringLocalizer<MessageResources> _messageResources
-@inject IStringLocalizer<DisplayResources> _displayResources
-@inject IStringLocalizer<ValidationResources> _validationResources
-@inject IStringLocalizer<ViewResources> _viewResources
-@inject IStringLocalizer<ContextResources> _contextResources
+@inject IStringLocalizer<MessageResources> _messageLocalizer
+@inject IStringLocalizer<DisplayResources> _displayLocalizer
+@inject IStringLocalizer<ValidationResources> _validationLocalizer
+@inject IStringLocalizer<ViewResources> _viewLocalizer
+@inject IStringLocalizer<ContextResources> _contextLocalizer
 
 
 @inject Blazored.LocalStorage.ILocalStorageService _localStorage
@@ -65,7 +65,6 @@
 
 @inject ICultureDataService _cultureDataService;
 @inject IUserDataService _userDataService
-@inject ITenantDataService _TenantDataService
 @inject IRoleDataService _roleDataService
 @inject IAuthDataService _authDataService
 @inject IAppSettingDataService _appSettingDataService

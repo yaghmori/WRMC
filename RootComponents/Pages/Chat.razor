@@ -9,12 +9,12 @@
 <MudSelect FullWidth=false T="string"
            Class="mb-3"
            SelectAll="true"
-           SelectAllText="@_viewResources[ViewResources.SelectAll]"
+           SelectAllText="@_viewLocalizer[ViewResources.SelectAll]"
            MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))"
            MultiSelection="true"
            Dense=true
            @bind-SelectedValues="SelectedUsers"
-           Label="@_viewResources[ViewResources.Users]"
+           Label="@_viewLocalizer[ViewResources.Users]"
            AdornmentIcon="@Icons.Material.Filled.Search"
            Variant="Variant.Outlined"
            AnchorOrigin="Origin.BottomCenter">

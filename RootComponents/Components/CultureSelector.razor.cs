@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
-using WRMC.Core.Application.Extensions;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
 
@@ -35,11 +33,11 @@ namespace WRMC.RootComponents.Components
             if (result.Succeeded)
             {
                 //TODO : Implement LocalStorage Service
-                var isPersistent = await _localStorage.GetItemAsync<bool>(ApplicationConstants.IsPersistent);
+                var isPersistent = await _localStorage.GetItemAsync<bool>(AppConstants.IsPersistent);
                 if (isPersistent)
-                    await _localStorage.SetItemAsync(ApplicationConstants.Culture, culture.CultureInfo.Name);
+                    await _localStorage.SetItemAsync(AppConstants.Culture, culture.CultureInfo.Name);
                 else
-                    await _sessionStorage.SetItemAsync(ApplicationConstants.Culture, culture.CultureInfo.Name);
+                    await _sessionStorage.SetItemAsync(AppConstants.Culture, culture.CultureInfo.Name);
             }
             else
             {

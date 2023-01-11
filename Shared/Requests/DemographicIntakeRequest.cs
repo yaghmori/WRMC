@@ -7,11 +7,8 @@ using WRMC.Infrastructure.Localization;
 
 namespace WRMC.Core.Shared.Requests
 {
-    public class DemographicIntakeRequest
+    public class DemographicIntakeRequest : IntakeBaseRequest
     {
-        public string? VisitId { get; set; }
-        public string? TaskId { get; set; }
-        public bool IsComplete { get; set; } = false;
         public ResidentialIntakeRequest ResidentialIntake { get; set; }=new ResidentialIntakeRequest();
         public FinancialIntakeRequest FinancialIntake { get; set; } = new FinancialIntakeRequest();
         public OtherDemographicIntakeRequest OtherDemographicIntake { get; set; } = new OtherDemographicIntakeRequest();
@@ -24,9 +21,7 @@ namespace WRMC.Core.Shared.Requests
     {
         public DemographicIntakeValidator()
         {
-            //RuleFor(x => x.VisitId).NotEmpty().WithMessage("Please specify a Visit Id");
-            //RuleFor(x => x.TaskId).NotEmpty().WithMessage("Please specify a Task Id");
-            //RuleFor(x => x.Gender).NotEmpty().WithMessage("Please specify your gender");
+            Include(new IntakeBaseValidator());
             RuleFor(x => x.ResidentialIntake).SetValidator(new ResidentialIntakeValidator());
             RuleFor(x => x.FinancialIntake).SetValidator(new FinancialIntakeValidator());
             RuleFor(x => x.OtherDemographicIntake).SetValidator(new OtherIntakeValidator());

@@ -1,11 +1,9 @@
 ﻿@page "/Logout"
-@using WRMC.Core.Application.Authorization;
-
 @code{
     protected override async Task OnInitializedAsync()
     {
         await ((AuthStateProvider)_authStateProvider).NotifyLogoutAsync();
-        _navigationManager.NavigateTo(ApplicationURL.Index, true);
+        _navigationManager.NavigateTo(AppURL.Index, true);
     }
 
 }

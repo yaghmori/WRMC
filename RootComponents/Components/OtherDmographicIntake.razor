@@ -8,43 +8,43 @@
 
 
             <MudItem sm="12" md="6">
-                @_messageResources[MessageResources.DoYouHaveAccessToPrenatalCare]
+                @_messageLocalizer[MessageResources.DoYouHaveAccessToPrenatalCare]
                 <MudRadioGroup For="()=>Model.AffordPrenatal" @bind-SelectedOption=Model.AffordPrenatal>
-                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                 </MudRadioGroup>
             </MudItem>
             <MudItem sm="12" md="6">
-                @_messageResources[MessageResources.DoYouFeelHavingAChildNowWouldCreateAnUndueBurdenFinancially]
+                @_messageLocalizer[MessageResources.DoYouFeelHavingAChildNowWouldCreateAnUndueBurdenFinancially]
                 <MudRadioGroup For="()=>Model.UndueBurden" @bind-SelectedOption=Model.UndueBurden>
-                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                 </MudRadioGroup>
             </MudItem>
             <MudItem sm="12" md="6">
-                @_messageResources[MessageResources.IsYourCurrentLivingArrangementConduciveToRaisingChildren]
+                @_messageLocalizer[MessageResources.IsYourCurrentLivingArrangementConduciveToRaisingChildren]
                 <MudRadioGroup For="()=>Model.ConduciveRaising" @bind-SelectedOption=Model.ConduciveRaising>
-                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                 </MudRadioGroup>
             </MudItem>
             <MudItem sm="12" md="6">
                 @if (Model?.Gender == GenderEnum.Female)
                 {
-                    @_messageResources[MessageResources.ShouldTheTestResultBePositiveDoYouFeelYouNeedToHideYourPregnancy]
+                    @_messageLocalizer[MessageResources.ShouldTheTestResultBePositiveDoYouFeelYouNeedToHideYourPregnancy]
                     <MudRadioGroup For="()=>Model.HidePregnancy" @bind-SelectedOption=Model.HidePregnancy>
-                        <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                        <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                        <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                        <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                     </MudRadioGroup>
 
                 }
             </MudItem>
 
             <MudItem sm="12" md="6">
-                @_messageResources[MessageResources.AreYouDisabledAndOrDevelopmentallyDisabled]
+                @_messageLocalizer[MessageResources.AreYouDisabledAndOrDevelopmentallyDisabled]
                 <MudRadioGroup For="()=>Model.Disabled" @bind-SelectedOption=Model.Disabled>
-                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                 </MudRadioGroup>
             </MudItem>
         </MudGrid>
@@ -58,11 +58,11 @@
                 @if (IsBusy)
                 {
                     <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                    <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                    <MudText Class="ms-2">@_viewLocalizer[ViewResources.Processing]</MudText>
                 }
                 else
                 {
-                    @_viewResources[ViewResources.Submit]
+                    @_viewLocalizer[ViewResources.Submit]
                 }
             </MudButton>
         </div>

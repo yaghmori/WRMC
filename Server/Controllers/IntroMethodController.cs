@@ -37,7 +37,7 @@ namespace WRMC.Server.Controllers
             
                 var introMethod = _mapper.Map<IntroMethod>(request);
                 var item = await _unitOfWork.IntroMethods.AddAsync(introMethod);
-                await _unitOfWork.ServerDbContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 return Ok(await Result<string>.SuccessAsync(data: item.Entity.Id.ToString(), message: "IntroMethod successfully created."));
            
@@ -141,7 +141,7 @@ namespace WRMC.Server.Controllers
                 _mapper.Map(requestToPatch, introMethod);
 
                  _unitOfWork.IntroMethods.Update(introMethod);
-                await _unitOfWork.TenantDbContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true, "IntroMethod successfully updated."));
            
 
@@ -166,7 +166,7 @@ namespace WRMC.Server.Controllers
                     return NotFound(await Result.FailAsync("IntroMethod not found."));
 
                 _unitOfWork.IntroMethods.Remove(introMethod);
-                await _unitOfWork.TenantDbContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 return Ok(await Result<bool>.SuccessAsync(true, "IntroMethod successfully deleted."));
            
@@ -183,7 +183,7 @@ namespace WRMC.Server.Controllers
         {
             
                 _unitOfWork.IntroMethods.RemoveAll();
-                await _unitOfWork.TenantDbContext.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return Ok(await Result<bool>.SuccessAsync(true, "All IntroMethods successfully have been deleted."));
             
         }

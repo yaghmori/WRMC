@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.RootComponents.Interfaces;
 
 namespace WRMC.RootComponents.Shared
@@ -15,8 +15,8 @@ namespace WRMC.RootComponents.Shared
         public bool IsSaving { get; set; } = false;
         public bool HasInit { get; set; } = false;
         public bool IsAuthenticated => CurrentUser?.Identity?.IsAuthenticated ?? false;
-        public string CurrentUserId => CurrentUser?.FindFirst(x => x.Type == ApplicationClaimTypes.UserId)?.Value ?? string.Empty;
-        public string CurrentUserEmail => CurrentUser?.FindFirst(x => x.Type == ApplicationClaimTypes.Email)?.Value ?? string.Empty;
+        public string CurrentUserId => CurrentUser?.FindFirst(x => x.Type == AppClaimTypes.UserId)?.Value ?? string.Empty;
+        public string CurrentUserEmail => CurrentUser?.FindFirst(x => x.Type == AppClaimTypes.Email)?.Value ?? string.Empty;
         public ClaimsPrincipal? CurrentUser { get; set; }
 
 

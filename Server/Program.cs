@@ -1,6 +1,7 @@
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -12,10 +13,13 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Server.Services.TokenService;
 using Swashbuckle.AspNetCore.Filters;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Reflection;
-using WRMC.Core.Application.Authorization;
-using WRMC.Core.Shared.Constant;
+using System.Security.Claims;
+using WRMC.Core.Shared.AuthorizationHandler;
+using WRMC.Core.Shared.Constants;
+using WRMC.Core.Shared.Extensions;
 using WRMC.Core.Shared.Helpers;
 using WRMC.Core.Shared.MappingProfile;
 using WRMC.Core.Shared.Requests;
@@ -24,10 +28,11 @@ using WRMC.Core.Shared.Validators;
 using WRMC.Infrastructure.DataAccess.Context;
 using WRMC.Infrastructure.Domain.Entities;
 using WRMC.Infrastructure.UnitOfWork;
+using WRMC.Server.Extensions;
 using WRMC.Server.Hubs;
 using WRMC.Server.Middlewares;
-using WRMC.Server.Validators;
 using WRMC.Server.Services;
+using WRMC.Server.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,18 +56,16 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 
 #endregion
 
-
 #region Validators
 
 builder.Services.AddControllersWithViews()
         .AddFluentValidation(fv =>
         {
-            fv.RegisterValidatorsFromAssemblyContaining<CaseRequestValidator>(); 
+            fv.RegisterValidatorsFromAssemblyContaining<CaseRequestValidator>();
             fv.ImplicitlyValidateChildProperties = true;
         });
 
 builder.Services.AddScoped<IUserValidator, UserRemoteValidator>();
-builder.Services.AddScoped<ITenantValidator, TenantRemoteValidator>();
 builder.Services.AddScoped<IRoleValidator, RoleRemoteValidator>();
 
 #endregion
@@ -86,7 +89,6 @@ builder.Services.AddScoped<MainHub>();
 
 var connectionString = builder.Environment.IsDevelopment() ? builder.Configuration.GetConnectionString("Development_db") : builder.Configuration.GetConnectionString("Production_db");
 builder.Services.AddDbContext<ServerDbContext>(options => options.UseSqlServer(connectionString).EnableDetailedErrors(builder.Environment.IsDevelopment()), ServiceLifetime.Scoped);
-builder.Services.AddDbContext<TenantDbContext>(options => options.UseSqlServer(), ServiceLifetime.Scoped);
 
 #endregion
 
@@ -128,48 +130,61 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 
 #endregion
 
-#region Authentication
+#region Authentication && JWT
 
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
+}).AddJwtBearer((Action<JwtBearerOptions>)(options =>
 {
     options.SaveToken = true;
     options.TokenValidationParameters = ConfigHelper.ValidationParameters;
     options.Events = new JwtBearerEvents
     {
+
+      
         OnTokenValidated = async context =>
         {
             var unitOfWork = context.HttpContext.RequestServices.GetRequiredService<IUnitOfWork>();
-            var userId = context.Principal?.FindFirst(x => x.Type.Equals(ApplicationClaimTypes.UserId))?.Value!;
-            var user = await unitOfWork.Users.FindAsync(Guid.Parse(userId));
-            if (user == null)
+
+            var accessToken = context.SecurityToken as JwtSecurityToken;
+            if (accessToken != null)
             {
-                // return unauthorized if user no longer exists
-                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                context.Response.ContentType = "application/json";
-                var result = JsonConvert.SerializeObject(Result.Fail("User no longer exists."));
-                await context.Response.WriteAsync(result);
+                var userId = context?.Principal?.GetUserId();
+                var session = await unitOfWork.UserSessions.GetFirstOrDefaultAsync(predicate: x => x.AccessToken == accessToken.RawData && x.UserId.ToString().Equals(userId));
+                
+                if (session == null) // return unauthorized if token is not found on user sessions
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    context.Response.ContentType = "application/json";
+                    var result = JsonConvert.SerializeObject(Result.Fail("Token in not valid."));
+                    await context.Response.WriteAsync(result);
+                }
+                else
+                {
+                    IEnumerable<Claim> claims = await ExtractClaims(userId, unitOfWork);
+                    ClaimsIdentity identity = new ClaimsIdentity(claims);
+                    context?.Principal?.AddIdentity(identity);
+                }
             }
         },
-        OnAuthenticationFailed = c =>
+        OnAuthenticationFailed = context =>
         {
-            if (c.Exception is SecurityTokenExpiredException)
+            if (context.Exception is SecurityTokenExpiredException)
             {
-                c.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                c.Response.ContentType = "application/json";
+                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                context.Response.ContentType = "application/json";
                 var result = JsonConvert.SerializeObject(Result.Fail("The Token is expired."));
-                return c.Response.WriteAsync(result);
+                return context.Response.WriteAsync(result);
             }
             else
             {
 
-                c.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                c.Response.ContentType = "application/json";
-                var result = JsonConvert.SerializeObject(Result.Fail("An unhandled error has occurred." + "r\n" + c.Exception.ToString()));
-                return c.Response.WriteAsync(result);
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                context.Response.ContentType = "application/json";
+                var result = JsonConvert.SerializeObject(Result.Fail(messages: context.Exception.GetMessages().ToList()));
+                return context.Response.WriteAsync(result);
 
             }
         },
@@ -194,7 +209,7 @@ builder.Services.AddAuthentication(options =>
         },
     };
 
-});
+}));
 
 #endregion
 
@@ -203,7 +218,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IAuthorizationHandler, PermissionRequirementHandler>();
 builder.Services.AddAuthorizationCore(options =>
 {
-    var permissionList = typeof(ApplicationPermissions).GetNestedTypes().SelectMany(c => c.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy));
+    var permissionList = typeof(AppPermissions).GetNestedTypes().SelectMany(c => c.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy));
     foreach (var permission in permissionList)
     {
         var propertyValue = permission.GetValue(null);
@@ -275,27 +290,18 @@ if (app.Environment.IsDevelopment())
     {
         options.DisplayRequestDuration();
     });
-
 }
 else
 {
     app.UseCors("Origins");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-
 }
 
 app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
-app.UseMiddleware<IdentityMiddleware>();
-
-app.UseWhen(context => context.Request.Path.StartsWithSegments(EndPoints.TenantEndPoint), appBuilder =>
-{
-    app.UseMiddleware<TenantProviderMiddleware>();
-});
-
 app.UseAuthorization();
 
 app.MapControllers();
@@ -305,4 +311,34 @@ app.MapHub<ChatHub>(EndPoints.ChatHub);
 
 app.Run();
 
+static async Task<IEnumerable<Claim>> ExtractClaims(string? userId, IUnitOfWork unitOfWork)
+{
+    //RoleClaims
+    var roles = await unitOfWork.UserRoles.GetAllAsync(predicate: x => x.UserId.ToString().Equals(userId), selector: s => new Role
+    {
+        Id = s.Role.Id,
+        Name = s.Role.Name,
+    });
+    var roleClaims = new List<Claim>();
+    foreach (var role in roles)
+    {
+        roleClaims.Add(new Claim(AppClaimTypes.Role, role.Name));
+        var items = await unitOfWork.RoleClaims.GetAllAsync(predicate: x => x.RoleId == role.Id,
+            selector: s => new Claim(s.ClaimType, s.ClaimValue));
+        roleClaims.AddRange(items);
+    }
 
+    //userClaims
+    var userClaims = new List<Claim>();
+    var permissions = await unitOfWork.UserClaims.GetAllAsync(predicate: x => x.UserId.ToString().Equals(userId),
+       selector: s => new Claim(s.ClaimType, s.ClaimValue));
+    userClaims.AddRange(permissions);
+
+
+
+    var claims = new List<Claim>()
+        .Union(roleClaims, new ClaimComparer())
+        .Union(userClaims, new ClaimComparer());
+
+    return claims;
+}

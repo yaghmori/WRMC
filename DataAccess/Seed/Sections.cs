@@ -1,4 +1,4 @@
-﻿using WRMC.Core.Shared.Constant;
+﻿using WRMC.Core.Shared.Constants;
 using WRMC.Infrastructure.Domain.Entities;
 using WRMC.Infrastructure.Domain.Enums;
 namespace WRMC.Infrastructure.DataAccess.Context
@@ -22,7 +22,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 Order = 1,
                 Visibility = SectionVisibilityEnum.Public,
                 SectionType = SectionTypeEnum.None,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : PregnancyTest
                 Id=Guid.Parse("00000001-6df9-4ecb-86c8-000000000001"),
@@ -38,7 +38,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 IsRequired = true,
                 RequiredPolicy = "-",
                 Order = 1,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : PregnancyTest
                 Id=Guid.Parse("00000002-6df9-4ecb-86c8-000000000002"),
@@ -54,7 +54,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 IsRequired = true,
                 RequiredPolicy = "-",
                 Order = 2,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             }, new Section {//Parent : PregnancyTest
                 Id=Guid.Parse("00000003-6df9-4ecb-86c8-000000000003"),
                 ParentId = Guid.Parse("c3c1384e-9822-49f1-97c5-0d065426329b"),
@@ -69,7 +69,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 IsRequired = true,
                 RequiredPolicy = "-",
                 Order = 3,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : PregnancyTest
                 Id=Guid.Parse("00000004-6df9-4ecb-86c8-000000000004"),
@@ -85,7 +85,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 IsRequired = true,
                 RequiredPolicy = "-",
                 Order = 4,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : PregnancyTest
                 Id=Guid.Parse("00000005-6df9-4ecb-86c8-000000000005"),
@@ -101,7 +101,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 IsRequired = true,
                 RequiredPolicy = "-",
                 Order = 5,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : PregnancyTest
                 Id=Guid.Parse("00000006-6df9-4ecb-86c8-000000000006"),
@@ -117,7 +117,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 IsRequired = true,
                 RequiredPolicy = "-",
                 Order = 6,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : PregnancyTest
                 Id=Guid.Parse("00000007-6df9-4ecb-86c8-000000000007"),
@@ -133,7 +133,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 IsRequired = true,
                 RequiredPolicy = "-",
                 Order = 7,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : PregnancyTest
                 Id=Guid.Parse("00000008-6df9-4ecb-86c8-000000000008"),
@@ -149,7 +149,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 IsRequired = true,
                 RequiredPolicy = "-",
                 Order = 8,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : PregnancyTest
                 Id=Guid.Parse("00000009-6df9-4ecb-86c8-000000000009"),
@@ -165,7 +165,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 IsRequired = true,
                 RequiredPolicy = "-",
                 Order = 9,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : PregnancyTest
                 Id=Guid.Parse("00000010-6df9-4ecb-86c8-000000000010"),
@@ -181,7 +181,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 IsRequired = true,
                 RequiredPolicy = "-",
                 Order = 10,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : PregnancyTest
                 Id=Guid.Parse("00000011-6df9-4ecb-86c8-000000000011"),
@@ -197,7 +197,7 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 IsRequired = true,
                 RequiredPolicy = "-",
                 Order = 11,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step1
                 Id=Guid.NewGuid(),
@@ -211,9 +211,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "DemographicIntake",
                 Command = "Fill Demographic Intake",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.Demographic,
+                RequiredPolicy = AppPermissions.PregnancyTest.Demographic,
                 Order = 1,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
               new Section {//Parent : step1
                 Id=Guid.NewGuid(),
@@ -227,9 +227,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "-",
                 Command = "Fill Medical Info",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.Medical,
+                RequiredPolicy = AppPermissions.PregnancyTest.Medical,
                 Order = 2,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step2
                 Id=Guid.NewGuid(),
@@ -243,9 +243,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "CheckIn",
                 Command = "CheckIn",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.Global.CheckIn,
+                RequiredPolicy = AppPermissions.Global.CheckIn,
                 Order = 1,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step3
                 Id=Guid.NewGuid(),
@@ -259,9 +259,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "QaAssignment",
                 Command = "Take Client",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.QaAssignment,
+                RequiredPolicy = AppPermissions.PregnancyTest.QaAssignment,
                 Order = 1,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step4
                 Id=Guid.NewGuid(),
@@ -275,9 +275,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "Social",
                 Command = "Fill Social",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.Social,
+                RequiredPolicy = AppPermissions.PregnancyTest.Social,
                 Order = 1,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step4
                 Id=Guid.NewGuid(),
@@ -291,9 +291,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "TestResult",
                 Command = "Fill Test Result",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.TestResult,
+                RequiredPolicy = AppPermissions.PregnancyTest.TestResult,
                 Order = 2,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step5
                 Id=Guid.NewGuid(),
@@ -307,9 +307,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "PaAssignment",
                 Command = "Take Client",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.PaAssignment,
+                RequiredPolicy = AppPermissions.PregnancyTest.PaAssignment,
                 Order = 1,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step6
                 Id=Guid.NewGuid(),
@@ -323,9 +323,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "Social",
                 Command = "Review",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.SocialReview,
+                RequiredPolicy = AppPermissions.PregnancyTest.SocialReview,
                 Order = 1,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step7
                 Id=Guid.NewGuid(),
@@ -339,9 +339,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "Decision",
                 Command = "Fill Decision",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.Decision,
+                RequiredPolicy = AppPermissions.PregnancyTest.Decision,
                 Order = 1,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step8
                 Id=Guid.NewGuid(),
@@ -355,9 +355,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "Decision",
                 Command = "Review",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.Decision,
+                RequiredPolicy = AppPermissions.PregnancyTest.Decision,
                 Order = 1,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step9
                 Id=Guid.NewGuid(),
@@ -371,9 +371,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "vulnerability",
                 Command = "Fill Vulnerability",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.Vulnerability,
+                RequiredPolicy = AppPermissions.PregnancyTest.Vulnerability,
                 Order = 1,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step10
                 Id=Guid.NewGuid(),
@@ -387,9 +387,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "ExitSurvey",
                 Command = "Fill Survey",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.ExitSurvey,
+                RequiredPolicy = AppPermissions.PregnancyTest.ExitSurvey,
                 Order = 1,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step10
                 Id=Guid.NewGuid(),
@@ -403,9 +403,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "ARL",
                 Command = "ARL",
                 IsRequired = true,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.RequestList,
+                RequiredPolicy = AppPermissions.PregnancyTest.RequestList,
                 Order = 2,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step11
                 Id=Guid.NewGuid(),
@@ -419,9 +419,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "Spiritual",
                 Command = "Fill Spiritual",
                 IsRequired = false,
-                RequiredPolicy = ApplicationPermissions.PregnancyTest.Spiritual,
+                RequiredPolicy = AppPermissions.PregnancyTest.Spiritual,
                 Order = 1,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
             new Section {//Parent : step11
                 Id=Guid.NewGuid(),
@@ -435,9 +435,9 @@ namespace WRMC.Infrastructure.DataAccess.Context
                 URI = "Checkout",
                 Command = "Check-out",
                 IsRequired = false,
-                RequiredPolicy = ApplicationPermissions.Global.Checkout,
+                RequiredPolicy = AppPermissions.Global.Checkout,
                 Order = 2,
-                Sex = GenderEnum.Female,
+                Gender = GenderEnum.Female,
             },
         };
     }

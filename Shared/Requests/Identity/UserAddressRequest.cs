@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using FluentValidation;
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using WRMC.Core.Shared.Responses;
+using WRMC.Infrastructure.Domain.Entities;
 using WRMC.Infrastructure.Domain.Enums;
 using WRMC.Infrastructure.Localization;
 
@@ -8,13 +10,8 @@ namespace WRMC.Core.Shared.Requests
 {
     public class UserAddressRequest
     {
-        //[Required]
-        //[Display(Name = "UserAddress_Region", ResourceType = typeof(DisplayResources))]
         public string? RegionId { get; set; }
-
-        [Required]
         public RegionResponse SelectedState { get; set; }
-        [Required]
         public RegionResponse SelectedCity
         {
             get { return selectedCity; }
@@ -25,26 +22,26 @@ namespace WRMC.Core.Shared.Requests
             }
         }
         private RegionResponse selectedCity;
-
-
-        [Required]
-        [Display(Name = "UserAddress_AddressType", ResourceType = typeof(DisplayResources))]
-        public AddressTypeEnum? AddressType { get; set; }
-
-        [Required]
-        [Display(Name = "UserAddress_Address", ResourceType = typeof(DisplayResources))]
+        public AddressTypeEnum? Type { get; set; }
         public string Address { get; set; } = default!;
-
-        [Required]
-        [Display(Name = "UserAddress_ZipCode", ResourceType = typeof(DisplayResources))]
         public string? ZipCode { get; set; } = default!;
-
-
-        [Display(Name = "UserAddress_Description", ResourceType = typeof(DisplayResources))]
         public string? Description { get; set; }
-
         public bool IsDefault { get; set; } = false;
         public int? Order { get; set; }
+    }
+    public class UserAddressValidator : AbstractValidator<UserAddressRequest>
+    {
+
+        public UserAddressValidator()
+        {
+
+            RuleFor(x => x.SelectedState).NotEmpty().WithMessage("Selected state is required");
+            RuleFor(x => x.SelectedCity).NotEmpty().WithMessage("Selected city is required");
+            RuleFor(x => x.Type).NotNull().WithMessage("Type is required");
+            RuleFor(x => x.Address).NotEmpty().WithMessage("Address is required");
+            RuleFor(x => x.ZipCode).NotEmpty().WithMessage("Zip code is required");
+        }
+
     }
 
 }

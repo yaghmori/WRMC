@@ -2,8 +2,8 @@
 @if (!IsLoading)
 {
     <div class="d-flex  align-content-center  justify-content-between mb-3">
-        <h5>@_viewResources[ViewResources.Attachments]</h5>
-        <MudButton StartIcon="@Icons.Rounded.AddCircle" Variant="Variant.Filled" OnClick="()=>AddOrUpdateAttachment(null)" Color="Color.Primary">@_viewResources[ViewResources.AddNewAttachment]</MudButton>
+        <h5>@_viewLocalizer[ViewResources.Attachments]</h5>
+        <MudButton StartIcon="@Icons.Rounded.AddCircle" Variant="Variant.Filled" OnClick="()=>AddOrUpdateAttachment(null)" Color="Color.Primary">@_viewLocalizer[ViewResources.AddNewAttachment]</MudButton>
     </div>
 
     <MudDataGrid T="UserAttachmentResponse"
@@ -18,12 +18,12 @@
              FixedHeader="true">
         <NoRecordsContent>
             <div class="height:100px;">
-                <h6 class="text-secondary">@_messageResources[MessageResources.NoRecordFound]</h6>
+                <h6 class="text-secondary">@_messageLocalizer[MessageResources.NoRecordFound]</h6>
             </div>
         </NoRecordsContent>
 
         <Columns>
-            <Column T="UserAttachmentResponse" Field="@nameof(UserAttachmentResponse.Type)" Title="@_displayResources[DisplayResources.UserAttachment_Type]">
+            <Column T="UserAttachmentResponse" Field="@nameof(UserAttachmentResponse.Type)" Title="@_displayLocalizer[DisplayResources.UserAttachment_Type]">
                 <CellTemplate>
                     <div>
                         <i class="far fa-@context.Item.Type.GetDisplayShortName()" />
@@ -32,7 +32,7 @@
                 </CellTemplate>
 
             </Column>
-            <Column T="UserAttachmentResponse" Field="@nameof(UserAttachmentResponse.Description)" Title="@_displayResources[DisplayResources.UserAttachment_Description]" />
+            <Column T="UserAttachmentResponse" Field="@nameof(UserAttachmentResponse.Description)" Title="@_displayLocalizer[DisplayResources.UserAttachment_Description]" />
             <Column Resizable="false" Context="rowData" Sortable="false" T="UserAttachmentResponse">
                 <CellTemplate>
                     <MudButtonGroup Color="Color.Primary" Variant="Variant.Text" Class="d-flex justify-end">

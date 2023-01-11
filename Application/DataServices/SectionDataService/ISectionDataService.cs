@@ -13,8 +13,6 @@ namespace WRMC.Core.Application.DataServices
         Task<IResult<SectionResponse>> GetParentSectionAsync(string sectionId);
         Task<IResult<bool>> UpdateSectionAsync(string sectionId, JsonPatchDocument<SectionRequest> request);
         Task<IResult<bool>> DeleteSectionAsync(string sectionId);
-        Task<IResult<List<SectionClaimResponse>>> GetSectionClaimsAsync(string sectionId);
-        Task<IResult<bool>> UpdateSectionClaimsAsync(string sectionId, List<SectionClaimRequest> request);
         Task<IResult<bool>> DeleteAllSections();
     }
 }

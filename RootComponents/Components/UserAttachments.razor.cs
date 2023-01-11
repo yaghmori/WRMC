@@ -52,8 +52,8 @@ namespace WRMC.RootComponents.Components
             var parameters = new DialogParameters
             {
                 { "Title", item.Type?.GetDisplayDescription() },
-                { "ButtonText", _viewResources[ViewResources.Delete].Value },
-                { "ContentText", _messageResources[MessageResources.DoYouReallyWantToDeleteAttachment].Value },
+                { "ButtonText", _viewLocalizer[ViewResources.Delete].Value },
+                { "ContentText", _messageLocalizer[MessageResources.DoYouReallyWantToDeleteAttachment].Value },
                 { "ButtonColor", Color.Error },
                 { "ButtonIcon", Icons.Rounded.Delete },
                 { "TitleIcon", Icons.Rounded.Delete },
@@ -72,7 +72,7 @@ namespace WRMC.RootComponents.Components
                 if (result.Succeeded)
                 {
                     //TODO : Update Using SignalR
-                    _snackbar.Add(_messageResources[MessageResources.AttachmentSuccessfullyDeleted].Value, Severity.Success);
+                    _snackbar.Add(_messageLocalizer[MessageResources.AttachmentSuccessfullyDeleted].Value, Severity.Success);
                     await LoadUserAttachments();
                 }
                 else

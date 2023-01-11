@@ -12,6 +12,7 @@ using WRMC.Infrastructure.Domain.Entities;
 using WRMC.Infrastructure.UnitOfWork;
 using WRMC.Server.Extensions;
 using WRMC.Core.Shared.Responses;
+using WRMC.Core.Shared.Constants;
 
 namespace WRMC.Server.Controllers
 {
@@ -44,7 +45,7 @@ namespace WRMC.Server.Controllers
             var role = new Role(roleName);
             role.NormalizedName = roleName.Normalize().ToUpper();
             await _unitOfWork.Roles.AddAsync(role);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<string>.SuccessAsync(data: role.Id.ToString(), message: "Role successfully created."));
         }
 
@@ -65,7 +66,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("Role not found."));
 
             _unitOfWork.Roles.Remove(role);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "Role successfully deleted."));
 
         }
@@ -75,7 +76,9 @@ namespace WRMC.Server.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns>OK</returns>
+        
         [HttpDelete("{id}")]
+        [Authorize(Policy =AppPermissions.Global.Role)]
         public async Task<IActionResult> DeleteRoleById(string id)
         {
 
@@ -86,7 +89,7 @@ namespace WRMC.Server.Controllers
             if (role is null) NotFound(await Result.FailAsync("Role not found."));
 
             _unitOfWork.Roles.Remove(role);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "Role successfully deleted."));
 
         }
@@ -113,7 +116,7 @@ namespace WRMC.Server.Controllers
             role.Name = roleName;
             role.NormalizedName = roleName.Normalize().ToUpper();
 
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "Role successfully updated."));
         }
 
@@ -271,7 +274,7 @@ namespace WRMC.Server.Controllers
 
 
             var userRoles = await _unitOfWork.UserRoles.AddAsync(new UserRole(user.Id, role.Id));
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "Role successfully assigned to user."));
 
         }
@@ -300,7 +303,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("userRole not found."));
 
             _unitOfWork.UserRoles.Remove(userRoles);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "userRole successfully deleted."));
 
         }
@@ -331,7 +334,7 @@ namespace WRMC.Server.Controllers
                 ClaimValue = request.ClaimValue,
                 RoleId = role.Id
             });
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<string>.SuccessAsync(userRoles.Entity.Id.ToString(), "Claim successfully added to role."));
 
@@ -355,7 +358,7 @@ namespace WRMC.Server.Controllers
 
             //TODO : find unchanged problem
             _unitOfWork.RoleClaims.Remove(roleClaim);
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, "RoleClaim successfully deleted."));
 
@@ -405,9 +408,9 @@ namespace WRMC.Server.Controllers
             var roleClaims = await _unitOfWork.RoleClaims.GetAllAsync(
                  predicate: x => x.RoleId.ToString().Equals(id));
 
-            var response = _mapper.Map<List<RoleClaimResponse>>(roleClaims);
+            var response = _mapper.Map<List<ClaimResponse>>(roleClaims);
 
-            return Ok(await Result<List<RoleClaimResponse>>.SuccessAsync(response));
+            return Ok(await Result<List<ClaimResponse>>.SuccessAsync(response));
 
         }
 
@@ -438,7 +441,7 @@ namespace WRMC.Server.Controllers
 
             }
 
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "RoleUsers successfully updated."));
 
         }
@@ -466,7 +469,7 @@ namespace WRMC.Server.Controllers
                 if (item is not null)
                     await _unitOfWork.RoleClaims.AddAsync(new RoleClaim { RoleId = role.Id, ClaimType = item.ClaimType, ClaimValue = item.ClaimValue });
             }
-            await _unitOfWork.ServerDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "RoleClaims successfully updated."));
 
         }

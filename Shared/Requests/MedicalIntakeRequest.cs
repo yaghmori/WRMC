@@ -12,19 +12,11 @@ namespace WRMC.Core.Shared.Requests
 
        
         public bool? IsPeriodRemember { get; set; }
-
         public DateTime? LastPeriodDate { get; set; }
         public bool? HaveNormalPeriod { get; set; }
-
-       
         public string? NormalPeriodNote { get; set; }
-
         public short? FirstMenstrualAge { get; set; }
-
-     
         public DateTime? LastSexIntercourse { get; set; } 
-
-
         public List<SymptomsEnum> Symptoms { get; set; }
 
 

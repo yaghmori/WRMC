@@ -17,11 +17,9 @@ namespace WRMC.Core.Shared.Requests
     public class IntakeBaseValidator : AbstractValidator<IntakeBaseRequest>
     {
         public IntakeBaseValidator()
-        {            //Residential
+        { 
             RuleFor(x => x.VisitId).NotEmpty().WithMessage("Please specify visit id"); //TODO : Localization
             RuleFor(x => x.TaskId).NotEmpty().WithMessage("Please specify task id");
-          
-
         }
     }
 

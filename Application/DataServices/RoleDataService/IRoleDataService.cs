@@ -10,7 +10,7 @@ namespace WRMC.Core.Application.DataServices
         Task<IResult<bool>> DeleteRoleAsync(string roleId);
         Task<IResult<RoleResponse>> GetRoleAsync(string roleId);
         Task<IResult<List<RoleResponse>>> GetRolesAsync(string? query = null, string? userId = null);
-        Task<IResult<List<RoleClaimResponse>>> GetRoleClaimsAsync(string roleId);
+        Task<IResult<List<ClaimResponse>>> GetRoleClaimsAsync(string roleId);
         Task<IResult<IPagedList<RoleResponse>>> GetRolesPagedAsync(int page = 0, int pageSize = 10, string query = null);
         Task<IResult<List<BaseUserResponse>>> GetRoleUsersAsync(string roleId);
         Task<IResult<bool>> CheckIfNameExist(string name);

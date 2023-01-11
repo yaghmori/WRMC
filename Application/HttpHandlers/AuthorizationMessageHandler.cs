@@ -5,11 +5,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
-using WRMC.Core.Application.Extensions;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Extensions;
 using WRMC.Core.Shared.Helpers;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.Responses;
+using WRMC.Core.Shared.Constants;
 
 namespace WRMC.Core.Application.Handler
 {
@@ -31,22 +31,22 @@ namespace WRMC.Core.Application.Handler
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var isPersistent = await _localStorage.GetItemAsync<bool>(ApplicationConstants.IsPersistent);
+            var isPersistent = await _localStorage.GetItemAsync<bool>(AppConstants.IsPersistent);
             var jwt_token = string.Empty;
             var refresh_token = string.Empty;
             var tenantId = string.Empty;
 
             if (isPersistent)
             {
-                jwt_token = await _localStorage.GetItemAsync<string>(ApplicationConstants.AccessToken);
-                refresh_token = await _localStorage.GetItemAsync<string>(ApplicationConstants.RefreshToken);
-                tenantId = await _localStorage.GetItemAsync<string>(ApplicationConstants.TenantId);
+                jwt_token = await _localStorage.GetItemAsync<string>(AppConstants.AccessToken);
+                refresh_token = await _localStorage.GetItemAsync<string>(AppConstants.RefreshToken);
+                tenantId = await _localStorage.GetItemAsync<string>(AppConstants.TenantId);
             }
             else
             {
-                jwt_token = await _sessionStorage.GetItemAsync<string>(ApplicationConstants.AccessToken);
-                refresh_token = await _sessionStorage.GetItemAsync<string>(ApplicationConstants.RefreshToken);
-                tenantId = await _sessionStorage.GetItemAsync<string>(ApplicationConstants.TenantId);
+                jwt_token = await _sessionStorage.GetItemAsync<string>(AppConstants.AccessToken);
+                refresh_token = await _sessionStorage.GetItemAsync<string>(AppConstants.RefreshToken);
+                tenantId = await _sessionStorage.GetItemAsync<string>(AppConstants.TenantId);
             }
 
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt_token);
@@ -56,7 +56,7 @@ namespace WRMC.Core.Application.Handler
             var absPath = request?.RequestUri?.AbsolutePath;
             if (tenantId != null && absPath.Contains(EndPoints.TenantEndPoint, StringComparison.InvariantCultureIgnoreCase))
             {
-                request.Headers.Add(ApplicationConstants.TenantId, tenantId);
+                request.Headers.Add(AppConstants.TenantId, tenantId);
             }
 
             #endregion
@@ -65,7 +65,7 @@ namespace WRMC.Core.Application.Handler
 
             if (!string.IsNullOrWhiteSpace(jwt_token))
             {
-                var exp = JwtParser.GetClaimsFromJwt(jwt_token)?.FirstOrDefault(c => c.Type.Equals(ApplicationClaimTypes.Expiration))?.Value;
+                var exp = JwtParser.GetClaimsFromJwt(jwt_token)?.FirstOrDefault(c => c.Type.Equals(AppClaimTypes.Expiration))?.Value;
                 var expTime = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(exp));
                 var diff = expTime - DateTime.UtcNow;
                 if (diff.TotalMinutes <= 1) //need to refresh token
@@ -77,7 +77,7 @@ namespace WRMC.Core.Application.Handler
                         var tokenRequest = new HttpRequestMessage
                         {
                             Method = HttpMethod.Post,
-                            RequestUri = new Uri(ApplicationConstants.ServerBaseAddress + EndPoints.AuthController.RefreshToken),
+                            RequestUri = new Uri(AppConstants.ServerBaseAddress + EndPoints.AuthController.RefreshToken),
                             Content = new StringContent(JsonConvert.SerializeObject(new TokenRequest
                             {
                                 Token = jwt_token,
@@ -88,15 +88,15 @@ namespace WRMC.Core.Application.Handler
                         {
                             var tokenResponse = new TokenResponse();
                             var result = await refreshResponse.ToResult<TokenResponse>();
-                            if (result.Succeeded)
+                            if (result?.Succeeded==true)
                             {
 
                                 if (isPersistent)
-                                    await _localStorage.SetItemAsync(ApplicationConstants.AccessToken, result.Data.AccessToken);
+                                    await _localStorage.SetItemAsync(AppConstants.AccessToken, result.Data.AccessToken);
                                 else
-                                    await _sessionStorage.SetItemAsync(ApplicationConstants.AccessToken, result.Data.AccessToken);
+                                    await _sessionStorage.SetItemAsync(AppConstants.AccessToken, result.Data.AccessToken);
 
-                                await _localStorage.SetItemAsync(ApplicationConstants.RefreshToken, result.Data.RefreshToken);
+                                await _localStorage.SetItemAsync(AppConstants.RefreshToken, result.Data.RefreshToken);
                                 request.Headers.Remove("Authorization");
                                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", result.Data.AccessToken);
 
@@ -104,8 +104,8 @@ namespace WRMC.Core.Application.Handler
                             else
                             {
                                 await _localStorage.ClearAsync();
+                                await _sessionStorage.ClearAsync();
                                 request.Headers.Remove("Authorization");
-                                _navigation.NavigateTo(EndPoints.AuthController.GetToken); //navigate to login or update authstate
                             }
                         }
                     }

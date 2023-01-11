@@ -7,11 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using MudBlazor.Services;
 using System.Reflection;
-using WRMC.Core.Application.Authorization;
 using WRMC.Core.Application.DataServices;
-using WRMC.Core.Application.Extensions;
 using WRMC.Core.Application.Handler;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.AuthorizationHandler;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.MappingProfile;
 using WRMC.Core.Shared.Requests;
 using WRMC.Core.Shared.SignalR;
@@ -42,9 +41,9 @@ namespace WRMC.RootComponents.Extensions
             #region HttpClient
 
             services.AddTransient<HttpAuthorizationHandler>();
-            services.AddHttpClient(ApplicationConstants.ServerHttpClientName, httpClient =>
+            services.AddHttpClient(AppConstants.ServerHttpClientName, httpClient =>
             {
-                httpClient.BaseAddress = new Uri(ApplicationConstants.ServerBaseAddress); ;
+                httpClient.BaseAddress = new Uri(AppConstants.ServerBaseAddress); ;
             }).AddHttpMessageHandler<HttpAuthorizationHandler>();
 
 
@@ -57,7 +56,6 @@ namespace WRMC.RootComponents.Extensions
             services.AddScoped<ICultureDataService, CultureDataService>();
             services.AddScoped<IUserDataService, UserDataService>();
             services.AddScoped<IRoleDataService, RoleDataService>();
-            services.AddScoped<ITenantDataService, TenantDataService>();
             services.AddScoped<IAppSettingDataService, AppSettingDataService>();
             services.AddScoped<IUserSettingDataService, UserSettingDataService>();
             services.AddScoped<ICaseDataService, CaseDataService>();
@@ -74,7 +72,6 @@ namespace WRMC.RootComponents.Extensions
             services.AddValidatorsFromAssemblyContaining<RegisterValidator>();//for ioc
 
             services.AddTransient<IUserValidator, UserRemoteValidator>();
-            services.AddTransient<ITenantValidator, TenantRemoteValidator>();
             services.AddTransient<IRoleValidator, RoleRemoteValidator>();
             
 
@@ -85,7 +82,6 @@ namespace WRMC.RootComponents.Extensions
             services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 
             services.AddScoped<IAuthorizationHandler, PermissionRequirementHandler>();
-            services.AddScoped<IAuthorizationHandler, TenantMemberRequirementHandler>();
 
             services.AddAuthorizationCore(options =>
             {
@@ -93,7 +89,7 @@ namespace WRMC.RootComponents.Extensions
 
 
                 //PemissionPolicy
-                var permissionList = typeof(ApplicationPermissions).GetNestedTypes().SelectMany(c => c.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy));
+                var permissionList = typeof(AppPermissions).GetNestedTypes().SelectMany(c => c.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy));
                 foreach (var permission in permissionList)
                 {
                     var propertyValue = permission.GetValue(null);

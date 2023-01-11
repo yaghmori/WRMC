@@ -6,13 +6,9 @@ namespace WRMC.Infrastructure.Domain.Entities
 {
     public class RoleClaim : IdentityRoleClaim<Guid>,IAuditEntity
     {
-        [Column(Order = 0)]
         public override  int Id { get; set; } = default!;
-        [Column(Order = 1)]
         public override Guid RoleId { get; set; } = default!;
-        [Column(Order = 2)]
         public override string? ClaimType { get; set; }
-        [Column(Order = 3)]
         public override string? ClaimValue { get; set; }
         public virtual Role Role { get; set; }
 

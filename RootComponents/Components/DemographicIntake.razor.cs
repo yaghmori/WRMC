@@ -100,7 +100,7 @@ namespace WRMC.RootComponents.Components
             var result = await _demographicIntakesDataService.UpdateDemographicIntakeAsync(DemographicResponse.Id, patchDoc);
             if (result?.Succeeded == true)
             {
-                _snackbar.Add(_messageResources[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
+                _snackbar.Add(_messageLocalizer[MessageResources.DemographicIntakeSuccessfullyCompleted], Severity.Success);
             }
             else
             {

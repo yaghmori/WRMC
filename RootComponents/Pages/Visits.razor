@@ -3,12 +3,12 @@
 
 @using WRMC.Infrastructure.Domain.Enums
 <div Class="d-flex flex-row align-items-center  justify-content-between  mb-3">
-    <h4>@_viewResources[ViewResources.Visits]</h4>
+    <h4>@_viewLocalizer[ViewResources.Visits]</h4>
     <div Class="d-flex flex-row align-items-center justify-content-between gap-3">
         <MudButton StartIcon="@Icons.Rounded.AddCircle"
                    Variant="Variant.Filled"
                    OnClick="()=>MakeAnAppointmentAsync()"
-                   Color="Color.Primary">@_viewResources[ViewResources.MakeAnAppointment]</MudButton>
+                   Color="Color.Primary">@_viewLocalizer[ViewResources.MakeAnAppointment]</MudButton>
 
 
     </div>

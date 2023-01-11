@@ -2,8 +2,8 @@
 @if (!IsLoading)
 {
     <div class="d-flex  align-content-center  justify-content-between mb-3">
-        <h5>@_viewResources[ViewResources.PhoneNumbers]</h5>
-        <MudButton StartIcon="@Icons.Rounded.AddCircle" Variant="Variant.Filled" OnClick="()=>AddOrUpdatePhoneNumber(null)" Color="Color.Primary">@_viewResources[ViewResources.AddNewNumber]</MudButton>
+        <h5>@_viewLocalizer[ViewResources.PhoneNumbers]</h5>
+        <MudButton StartIcon="@Icons.Rounded.AddCircle" Variant="Variant.Filled" OnClick="()=>AddOrUpdatePhoneNumber(null)" Color="Color.Primary">@_viewLocalizer[ViewResources.AddNewNumber]</MudButton>
     </div>
     <MudDataGrid T="UserPhoneNumberResponse"
              Items="PhoneNumberCollection"
@@ -16,15 +16,15 @@
              FixedHeader="true">
         <NoRecordsContent>
             <div class="height:100px;">
-                <h6 class="text-secondary">@_messageResources[MessageResources.NoRecordFound]</h6>
+                <h6 class="text-secondary">@_messageLocalizer[MessageResources.NoRecordFound]</h6>
             </div>
         </NoRecordsContent>
         <Columns>
-            <Column T="UserPhoneNumberResponse" Field="@nameof(UserPhoneNumberResponse.PhoneNumber)" Title="@_displayResources[DisplayResources.UserPhoneNumber_PhoneNumber]">
+            <Column T="UserPhoneNumberResponse" Field="@nameof(UserPhoneNumberResponse.PhoneNumber)" Title="@_displayLocalizer[DisplayResources.UserPhoneNumber_PhoneNumber]">
                 <CellTemplate>
                     <div class="d-flex flex-column align-items-start justify-content-start gap-1">
                         <div class="d-flex flex-row align-items-center justify-content-start">
-                            <i class="far fa-@context.Item?.PhoneNumberType?.GetDisplayShortName()" />
+                            <i class="far fa-@context.Item?.Type?.GetDisplayShortName()" />
                             <div class="mx-2">@context.Item?.PhoneNumber</div>
                         </div>
                         <small class="mx-1">@context.Item?.Description</small>

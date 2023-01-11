@@ -13,7 +13,7 @@
                            For="@(()=>Model.Employment)"
                            T="EmploymentEnum?"
                            Immediate=true
-                           Label="@_displayResources[DisplayResources.DemographicIntake_EmploymentStatus]"
+                           Label="@_displayLocalizer[DisplayResources.DemographicIntake_EmploymentStatus]"
                            Variant="Variant.Outlined">
                     @foreach (var item in Enum.GetValues(typeof(EmploymentEnum)).Cast<EmploymentEnum?>())
                     {
@@ -28,7 +28,7 @@
                           For="@(() => Model.Occupation)"
                           Required=true
                           Immediate=true
-                          Label="@_displayResources[DisplayResources.DemographicIntake_Occupation]"
+                          Label="@_displayLocalizer[DisplayResources.DemographicIntake_Occupation]"
                           Variant="Variant.Outlined" />
             }
         </MudItem>
@@ -40,7 +40,7 @@
                           For="@(() => Model.Employer)"
                           Required=true
                           Immediate=true
-                          Label="@_displayResources[DisplayResources.DemographicIntake_Employer]"
+                          Label="@_displayLocalizer[DisplayResources.DemographicIntake_Employer]"
                           Variant="Variant.Outlined" />
 
             }
@@ -52,7 +52,7 @@
                        For="@(()=>Model.Income)"
                        T="IncomeEnum?"
                        Immediate=true
-                       Label="@_displayResources[DisplayResources.DemographicIntake_Income]"
+                       Label="@_displayLocalizer[DisplayResources.DemographicIntake_Income]"
                        Variant="Variant.Outlined">
                 @foreach (var item in Enum.GetValues(typeof(IncomeEnum)).Cast<IncomeEnum?>())
                 {
@@ -64,15 +64,15 @@
             <MudTextField @bind-Value="Model.FinancialSupport"
                           For="@(()=>Model.FinancialSupport)"
                           Immediate=true
-                          Label="@_displayResources[DisplayResources.DemographicIntake_FinancialSupportSource]"
-                          HelperText="@_messageResources[MessageResources.WhereDoesYourFinancialSupportComeFrom]"
+                          Label="@_displayLocalizer[DisplayResources.DemographicIntake_FinancialSupportSource]"
+                          HelperText="@_messageLocalizer[MessageResources.WhereDoesYourFinancialSupportComeFrom]"
                           Variant="Variant.Outlined" />
         </MudItem>
 
         <MudItem sm="12" md="3">
             <MudNumericField @bind-Value="Model.NumberOfTaxReturn" T="short?"
                              For="@(()=>Model.NumberOfTaxReturn)"
-                             Label="@_displayResources[DisplayResources.DemographicIntake_NumberOfPeopleOnYourTaxReturn]"
+                             Label="@_displayLocalizer[DisplayResources.DemographicIntake_NumberOfPeopleOnYourTaxReturn]"
                              Immediate=true
                              Variant="Variant.Outlined">
             </MudNumericField>
@@ -80,10 +80,10 @@
         <MudItem sm="12" md="6">
             @if (Model.Income == IncomeEnum.NoIncome || Model.Income == IncomeEnum.WelfareSSIBenefits)
             {
-                @_messageResources[MessageResources.IsYourIncomeCombinedFromMultipleSources]
+                @_messageLocalizer[MessageResources.IsYourIncomeCombinedFromMultipleSources]
                 <MudRadioGroup For="()=>Model.CombinedIncome" @bind-SelectedOption=Model.CombinedIncome>
-                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewResources[ViewResources.Yes]</MudRadio>
-                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewResources[ViewResources.No]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="true">@_viewLocalizer[ViewResources.Yes]</MudRadio>
+                    <MudRadio T="bool?" Color="Color.Primary" Option="false">@_viewLocalizer[ViewResources.No]</MudRadio>
                 </MudRadioGroup>
             }
         </MudItem>

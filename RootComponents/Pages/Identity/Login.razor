@@ -7,17 +7,17 @@
                 <FluentValidator />
 
     <MudText Typo="Typo.h4"
-             GutterBottom="true">@_viewResources[ViewResources.Login]</MudText>
-    <MudText>@_viewResources[ViewResources.NotRegisteredYet] <MudLink Href="@ApplicationURL.Register">@_viewResources[ViewResources.Register]</MudLink></MudText>
+             GutterBottom="true">@_viewLocalizer[ViewResources.Login]</MudText>
+    <MudText>@_viewLocalizer[ViewResources.NotRegisteredYet] <MudLink Href="@AppURL.Register">@_viewLocalizer[ViewResources.Register]</MudLink></MudText>
     <MudTextField @bind-Value="Request.Email"
                   For="@(() => Request.Email)"
-                  Placeholder="@_viewResources[ViewResources.Email]"
+                  Placeholder="@_viewLocalizer[ViewResources.Email]"
                   Variant="Variant.Outlined"
                   Class="my-3"
                   Immediate=true />
     <MudTextField @bind-Value="@Request.Password"
                   For="@(() => Request.Password)"
-                  Placeholder="@_viewResources[ViewResources.Password]"
+                  Placeholder="@_viewLocalizer[ViewResources.Password]"
                   Variant="Variant.Outlined"
                   InputType="@PasswordInput"
                   Adornment="Adornment.End"
@@ -25,23 +25,23 @@
                   OnAdornmentClick="TogglePasswordVisibility"
                   Immediate=true />
     <MudCheckBox @bind-Checked="@Request.IsPersistent" T="bool"
-                 Label="@_viewResources[ViewResources.RememberMe]"
+                 Label="@_viewLocalizer[ViewResources.RememberMe]"
                  Color="Color.Primary"
                  Class="ml-n3 my-2" />
     <MudButton ButtonType="ButtonType.Submit" Disabled="@(!context.Validate() || !context.IsModified() || IsBusy)" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true">
         @if (IsBusy)
         {
             <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-            <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+            <MudText Class="ms-2">@_viewLocalizer[ViewResources.Processing]</MudText>
         }
         else
         {
-            @_viewResources[ViewResources.SignIn]
+            @_viewLocalizer[ViewResources.SignIn]
         }
     </MudButton>
     <div>
         <br />
-        <MudLink Href="@ApplicationURL.ForgotPassword">@_viewResources[ViewResources.ForgotYourPassword]</MudLink>
+        <MudLink Href="@AppURL.ForgotPassword">@_viewLocalizer[ViewResources.ForgotYourPassword]</MudLink>
     </div>
 
 </EditForm>

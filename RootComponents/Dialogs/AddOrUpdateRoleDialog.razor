@@ -5,14 +5,18 @@
     <DialogContent>
 
 
-        <EditForm Model="Role" OnValidSubmit="SaveChangesSubmit">
+        <EditForm Model="Model" OnValidSubmit="SaveChangesSubmit">
             <FluentValidator />
 
             @if (!IsLoading)
             {
-                <MudTextField @bind-Value="@Role.Name" For="() => Role.Name" Label="@_displayResources[DisplayResources.RoleName]" Variant="Variant.Outlined" Immediate="true" />
+                <MudTextField @bind-Value="@Model.Name"
+                          For="() => Model.Name" 
+                          Label="@_displayLocalizer[DisplayResources.RoleName]"
+                          Variant="Variant.Outlined"
+                          Immediate="true" />
                 <div class="d-flex flex-row justify-content-end mt-4 mb-2 gap-2">
-                    <MudButton OnClick="Cancel">@_viewResources[ViewResources.Cancel]</MudButton>
+                    <MudButton OnClick="Cancel">@_viewLocalizer[ViewResources.Cancel]</MudButton>
                     <MudButton Disabled="@(!context.Validate() || !context.IsModified() || IsBusy)"
                            ButtonType="ButtonType.Submit"
                            Class="w-85"
@@ -21,11 +25,11 @@
                         @if (IsBusy)
                         {
                             <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                            <MudText Class="ms-2">@_viewResources[ViewResources.Processing]</MudText>
+                            <MudText Class="ms-2">@_viewLocalizer[ViewResources.Processing]</MudText>
                         }
                         else
                         {
-                            @_viewResources[ViewResources.SaveChanges]
+                            @_viewLocalizer[ViewResources.SaveChanges]
 
                         }
                     </MudButton>

@@ -14,16 +14,11 @@ namespace WRMC.RootComponents.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            _appState.SetAppTitle(_viewResources[ViewResources.Dashboard]);
+            _appState.SetAppTitle(_viewLocalizer[ViewResources.Dashboard]);
             var userResponse = await _userDataService.GetUsersAsync();
             if (userResponse.Succeeded)
             {
                 UserCount = userResponse.Data.Count();
-            }
-            var clientResponse = await _TenantDataService.GetTenantsAsync();
-            if (clientResponse.Succeeded)
-            {
-                TenantCount = clientResponse.Data.Count();
             }
         }
         private int _index = -1; //default value cannot be 0 -> first selectedindex is 0.

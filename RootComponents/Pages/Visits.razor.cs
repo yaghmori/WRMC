@@ -26,7 +26,7 @@ namespace WRMC.RootComponents.Pages
                 FullWidth = true,
                 MaxWidth = MaxWidth.ExtraSmall
             };
-            var dialog = _dialog.Show<SelectServiceDialog>(_viewResources[ViewResources.MakeAnAppointment], parameters, options);
+            var dialog = _dialog.Show<SelectServiceDialog>(_viewLocalizer[ViewResources.MakeAnAppointment], parameters, options);
             var result = await dialog.Result;
             if (!result.Cancelled)
             {

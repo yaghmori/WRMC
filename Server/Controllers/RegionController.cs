@@ -38,7 +38,7 @@ namespace WRMC.Server.Controllers
         {
             var region = _mapper.Map<Region>(request);
             var item = await _unitOfWork.Regions.AddAsync(region);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<string>.SuccessAsync(data: item.Entity.Id.ToString(), message: "Region successfully added."));
 
@@ -188,7 +188,7 @@ namespace WRMC.Server.Controllers
             _mapper.Map(requestToPatch, region);
 
             _unitOfWork.Regions.Update(region);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "Region successfully updated."));
 
 
@@ -212,7 +212,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("Region not found."));
 
             _unitOfWork.Regions.Remove(region);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, "Region successfully deleted."));
 
@@ -231,7 +231,7 @@ namespace WRMC.Server.Controllers
         {
 
             _unitOfWork.Regions.RemoveAll();
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<bool>.SuccessAsync(true, "All regions successfully have been deleted."));
 
         }

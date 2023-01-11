@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using System.Text;
-using WRMC.Core.Application.Extensions;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Extensions;
 using WRMC.Core.Shared.PagedCollections;
 using WRMC.Core.Shared.Responses;
 using WRMC.Core.Shared.ResultWrapper;
+using WRMC.Core.Shared.Constants;
 
 namespace WRMC.Core.Application.DataServices
 {
@@ -29,15 +29,15 @@ namespace WRMC.Core.Application.DataServices
             return await response.ToResult<List<RoleResponse>>();
         }
 
-        public async Task<IResult<List<RoleClaimResponse>>> GetRoleClaimsAsync(string roleId)
+        public async Task<IResult<List<ClaimResponse>>> GetRoleClaimsAsync(string roleId)
         {
             if (string.IsNullOrWhiteSpace(roleId))
-                return await Result<List<RoleClaimResponse>>.FailAsync("RoleId is null or empty.");
+                return await Result<List<ClaimResponse>>.FailAsync("RoleId is null or empty.");
 
             string uri = string.Format(EndPoints.RoleController.GetRoleClaims, roleId);
 
             var response = await _httpClient.GetAsync(uri);
-            return await response.ToResult<List<RoleClaimResponse>>();
+            return await response.ToResult<List<ClaimResponse>>();
         }
 
         public async Task<IResult<IPagedList<RoleResponse>>> GetRolesPagedAsync(int page = 0, int pageSize = 10, string query = null)

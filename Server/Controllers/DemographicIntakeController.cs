@@ -38,26 +38,9 @@ namespace WRMC.Server.Controllers
         {
             //TODO : PagedResult
             var results = await _unitOfWork.DemographicIntakes.GetAllAsync(
-                include: i => i.Include(x => x.Visit).ThenInclude(x => x.Case));
+                include: i => i.Include(x => x.Visit).ThenInclude(x => x.Case).ThenInclude(x => x.User).ThenInclude(x => x.UserProfile)
+                .Include(x => x.Region).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent));
             var responses = new List<DemographicIntakeResponse>();
-
-            //TODO : Resolve Code Redundancy
-            //MultiTenancy
-            foreach (var item in results)
-            {
-                var response = _mapper.Map<DemographicIntakeResponse>(item);
-
-                var userId = item?.Visit?.Case?.UserId;
-                var userProfile = await _unitOfWork.UserProfiles.GetFirstOrDefaultAsync(predicate: x => x.UserId.ToString().Equals(userId));
-
-                var regionId = item?.RegionId;
-               var region = await _unitOfWork.Regions.GetFirstOrDefaultAsync(predicate: x => x.Id.Equals(regionId),
-                    include: i => i.Include(x => x.Parent));
-
-                response.Region = _mapper.Map<RegionResponse>(region);
-                response.Gender = userProfile?.Gender;
-                responses.Add(response);
-            }
 
             return Ok(await Result<List<DemographicIntakeResponse>>.SuccessAsync(responses));
 
@@ -78,26 +61,10 @@ namespace WRMC.Server.Controllers
 
             var result = await _unitOfWork.DemographicIntakes.GetFirstOrDefaultAsync(
                 predicate: x => x.Id.ToString().Equals(id),
-               include: i => i.Include(x => x.Visit).ThenInclude(x => x.Case));
+              include: i => i.Include(x => x.Visit).ThenInclude(x => x.Case).ThenInclude(x => x.User).ThenInclude(x => x.UserProfile)
+                .Include(x => x.Region).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent));
 
-            //TODO : Resolve Code Redundancy
-            //MultiTenancy          
             var response = _mapper.Map<DemographicIntakeResponse>(result);
-            if (result != null)
-            {
-
-                var userId = result.Visit?.Case?.UserId;
-                var userProfile = await _unitOfWork.UserProfiles.GetFirstOrDefaultAsync(predicate: x => x.UserId.ToString().Equals(userId));
-
-                var regionId = result.RegionId;
-                var region = await _unitOfWork.Regions.GetFirstOrDefaultAsync(predicate: x => x.Id.Equals(regionId),
-                     include: i => i.Include(x => x.Parent));
-
-                response.Region = _mapper.Map<RegionResponse>(region);
-                response.Gender = userProfile?.Gender;
-
-                response.Gender = userProfile.Gender;
-            }
             return Ok(await Result<DemographicIntakeResponse>.SuccessAsync(response));
 
         }
@@ -118,26 +85,10 @@ namespace WRMC.Server.Controllers
 
             var result = await _unitOfWork.DemographicIntakes.GetFirstOrDefaultAsync(
                 predicate: x => x.TaskId.ToString().Equals(taskId),
-               include: i => i.Include(x => x.Visit).ThenInclude(x => x.Case));
+              include: i => i.Include(x => x.Visit).ThenInclude(x => x.Case).ThenInclude(x => x.User).ThenInclude(x => x.UserProfile)
+                .Include(x => x.Region).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent).ThenInclude(x => x.Parent));
 
-            //TODO : Resolve Code Redundancy
-            //MultiTenancy
             var response = _mapper.Map<DemographicIntakeResponse>(result);
-            if (result != null)
-            {
-
-                var userId = result.Visit?.Case?.UserId;
-                var userProfile = await _unitOfWork.UserProfiles.GetFirstOrDefaultAsync(predicate: x => x.UserId.ToString().Equals(userId));
-
-                var regionId = result.RegionId;
-                var region = await _unitOfWork.Regions.GetFirstOrDefaultAsync(predicate: x => x.Id.Equals(regionId),
-                     include: i => i.Include(x => x.Parent));
-
-                response.Region = _mapper.Map<RegionResponse>(region);
-                response.Gender = userProfile?.Gender;
-
-                response.Gender = userProfile.Gender;
-            }
 
             return Ok(await Result<DemographicIntakeResponse>.SuccessAsync(response));
 
@@ -175,7 +126,7 @@ namespace WRMC.Server.Controllers
                 IsComplete = request.IsComplete,
             });
 
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<string>.SuccessAsync(data: demographicIntake.Entity.Id.ToString(), message: "Demographic Intake successfully created."));
 
         }
@@ -206,7 +157,7 @@ namespace WRMC.Server.Controllers
             demographicIntake.Visit = null;
 
             await _unitOfWork.DemographicIntakes.AddAsync(demographicIntake);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(await Result<string>.SuccessAsync(data: demographicIntake.Id.ToString(), message: "Demographic Intake successfully created."));
 
         }
@@ -228,7 +179,7 @@ namespace WRMC.Server.Controllers
                 return NotFound(await Result.FailAsync("Demographic Intake not found."));
 
             _unitOfWork.DemographicIntakes.Remove(demographicIntake);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, "Demographic Intake successfully deleted."));
 
@@ -256,7 +207,7 @@ namespace WRMC.Server.Controllers
             _mapper.Map(demographicIntakeRequest, demographicIntake);
 
             _unitOfWork.DemographicIntakes.Update(demographicIntake);
-            await _unitOfWork.TenantDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(await Result<bool>.SuccessAsync(true, "Demographic Intake successfully updated."));
 

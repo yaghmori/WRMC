@@ -19,7 +19,7 @@
                             </MudHidden>
 
                             <MudHidden Breakpoint="Breakpoint.Xs" Class="mx-1">
-                                <MudText Typo="Typo.h6">@_viewResources[ViewResources.AppTitle]</MudText>
+                                <MudText Typo="Typo.h6">@_viewLocalizer[ViewResources.AppTitle]</MudText>
                                 <MudSpacer />
 
                                 <MudIconButton Color="Color.Inherit" Icon="@Icons.Filled.NotificationsNone" />
@@ -31,7 +31,7 @@
 
                         <MudDrawer Width="300px" @bind-Open="IsDrawerOpen" Breakpoint="Breakpoint.Lg">
                                 <MudNavMenu Bordered="true" Rounded="true" Color="Color.Primary" Class="pa-2">
-                                    <MudNavLink Href="@ApplicationURL.Profile">
+                                    <MudNavLink Href="@AppURL.Profile">
                                         <PersonCard Name="@User?.Email" Description="@User?.UserProfile?.FullName" Image="@User?.UserProfile?.ProfileImage" />
                                     </MudNavLink>
                                     <MudDivider Class="mb-4" />
@@ -51,7 +51,7 @@
         <RedirectToLogin/>
     </NotAuthorized>
     <Authorizing>
-        <Loading Content="@_viewResources[ViewResources.Authorizing]"/>
+        <Loading Content="@_viewLocalizer[ViewResources.Authorizing]"/>
     </Authorizing>
 
 </AuthorizeView>

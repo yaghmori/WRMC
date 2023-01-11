@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
-using WRMC.Core.Shared.Constant;
+using WRMC.Core.Shared.Constants;
 using WRMC.Core.Shared.PagedCollections;
 using WRMC.Core.Shared.Responses;
 using WRMC.Infrastructure.Localization;
@@ -20,7 +20,7 @@ namespace WRMC.RootComponents.Pages.Identity
 
         protected override async Task OnInitializedAsync()
         {
-            _appState.SetAppTitle(_viewResources[ViewResources.Roles]);
+            _appState.SetAppTitle(_viewLocalizer[ViewResources.Roles]);
         }
         private async Task AddOrRemoveUsers(RoleResponse role)
         {
@@ -62,7 +62,7 @@ namespace WRMC.RootComponents.Pages.Identity
             if (item == null) //New
             {
                 parameters.Add("RoleId", string.Empty);
-                title = _viewResources[ViewResources.AddNewRole];
+                title = _viewLocalizer[ViewResources.AddNewRole];
             }
             else //Edit
             {
@@ -72,7 +72,7 @@ namespace WRMC.RootComponents.Pages.Identity
                 {
                     users = usersResponse.Data.Select(x => x.Id).ToList();
                 }
-                title = _viewResources[ViewResources.UpdateRole];
+                title = _viewLocalizer[ViewResources.UpdateRole];
             }
 
             var options = new DialogOptions()
@@ -89,8 +89,8 @@ namespace WRMC.RootComponents.Pages.Identity
             var parameters = new DialogParameters
             {
                 { "Title", role.Name },
-                { "ButtonText", _viewResources[ViewResources.DeleteRole].Value },
-                { "ContentText", _messageResources[MessageResources.DoYouReallyWantToDeleteRole, role.Name].Value },
+                { "ButtonText", _viewLocalizer[ViewResources.DeleteRole].Value },
+                { "ContentText", _messageLocalizer[MessageResources.DoYouReallyWantToDeleteRole, role.Name].Value },
                 { "ButtonColor", Color.Error },
                 { "ButtonIcon", Icons.Rounded.Delete },
                 { "TitleIcon", Icons.Rounded.Delete },
@@ -110,7 +110,7 @@ namespace WRMC.RootComponents.Pages.Identity
                 var result = await _roleDataService.DeleteRoleAsync(role.Id);
                 if (result.Succeeded)
                 {
-                    _snackbar.Add(_messageResources[MessageResources.RoleSuccessfullyDeleted], Severity.Success);
+                    _snackbar.Add(_messageLocalizer[MessageResources.RoleSuccessfullyDeleted], Severity.Success);
                     await _mudDataGrid.ReloadServerData();
                 }
                 else
@@ -118,7 +118,7 @@ namespace WRMC.RootComponents.Pages.Identity
                     foreach (var message in result.Messages)
                     {
                         _snackbar.Add(message, Severity.Error);
-                        //_snackbar.Add(_messageResources[MessageResources.DeletingRoleFailed"].Value, Severity.Error);
+                        //_snackbar.Add(_messageLocalizer[MessageResources.DeletingRoleFailed"].Value, Severity.Error);
 
                     }
                 }
