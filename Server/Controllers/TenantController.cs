@@ -338,10 +338,11 @@ namespace WRMC.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateDatabase(string id)
         {
+            try
+            {
 
-
-                if (string.IsNullOrWhiteSpace(id))
-                    return BadRequest(await Result.FailAsync("Invalid request id."));
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(await Result.FailAsync("Invalid request id."));
 
                 var tenant = await _unitOfWork.Tenants.FindAsync(Guid.Parse(id));
                 if (tenant is null)
@@ -350,14 +351,15 @@ namespace WRMC.Server.Controllers
                 tenant.ConnectionString = string.Format(tenant.ConnectionString, id);
                 await _unitOfWork.ServerDbContext.SaveChangesAsync();
 
-                _unitOfWork.TenantDbContext.Database.SetConnectionString(tenant.ConnectionString);
-                TenantDbContext.ConnectionString = tenant.ConnectionString;
-                var result = await _unitOfWork.TenantDbContext.Database.EnsureCreatedAsync();
-                if (result)
-                    return Ok(await Result.SuccessAsync("Database created successfully."));
-                else
-                    return StatusCode(StatusCodes.Status500InternalServerError,
-                        await Result.FailAsync("Create database failed."));
+            _unitOfWork.TenantDbContext.Database.SetConnectionString(tenant.ConnectionString);
+            TenantDbContext.ConnectionString = tenant.ConnectionString;
+            var result = await _unitOfWork.TenantDbContext.Database.EnsureCreatedAsync();
+            if (result)
+                return Ok(await Result.SuccessAsync("Database created successfully."));
+            else
+                return StatusCode(StatusCodes.Status500InternalServerError, await Result.FailAsync("Create database failed."));
+
+           
 
         }
 
